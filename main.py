@@ -30,7 +30,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     sampler_learning_rate = 0.0001
     generator_learning_rate = 0.0001
-    discriminator_learning_rate = 0.0000001
+    discriminator_learning_rate = 0.0002
 
     sampling_rate = 16000
     num_mcep = 23
