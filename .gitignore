@@ -1,0 +1,7 @@
+/data
+/validation_output
+/txt_files
+/model
+/log
+/pitch_spect
+*.simg
