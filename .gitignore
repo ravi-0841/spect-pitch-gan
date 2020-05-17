@@ -8,3 +8,5 @@
 *.simg
 /.cache
 /.config
+/.nv
+/.keras
