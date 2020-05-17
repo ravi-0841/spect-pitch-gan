@@ -6,3 +6,5 @@
 /pitch_spect
 /__pycache__
 *.simg
+/.cache
+/.config

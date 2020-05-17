@@ -316,7 +316,7 @@ class VariationalCycleGAN(object):
     def test(self, input_pitch, input_mfc, direction):
 
         if direction == 'A2B':
-            generation_pitch, gneration_mfc = self.sess.run([self.pitch_A2B_test, 
+            generation_pitch, generation_mfc = self.sess.run([self.pitch_A2B_test, 
                 self.mfc_A2B_test], feed_dict = {self.pitch_A_test:input_pitch, 
                     self.mfc_A_test:input_mfc})
         

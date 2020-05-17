@@ -181,7 +181,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.legend(loc=2)
 
                 pylab.title('Epoch '+str(epoch)+' example '+str(i+1))
-                pylab.savefig('./pitch_lvi/'+lc_lm+'/'\
+                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
                         +str(epoch)+'_'+str(i+1)+'.png')
                 pylab.close()
         
