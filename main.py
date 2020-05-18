@@ -28,9 +28,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     num_epochs = 1000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
-    sampler_learning_rate = 0.0001
     generator_learning_rate = 0.0001
-    discriminator_learning_rate = 0.0000001
+    discriminator_learning_rate = 0.000001
 
     sampling_rate = 16000
     num_mcep = 23
@@ -143,7 +142,6 @@ def train(train_dir, model_dir, model_name, random_seed, \
                     mfc_B=mfc_B[start:end], pitch_A=pitch_A[start:end], 
                     pitch_B=pitch_B[start:end], lambda_cycle_pitch=lambda_cycle_pitch, 
                     lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta, 
-                    sampler_learning_rate=sampler_learning_rate, 
                     generator_learning_rate=generator_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
@@ -232,9 +230,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         f0_conv[z_idx] = 0.0
                         sp_conv = np.squeeze(np.transpose(sp_conv, (0,2,1)))
                         sp_conv = preproc.world_decode_spectral_envelope(sp_conv, fs=sampling_rate)
-                        sp_conv = np.ascontiguousarray(sp_conv)
-                        f0_conv = np.ascontiguousarray(f0_conv)
-                        ap_conv = np.ascontiguousarray(ap)
+                        sp_conv = np.copy(sp_conv, order='C')
+                        f0_conv = np.copy(f0_conv, order='C')
+                        ap_conv = np.copy(ap, order='C')
                         
                         wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
                                 decoded_sp=sp_conv, ap=ap_conv, fs=sampling_rate, 

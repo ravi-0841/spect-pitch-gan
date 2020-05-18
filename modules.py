@@ -3,7 +3,7 @@ from nn_modules import *
 
 
 def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
-                       scope_name='sampler'):
+                       scope_name='sampler_generator'):
 
     # Inputs have shape [batch_size, num_features, time]
     inputs = tf.concat([input_mfc, input_pitch], axis=1, \
