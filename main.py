@@ -208,13 +208,17 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         filepath = os.path.join(validation_dir, file)
                         wav = scwav.read(filepath)
                         wav = wav[1].astype(np.float64)
-                        wav = preproc.wav_padding(wav = wav, sr = sampling_rate, \
-                                frame_period = frame_period, multiple = 4)
-                        f0, sp, ap = preproc.world_decompose(wav = wav, \
-                                        fs = sampling_rate, frame_period = frame_period)
+                        wav = preproc.wav_padding(wav=wav, 
+                                                  sr=sampling_rate, 
+                                                  frame_period=frame_period, 
+                                                  multiple=4)
+                        f0, sp, ap = preproc.world_decompose(wav=wav, 
+                                                             fs=sampling_rate, 
+                                                             frame_period=frame_period)
 
-                        code_sp = preproc.world_encode_spectral_envelope(sp, \
-                                    sampling_rate, dim=num_mcep)
+                        code_sp = preproc.world_encode_spectral_envelope(sp, 
+                                                                         sampling_rate, 
+                                                                         dim=num_mcep)
                         f0 = scisig.medfilt(f0, kernel_size=3)
                         z_idx = np.where(f0<10.0)[0]
 
@@ -224,21 +228,25 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         code_sp = np.reshape(code_sp, (1,-1,num_mcep))
                         code_sp = np.transpose(code_sp, (0,2,1))
 
-                        f0_conv, sp_conv = model.test(input_pitch=f0, \
-                                                    input_mfc=code_sp, \
-                                                    direction='A2B')
+                        f0_conv, sp_conv = model.test(input_pitch=f0, 
+                                                      input_mfc=code_sp, 
+                                                      direction='A2B')
 
-                        f0_conv = np.asarray(np.reshape(f0_conv,(-1,)), np.float64)
+                        f0_conv = np.asarray(np.reshape(f0_conv,(-1,)), 
+                                             np.float64)
                         f0_conv[z_idx] = 0.0
                         sp_conv = np.squeeze(np.transpose(sp_conv, (0,2,1)))
-                        sp_conv = preproc.world_decode_spectral_envelope(sp_conv, fs=sampling_rate)
-                        sp_conv = np.ascontiguousarray(sp_conv)
-                        f0_conv = np.ascontiguousarray(f0_conv)
-                        ap_conv = np.ascontiguousarray(ap)
+                        sp_conv = np.asarray(sp_conv.copy(order='C'), 
+                                             np.float64)
+                        sp_conv = preproc.world_decode_spectral_envelope(sp_conv, 
+                                                                         fs=sampling_rate)
+                        sp_conv = sp_conv.copy(order='C')
+                        f0_conv = f0_conv.copy(order='C')
+                        ap_conv = ap.copy(order='C')
                         
                         wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
-                                decoded_sp=sp_conv, ap=ap_conv, fs=sampling_rate, 
-                                frame_period=frame_period)
+                                            decoded_sp=sp_conv, ap=ap_conv, 
+                                            fs=sampling_rate, frame_period=frame_period)
                         librosa.output.write_wav(os.path.join(validation_output_dir, \
                                 os.path.basename(file)), wav_transformed, sampling_rate)
                     except Exception as ex:
