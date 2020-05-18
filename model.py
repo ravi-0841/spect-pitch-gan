@@ -172,9 +172,9 @@ class VariationalCycleGAN(object):
         # Merge the two sampler-generator, the cycle loss and momenta prior
         self.sampler_generator_loss \
             = (1-self.lambda_cycle_pitch-self.lambda_momenta-self.lambda_cycle_mfc)*self.gen_disc_loss \
-            + self.lambda_cycle_pitch * self.cycle_loss_pitch \
-            + self.lambda_cycle_mfc * self.cycle_loss_mfc \
-            + self.lambda_momenta * self.momenta_loss
+                + self.lambda_cycle_pitch * self.cycle_loss_pitch \
+                + self.lambda_cycle_mfc * self.cycle_loss_mfc \
+                + self.lambda_momenta * self.momenta_loss
 
         # Compute the discriminator probability for pair of inputs
         self.discrimination_input_A_real_B_fake \
@@ -202,7 +202,7 @@ class VariationalCycleGAN(object):
                     y_hat=self.discrimination_input_A_real_B_fake)
         self.discriminator_loss_input_A_fake \
             = l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
-                    y_hat = self.discrimination_input_A_fake_B_real)
+                    y_hat=self.discrimination_input_A_fake_B_real)
         self.discriminator_loss_A = (self.discriminator_loss_input_A_real \
                                      + self.discriminator_loss_input_A_fake) / 2.0
 
@@ -211,7 +211,7 @@ class VariationalCycleGAN(object):
                     y_hat=self.discrimination_input_B_real_A_fake)
         self.discriminator_loss_input_B_fake \
             = l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
-                    y_hat = self.discrimination_input_B_fake_A_real)
+                    y_hat=self.discrimination_input_B_fake_A_real)
         self.discriminator_loss_B = (self.discriminator_loss_input_B_real \
                                      + self.discriminator_loss_input_B_fake) / 2.0
 
@@ -250,15 +250,15 @@ class VariationalCycleGAN(object):
                 name='discriminator_learning_rate')
         self.discriminator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.discriminator_learning_rate, \
-                beta1 = 0.5).minimize(self.discriminator_loss, \
-                var_list = self.discriminator_vars)
+                beta1=0.5).minimize(self.discriminator_loss, \
+                var_list=self.discriminator_vars)
         self.generator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, \
-                beta1 = 0.5).minimize(self.sampler_generator_loss, \
+                beta1=0.5).minimize(self.sampler_generator_loss, \
                 var_list=self.generator_vars) 
         self.sampler_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.sampler_learning_rate, \
-                beta1 = 0.5).minimize(self.sampler_generator_loss, \
+                beta1=0.5).minimize(self.sampler_generator_loss, \
                 var_list=self.sampler_vars) 
 
 
