@@ -1,7 +1,7 @@
 #! /bin/bash
 
-cycle_array_pitch=( 1e-06 1e-04 0.01 )
-cycle_array_mfc=( 1e-05 0.001 0.01 )
+cycle_array_pitch=( 1e-8 1e-06 1e-04 )
+cycle_array_mfc=( 1e-7 1e-05 0.001 )
 momenta_array=( 1e-06 1e-05 1e-04 )
 
 counter=1

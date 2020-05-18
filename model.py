@@ -260,7 +260,7 @@ class VariationalCycleGAN(object):
             discriminator_learning_rate):
 
         momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
-                generation_pitch_A, generation_mfc_A, sampler_generator_loss, _, _ \
+                generation_pitch_A, generation_mfc_A, sampler_generator_loss, _ \
                 = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.gen_disc_loss, self.generator_optimizer], 
