@@ -30,7 +30,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     sampler_learning_rate = 0.0001
     generator_learning_rate = 0.0001
-    discriminator_learning_rate = 0.0002
+    discriminator_learning_rate = 0.0000001
 
     sampling_rate = 16000
     num_mcep = 23
@@ -233,9 +233,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         sp_conv = np.squeeze(np.transpose(sp_conv, (0,2,1)))
                         sp_conv = preproc.world_decode_spectral_envelope(sp_conv, fs=sampling_rate)
                         sp_conv = np.ascontiguousarray(sp_conv)
+                        f0_conv = np.ascontiguousarray(f0_conv)
+                        ap_conv = np.ascontiguousarray(ap)
                         
                         wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
-                                decoded_sp=sp_conv, ap=ap, fs=sampling_rate, 
+                                decoded_sp=sp_conv, ap=ap_conv, fs=sampling_rate, 
                                 frame_period=frame_period)
                         librosa.output.write_wav(os.path.join(validation_output_dir, \
                                 os.path.basename(file)), wav_transformed, sampling_rate)
