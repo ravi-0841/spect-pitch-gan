@@ -229,7 +229,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         f0_conv = np.asarray(np.reshape(f0_conv,(-1,)), np.float64)
                         f0_conv[z_idx] = 0.0
                         sp_conv = np.squeeze(np.transpose(sp_conv, (0,2,1)))
-                        sp_conv = sp_conv.copy(order='C')
+                        sp_conv = np.asarray(sp_conv.copy(order='C'), np.float64)
                         sp_conv = preproc.world_decode_spectral_envelope(sp_conv, 
                                         fs=sampling_rate)
                         sp_conv = sp_conv.copy(order='C')
