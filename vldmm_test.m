@@ -2,12 +2,12 @@
 
 addpath(genpath('./'));
 close all
-% data = load('./data/cmu-arctic.mat');
+data = load('./data/cmu-arctic.mat');
 sample = randperm(size(data.src_f0_feat,1));
 sample = sample(1);
-% src_feat = double(squeeze(data.src_f0_feat(sample,:,:)));
-% tar_feat = double(squeeze(data.tar_f0_feat(sample,:,:)));
-% momentum = double(squeeze(data.momenta_f0(sample,:,:)));
+src_feat = double(squeeze(data.src_f0_feat(sample,:,:)));
+tar_feat = double(squeeze(data.tar_f0_feat(sample,:,:)));
+momentum = double(squeeze(data.momenta_f0_A2B(sample,:,:)));
 
 q = randperm(size(src_feat,1));
 q = q(1);
@@ -71,19 +71,22 @@ for t=1:1:defo.nb_euler_steps+1
     plot(Y(:,1),Y(:,2),'Marker','o','Color','b');
     quiver(xtemp(:,1),xtemp(:,2),p1temp(:,1),p1temp(:,2),0,'Linewidth',1,'Color','g')
 %    axis([-2,2,-2,2])
-%    axis equal 
-    frame = getframe(fig);
-    im = frame2im(frame);
-    [imind, cm] = rgb2ind(im,256);
-    if t==1
-        imwrite(imind, cm, '/home/ravi/Desktop/warping.gif', 'gif', ...
-            'LoopCount', inf);
-    else
-        imwrite(imind, cm, '/home/ravi/Desktop/warping.gif', 'gif', ...
-            'WriteMode', 'append');
-    end
+%    axis equal
+%
+%     Creating the gif
+%     frame = getframe(fig);
+%     im = frame2im(frame);
+%     [imind, cm] = rgb2ind(im,256);
+%     if t==1
+%         imwrite(imind, cm, '/home/ravi/Desktop/warping4.gif', 'gif', ...
+%             'LoopCount', inf);
+%     else
+%         imwrite(imind, cm, '/home/ravi/Desktop/warping4.gif', 'gif', ...
+%             'WriteMode', 'append');
+%     end
+%
 % axis off
 % print(fig,['example',num2str(t)],'-dpng')
-    pause(0.1)
+    pause(0.01)
 
 end
