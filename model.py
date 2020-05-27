@@ -133,11 +133,13 @@ class VariationalCycleGAN(object):
         # Generator Discriminator Loss
         self.discrimination_B_fake = self.discriminator(input1=tf.concat([self.mfc_A_real, 
             self.pitch_A_real], axis=1), input2=tf.concat([self.mfc_generation_A2B, 
-                self.pitch_generation_A2B], axis=1), reuse=False, scope_name='discriminator_A')
+                self.pitch_generation_A2B], axis=1), inter_input1=self.pitch_A_real, 
+            inter_input2=self.pitch_generation_A2B, reuse=False, scope_name='discriminator_A')
 
         self.discrimination_A_fake = self.discriminator(input1=tf.concat([self.mfc_B_real, 
             self.pitch_B_real], axis=1), input2=tf.concat([self.mfc_generation_B2A, 
-                self.pitch_generation_B2A], axis=1), reuse=False, scope_name='discriminator_B')
+                self.pitch_generation_B2A], axis=1), inter_input1=self.pitch_B_real, 
+            inter_input2=self.pitch_generation_B2A, reuse=False, scope_name='discriminator_B')
 
         # Cycle loss
         self.cycle_loss_pitch = (l1_loss(y=self.pitch_A_real, 
@@ -179,20 +181,24 @@ class VariationalCycleGAN(object):
         # Compute the discriminator probability for pair of inputs
         self.discrimination_input_A_real_B_fake \
             = self.discriminator(input1=tf.concat([self.mfc_A_real, self.pitch_A_real], axis=1), 
-                    input2=tf.concat([self.mfc_B_fake, self.pitch_B_fake], axis=1), reuse=True, 
+                    input2=tf.concat([self.mfc_B_fake, self.pitch_B_fake], axis=1), 
+                    inter_input1=self.pitch_A_real, inter_input2=self.pitch_B_fake, reuse=True, 
                     scope_name='discriminator_A')
         self.discrimination_input_A_fake_B_real \
             = self.discriminator(input1=tf.concat([self.mfc_A_fake, self.pitch_A_fake], axis=1), 
-                    input2=tf.concat([self.mfc_B_real, self.pitch_B_real], axis=1), reuse=True, 
+                    input2=tf.concat([self.mfc_B_real, self.pitch_B_real], axis=1), 
+                    inter_input1=self.pitch_A_fake, inter_input2=self.pitch_B_real, reuse=True, 
                     scope_name='discriminator_A')
 
         self.discrimination_input_B_real_A_fake \
             = self.discriminator(input1=tf.concat([self.mfc_B_real, self.pitch_B_real], axis=1), 
-                    input2=tf.concat([self.mfc_A_fake, self.pitch_A_fake], axis=1), reuse=True, 
+                    input2=tf.concat([self.mfc_A_fake, self.pitch_A_fake], axis=1), 
+                    inter_input1=self.pitch_B_real, inter_input2=self.pitch_A_fake, reuse=True, 
                     scope_name='discriminator_B')
         self.discrimination_input_B_fake_A_real \
             = self.discriminator(input1=tf.concat([self.mfc_B_fake, self.pitch_B_fake], axis=1), 
-                    input2=tf.concat([self.mfc_A_real, self.pitch_A_real], axis=1), reuse=True, 
+                    input2=tf.concat([self.mfc_A_real, self.pitch_A_real], axis=1), 
+                    inter_input1=self.pitch_B_fake, inter_input2=self.pitch_A_real, reuse=True, 
                     scope_name='discriminator_B')
 
 

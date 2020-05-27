@@ -145,7 +145,8 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
         return o2
     
 
-def discriminator(input1, input2, reuse = False, scope_name = 'discriminator'):
+def discriminator(input1, input2, inter_input1, inter_input2, 
+        reuse=False, scope_name='discriminator'):
 
     # input1 and input2 has shape [batch_size, num_features, time]
     input1 = tf.transpose(input1, perm=[0,2,1], \
@@ -155,8 +156,12 @@ def discriminator(input1, input2, reuse = False, scope_name = 'discriminator'):
 
     inputs = tf.concat([input1,input2], axis=-1)
 
-#    inputs = tf.transpose(inputs, perm=[0, 2, 1], \
-#                name='discriminator_input_transpose')
+    inter_input1 = tf.transpose(inter_input1, perm=[0,2,1], \
+                          name="discriminator_inter_input1_transpose")
+    inter_input2 = tf.transpose(inter_input2, perm=[0,2,1], \
+                          name="discriminator_inter_input2_transpose")
+
+    inter_inputs = tf.concat([inter_input1, inter_input2], axis=-1)
 
     with tf.variable_scope(scope_name) as scope:
         # Discriminator would be reused in CycleGAN
@@ -165,22 +170,26 @@ def discriminator(input1, input2, reuse = False, scope_name = 'discriminator'):
         else:
             assert scope.reuse is False
 
-        h1 = conv1d_layer(inputs=inputs, filters=64, \
-                kernel_size=3, strides=1, \
+        h1 = conv1d_layer(inputs=inputs, filters=64, 
+                kernel_size=3, strides=1, 
                 activation=None, name='h1_conv')
-        h1_gates = conv1d_layer(inputs=inputs, filters=64, \
-                kernel_size=3, strides=1, \
+        h1_gates = conv1d_layer(inputs=inputs, filters=64, 
+                kernel_size=3, strides=1, 
                 activation=None, name='h1_conv_gates')
-        h1_glu = gated_linear_layer(inputs=h1, gates=h1_gates, \
-                name='h1_glu') # Downsample
-        d1 = downsample1d_block(inputs=h1_glu, filters=128, \
-                kernel_size=3, strides=2, \
+        h1_glu = gated_linear_layer(inputs=h1, gates=h1_gates, 
+                name='h1_glu')
+
+        h1_glu = tf.concat([h1_glu, inter_inputs], axis=-1, 
+                name='concat_intermediate_inputs')
+        
+        d1 = downsample1d_block(inputs=h1_glu, filters=128, 
+                kernel_size=3, strides=2, 
                 name_prefix='downsample2d_block1_')
-        d2 = downsample1d_block(inputs=d1, filters=256, \
-                kernel_size=3, strides=2, \
+        d2 = downsample1d_block(inputs=d1, filters=256, 
+                kernel_size=3, strides=2, 
                 name_prefix='downsample2d_block2_')
-        d3 = downsample1d_block(inputs=d2, filters=256, \
-                kernel_size=3, strides=2, \
+        d3 = downsample1d_block(inputs=d2, filters=256, 
+                kernel_size=3, strides=2, 
                 name_prefix='downsample2d_block3_')
 
         # Output

@@ -38,7 +38,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_merged'
+            +"_lmo_"+str(lambda_momenta) + '_msg'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
