@@ -153,14 +153,12 @@ def discriminator(input1, input2, inter_input1, inter_input2,
                           name="discriminator_input1_transpose")
     input2 = tf.transpose(input2, perm=[0,2,1], \
                           name="discriminator_input2_transpose")
-
     inputs = tf.concat([input1,input2], axis=-1)
 
     inter_input1 = tf.transpose(inter_input1, perm=[0,2,1], \
                           name="discriminator_inter_input1_transpose")
     inter_input2 = tf.transpose(inter_input2, perm=[0,2,1], \
                           name="discriminator_inter_input2_transpose")
-
     inter_inputs = tf.concat([inter_input1, inter_input2], axis=-1)
 
     with tf.variable_scope(scope_name) as scope:

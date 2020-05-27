@@ -28,7 +28,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     num_epochs = 1000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
-    generator_learning_rate = 0.0001
+    generator_learning_rate = 0.000001
     discriminator_learning_rate = 0.000001
 
     sampling_rate = 16000
