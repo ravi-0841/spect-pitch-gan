@@ -28,8 +28,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     num_epochs = 1000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
-    generator_learning_rate = 0.000001
-    discriminator_learning_rate = 0.000001
+    generator_learning_rate = 0.0000001
+    discriminator_learning_rate = 0.0000001
 
     sampling_rate = 16000
     num_mcep = 23
@@ -165,20 +165,28 @@ def train(train_dir, model_dir, model_name, random_seed, \
                                 pitch_A=pitch_A_valid[i:i+1], 
                                 pitch_B=pitch_B_valid[i:i+1])
 
-                pylab.figure(figsize=(12,12))
-                pylab.subplot(121)
+                pylab.figure(figsize=(13,13))
+                pylab.subplot(221)
                 pylab.plot(pitch_A_valid[i].reshape(-1,), label='Input A')
                 pylab.plot(gen_pitch_B.reshape(-1,), label='Generated B')
                 pylab.plot(gen_mom_B.reshape(-1,), label='Generated momenta')
                 pylab.legend(loc=2)
+                pylab.subplot(222)
+                pylab.plot(mfc_A_valid[i,0,:].reshape(-1,), label='Mfc Input A')
+                pylab.plot(gen_mfc_B[0,0,:].reshape(-1,), label='Mfc Generated B')
+                pylab.legend(loc=2)
 
-                pylab.subplot(122)
+                pylab.subplot(223)
                 pylab.plot(pitch_B_valid[i].reshape(-1,), label='Input B')
                 pylab.plot(gen_pitch_A.reshape(-1,), label='Generated A')
                 pylab.plot(gen_mom_A.reshape(-1,), label='Generated momenta')
                 pylab.legend(loc=2)
+                pylab.subplot(224)
+                pylab.plot(mfc_B_valid[i,0,:].reshape(-1,), label='Mfc Input B')
+                pylab.plot(gen_mfc_A[0,0,:].reshape(-1,), label='Mfc Generated A')
+                pylab.legend(loc=2)
 
-                pylab.title('Epoch '+str(epoch)+' example '+str(i+1))
+                pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
                 pylab.savefig('./pitch_spect/'+lc_lm+'/'\
                         +str(epoch)+'_'+str(i+1)+'.png')
                 pylab.close()
