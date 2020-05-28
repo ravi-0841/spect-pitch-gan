@@ -11,7 +11,7 @@ do
     do
         for mo in "${momenta_array[@]}"
         do
-            sbatch -J $counter -o "./txt_files/job${counter}.txt" gen_disc_job.sh $p $m $mo
+            sbatch -J $counter -o "./txt_files/job${counter}.txt" gen_disc_job_label_flipped.sh $p $m $mo
             counter=$((counter+1))
         done
     done

@@ -12,7 +12,7 @@ import logging
 import preprocess as preproc
 
 from glob import glob
-from model import VariationalCycleGAN
+from model_label_flipped import VariationalCycleGAN
 from helper import smooth, generate_interpolation
 
 
@@ -38,7 +38,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_msg'
+            +"_lmo_"+str(lambda_momenta) + '_msg_label_flipped'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
