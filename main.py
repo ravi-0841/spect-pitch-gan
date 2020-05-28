@@ -172,8 +172,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.plot(gen_mom_B.reshape(-1,), label='Generated momenta')
                 pylab.legend(loc=2)
                 pylab.subplot(222)
-                pylab.plot(mfc_A_valid[i,0,:].reshape(-1,), label='Mfc Input A')
-                pylab.plot(gen_mfc_B[0,0,:].reshape(-1,), label='Mfc Generated B')
+                pylab.plot(mfc_A_valid[i,0,:].reshape(-1,), label='Input Mfc A')
+                pylab.plot(gen_mfc_B[0,0,:].reshape(-1,), label='Generated Mfc B')
                 pylab.legend(loc=2)
 
                 pylab.subplot(223)
@@ -182,8 +182,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.plot(gen_mom_A.reshape(-1,), label='Generated momenta')
                 pylab.legend(loc=2)
                 pylab.subplot(224)
-                pylab.plot(mfc_B_valid[i,0,:].reshape(-1,), label='Mfc Input B')
-                pylab.plot(gen_mfc_A[0,0,:].reshape(-1,), label='Mfc Generated A')
+                pylab.plot(mfc_B_valid[i,0,:].reshape(-1,), label='Input Mfc B')
+                pylab.plot(gen_mfc_A[0,0,:].reshape(-1,), label='Generated Mfc A')
                 pylab.legend(loc=2)
 
                 pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))

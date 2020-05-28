@@ -172,7 +172,7 @@ class VariationalCycleGAN(object):
         self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
-        self.sampler_generator_loss \
+        self.generator_loss \
             = (1-self.lambda_cycle_pitch-self.lambda_momenta-self.lambda_cycle_mfc)*self.gen_disc_loss \
                 + self.lambda_cycle_pitch * self.cycle_loss_pitch \
                 + self.lambda_cycle_mfc * self.cycle_loss_mfc \
@@ -227,7 +227,7 @@ class VariationalCycleGAN(object):
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
-        self.sampler_generator_vars = [var for var in trainable_variables if 'generator' in var.name]
+        self.generator_vars = [var for var in trainable_variables if 'generator' in var.name]
 
         # Reserved for test
         self.momentum_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
@@ -257,8 +257,8 @@ class VariationalCycleGAN(object):
                 var_list=self.discriminator_vars)
         self.generator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, \
-                beta1=0.5).minimize(self.sampler_generator_loss, \
-                var_list=self.sampler_generator_vars) 
+                beta1=0.5).minimize(self.generator_loss, \
+                var_list=self.generator_vars) 
 
 
     def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
@@ -266,7 +266,7 @@ class VariationalCycleGAN(object):
             discriminator_learning_rate):
 
         momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
-                generation_pitch_A, generation_mfc_A, sampler_generator_loss, _ \
+                generation_pitch_A, generation_mfc_A, generator_loss, _ \
                 = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.gen_disc_loss, self.generator_optimizer], 
@@ -291,7 +291,7 @@ class VariationalCycleGAN(object):
 
         self.train_step += 1
 
-        return sampler_generator_loss, discriminator_loss, generation_pitch_A, \
+        return generator_loss, discriminator_loss, generation_pitch_A, \
                 generation_mfc_A, generation_pitch_B, generation_mfc_B, \
                 momentum_A, momentum_B
 
