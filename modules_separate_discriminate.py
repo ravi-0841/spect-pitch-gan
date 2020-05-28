@@ -1,5 +1,5 @@
 import tensorflow as tf 
-from nn_modules import *
+from nn_modules_default_init import *
 
 
 def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
@@ -145,21 +145,14 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
         return o2
     
 
-def discriminator(input1, input2, inter_input1, inter_input2, 
+def discriminator(input_mfc, input_pitch, 
         reuse=False, scope_name='discriminator'):
 
-    # input1 and input2 has shape [batch_size, num_features, time]
-    input1 = tf.transpose(input1, perm=[0,2,1], \
-                          name="discriminator_input1_transpose")
-    input2 = tf.transpose(input2, perm=[0,2,1], \
-                          name="discriminator_input2_transpose")
-    inputs = tf.concat([input1,input2], axis=-1)
-
-    inter_input1 = tf.transpose(inter_input1, perm=[0,2,1], \
-                          name="discriminator_inter_input1_transpose")
-    inter_input2 = tf.transpose(inter_input2, perm=[0,2,1], \
-                          name="discriminator_inter_input2_transpose")
-    inter_inputs = tf.concat([inter_input1, inter_input2], axis=-1)
+    # input_mfc and input_pitch has shape [batch_size, num_features, time]
+    input_mfc = tf.transpose(input_mfc, perm=[0,2,1], 
+            name='discriminator_mfc_transpose')
+    input_pitch = tf.transpose(input_pitch, perm=[0,2,1], 
+            name='discriminator_pitch_transpose')
 
     with tf.variable_scope(scope_name) as scope:
         # Discriminator would be reused in CycleGAN
@@ -168,17 +161,27 @@ def discriminator(input1, input2, inter_input1, inter_input2,
         else:
             assert scope.reuse is False
 
-        h1 = conv1d_layer(inputs=inputs, filters=64, 
+        h1_mfc = conv1d_layer(inputs=input_mfc, filters=64, 
                 kernel_size=3, strides=1, 
-                activation=None, name='h1_conv')
-        h1_gates = conv1d_layer(inputs=inputs, filters=64, 
+                activation=None, name='h1_mfc_conv')
+        h1_mfc_gates = conv1d_layer(inputs=input_mfc, filters=64, 
                 kernel_size=3, strides=1, 
-                activation=None, name='h1_conv_gates')
-        h1_glu = gated_linear_layer(inputs=h1, gates=h1_gates, 
-                name='h1_glu')
+                activation=None, name='h1_mfc_conv_gates')
+        h1_mfc_glu = gated_linear_layer(inputs=h1_mfc, 
+                gates=h1_mfc_gates, name='h1_mfc_glu')
 
-        h1_glu = tf.concat([h1_glu, inter_inputs], axis=-1, 
-                name='concat_intermediate_inputs')
+        h1_pitch = conv1d_layer(inputs=input_pitch, filters=64, 
+                kernel_size=3, strides=1, 
+                activation=None, name='h1_pitch_conv')
+        h1_pitch_gates = conv1d_layer(inputs=input_pitch, filters=64, 
+                kernel_size=3, strides=1, 
+                activation=None, name='h1_pitch_conv_gates')
+        h1_pitch_glu = gated_linear_layer(inputs=h1_pitch, 
+                gates=h1_pitch_gates, name='h1_pitch_glu')
+
+
+        h1_glu = tf.concat([h1_mfc_glu, h1_pitch_glu], axis=-1, 
+                name='concat_inputs')
         
         d1 = downsample1d_block(inputs=h1_glu, filters=128, 
                 kernel_size=3, strides=2, 

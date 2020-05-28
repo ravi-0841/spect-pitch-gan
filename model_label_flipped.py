@@ -153,9 +153,9 @@ class VariationalCycleGAN(object):
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
-        self.generator_loss_A2B = l1_loss(y=tf.ones_like(self.discrimination_B_fake), 
+        self.generator_loss_A2B = l1_loss(y=tf.zeros_like(self.discrimination_B_fake), 
                 y_hat=self.discrimination_B_fake)
-        self.generator_loss_B2A = l1_loss(y=tf.ones_like(self.discrimination_A_fake), 
+        self.generator_loss_B2A = l1_loss(y=tf.zeros_like(self.discrimination_A_fake), 
                 y_hat=self.discrimination_A_fake)
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
@@ -204,19 +204,19 @@ class VariationalCycleGAN(object):
 
         # Compute discriminator loss for backprop
         self.discriminator_loss_input_A_real \
-            = l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
+            = l1_loss(y=tf.ones_like(self.discrimination_input_A_real_B_fake), 
                     y_hat=self.discrimination_input_A_real_B_fake)
         self.discriminator_loss_input_A_fake \
-            = l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
+            = l1_loss(y=tf.zeros_like(self.discrimination_input_A_fake_B_real), 
                     y_hat=self.discrimination_input_A_fake_B_real)
         self.discriminator_loss_A = (self.discriminator_loss_input_A_real \
                                      + self.discriminator_loss_input_A_fake) / 2.0
 
         self.discriminator_loss_input_B_real \
-            = l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
+            = l1_loss(y=tf.ones_like(self.discrimination_input_B_real_A_fake), 
                     y_hat=self.discrimination_input_B_real_A_fake)
         self.discriminator_loss_input_B_fake \
-            = l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
+            = l1_loss(y=tf.zeros_like(self.discrimination_input_B_fake_A_real), 
                     y_hat=self.discrimination_input_B_fake_A_real)
         self.discriminator_loss_B = (self.discriminator_loss_input_B_real \
                                      + self.discriminator_loss_input_B_fake) / 2.0

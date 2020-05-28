@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules import sampler, generator, discriminator
+from modules_noise_and_gradient import sampler, generator, discriminator
 from utils import l1_loss
 from tf_forward_tan import forward_tan
 
@@ -253,23 +253,34 @@ class VariationalCycleGAN(object):
                 name='discriminator_learning_rate')
         self.discriminator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.discriminator_learning_rate, \
-                beta1=0.5).minimize(self.discriminator_loss, \
-                var_list=self.discriminator_vars)
+                beta1=0.5)
+        self.discriminator_grads \
+                = self.discriminator_optimizer.compute_gradients(self.discriminator_loss, 
+                        var_list=self.discriminator_vars)
+        self.discriminator_train_op \
+                = self.discriminator_optimizer.apply_gradients(self.discriminator_grads)
+
         self.generator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, \
-                beta1=0.5).minimize(self.generator_loss, \
-                var_list=self.generator_vars) 
+                beta1=0.5)
+        self.generator_grads \
+                = self.generator_optimizer.compute_gradients(self.generator_loss, 
+                        var_list=self.generator_vars)
+        self.generator_train_op \
+                = self.generator_optimizer.apply_gradients(self.generator_grads)
 
 
-    def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
+    def train_grad(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
             lambda_cycle_mfc, lambda_momenta, generator_learning_rate, 
             discriminator_learning_rate):
 
         momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
-                generation_pitch_A, generation_mfc_A, generator_loss, _ \
+                generation_pitch_A, generation_mfc_A, generator_loss, \
+                generator_grads, _ \
                 = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
-                    self.mfc_generation_B2A, self.gen_disc_loss, self.generator_optimizer], 
+                    self.mfc_generation_B2A, self.gen_disc_loss, self.generator_grads, 
+                    self.generator_train_op], 
                     feed_dict = {self.lambda_cycle_pitch:lambda_cycle_pitch, 
                         self.lambda_cycle_mfc:lambda_cycle_mfc, 
                         self.lambda_momenta:lambda_momenta, self.pitch_A_real:pitch_A, 
@@ -279,8 +290,9 @@ class VariationalCycleGAN(object):
 
 #        self.writer.add_summary(generator_summaries, self.train_step)
 
-        discriminator_loss, _ \
-            = self.sess.run([self.discriminator_loss, self.discriminator_optimizer], 
+        discriminator_loss, discriminator_grads, _ \
+            = self.sess.run([self.discriminator_loss, self.discriminator_grads, 
+                self.discriminator_train_op], 
                     feed_dict = {self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
                         self.mfc_A_real:mfc_A, self.mfc_B_real:mfc_B, 
                         self.discriminator_learning_rate:discriminator_learning_rate, 
@@ -293,9 +305,23 @@ class VariationalCycleGAN(object):
 
         return generator_loss, discriminator_loss, generation_pitch_A, \
                 generation_mfc_A, generation_pitch_B, generation_mfc_B, \
-                momentum_A, momentum_B
+                momentum_A, momentum_B, generator_grads, discriminator_grads
 
 
+    def compute_gradients(self, pitch_A, mfc_A, pitch_B, mfc_B, 
+                                lambda_cycle_pitch, lambda_cycle_mfc, 
+                                lambda_momenta):
+        
+        generator_gradient, discriminator_gradient \
+            = self.sess.run([self.generator_grads, self.discriminator_grads], 
+                            feed_dict={self.lambda_cycle_pitch:lambda_cycle_pitch, 
+                        self.lambda_cycle_mfc:lambda_cycle_mfc, 
+                        self.lambda_momenta:lambda_momenta, self.pitch_A_real:pitch_A, 
+                        self.pitch_B_real:pitch_B, self.mfc_A_real:mfc_A, 
+                        self.mfc_B_real:mfc_B})
+        return generator_gradient, discriminator_gradient
+    
+    
     def test_gen(self, mfc_A, pitch_A, mfc_B, pitch_B):
         gen_mom_B, gen_pitch_B, gen_mfc_B, = self.sess.run([self.momentum_A2B_test, \
                                     self.pitch_A2B_test, self.mfc_A2B_test], \

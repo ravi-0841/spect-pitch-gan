@@ -1,5 +1,5 @@
 import tensorflow as tf 
-from nn_modules import *
+from nn_modules_default_init import *
 
 
 def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
@@ -154,12 +154,17 @@ def discriminator(input1, input2, inter_input1, inter_input2,
     input2 = tf.transpose(input2, perm=[0,2,1], \
                           name="discriminator_input2_transpose")
     inputs = tf.concat([input1,input2], axis=-1)
+    inputs = tf.add(inputs, tf.random.normal(shape=inputs.shape, 
+        stddev=1.0, dtype=tf.float32))
 
     inter_input1 = tf.transpose(inter_input1, perm=[0,2,1], \
                           name="discriminator_inter_input1_transpose")
     inter_input2 = tf.transpose(inter_input2, perm=[0,2,1], \
                           name="discriminator_inter_input2_transpose")
     inter_inputs = tf.concat([inter_input1, inter_input2], axis=-1)
+    inter_inputs = tf.add(inter_inputs, 
+            tf.random.normal(shape=inter_inputs.shape, 
+                stddev=5.0, dtype=tf.float32))
 
     with tf.variable_scope(scope_name) as scope:
         # Discriminator would be reused in CycleGAN

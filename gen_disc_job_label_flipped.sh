@@ -17,4 +17,4 @@ singularity pull --name tf.simg shub://ravi-0841/singularity-tensorflow-1.14
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf.simg python3 main.py --lambda_cycle_pitch $1 --lambda_cycle_mfc $2 --lambda_momenta $3
+singularity exec --nv ./tf.simg python3 main_label_flipped.py --lambda_cycle_pitch $1 --lambda_cycle_mfc $2 --lambda_momenta $3
