@@ -14,7 +14,7 @@ do
             if [ "$counter" -ge 1 ];
             then
                 echo $counter;
-                sbatch -J $counter -o "./txt_files/job${counter}.txt" gen_disc_job_label_flipped.sh $p $m $mo
+                sbatch -J $counter -o "./txt_files/job${counter}.txt" gen_disc_job_separate_discriminate.sh $p $m $mo
             fi;
             counter=$((counter+1))
         done
