@@ -2,9 +2,9 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules_noise_and_gradient import sampler, generator, discriminator
-from utils import l1_loss
-from tf_forward_tan import forward_tan
+from modules.modules_default_init import sampler, generator, discriminator
+from utils.model_utils import l1_loss
+from utils.tf_forward_tan import forward_tan
 
 class VariationalCycleGAN(object):
 

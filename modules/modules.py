@@ -1,5 +1,5 @@
 import tensorflow as tf 
-from nn_modules import *
+from modules.base_modules import *
 
 
 def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \

@@ -1,22 +1,40 @@
-#!/usr/bin/env python2
-# -*- coding: utf-8 -*-
-"""
-Created on Thu Nov  8 11:32:51 2018
-
-@author: ravi
-"""
-
 import numpy as np
 import h5py
 import itertools
-from sklearn.externals import joblib
-from sklearn.preprocessing import StandardScaler
 import sys
 import scipy.signal as scisig
+
+from sklearn.externals import joblib
+from sklearn.preprocessing import StandardScaler
 from scipy import interpolate
+from scipy.signal import butter, filtfilt
 
 color_iter = itertools.cycle(['navy', 'c', 'cornflowerblue', 'gold',
                               'darkorange', 'm', 'g', 'k'])
+
+def pre_emp(x, coeff=0.95):
+
+    assert len(x.shape)==1
+    
+    start_val = 0
+    pre_emped = np.zeros((len(x),), dtype=np.float64)
+
+    for i in range(len(x)):
+        pre_emped[i] = x[i] - coeff*start_val
+        start_val = x[i]
+
+    return pre_emped
+
+def butter_highpass(cutoff, fs, order=5):
+    nyq = 0.5*fs
+    normal_cutoff = cutoff / nyq
+    b,a = butter(order, normal_cutoff, btype='high', analog=False)
+    return b, a
+
+def highpass_filter(data, cutoff, fs, order=5):
+    b, a = butter_highpass(cutoff, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
 
 def smooth(x,window_len=7,window='hanning'):
     if x.ndim != 1:
@@ -41,7 +59,6 @@ def smooth_contour(data, window=3):
         x = smooth(data[i], window)
         data[i] = x[window-1:-1*(window-1)]
     return data
-
 
 def generate_context(features, axis=0, context=1):
     """
@@ -90,6 +107,121 @@ def generate_interpolation(f0):
     x = np.arange(0, len(f0))
     y = interp(x)
     return y
+
+def concat_features_f0_mom(data, keep_norm=False, shuffle=False, keep_tar=False, energy=False):
+    features_src = data['src_straight_cep_feat']
+    f0_src = data['src_f0_feat']
+    if energy:
+        ec_src = data['src_ec_feat']
+
+    if keep_tar:
+        features_tar = data['tar_straight_cep_feat']
+        f0_tar = data['tar_f0_feat']
+        if energy:
+            ec_tar = data['tar_ec_feat']
+    
+#    if not keep_norm:
+#        features_src = features_src[:,:-1]
+#        if keep_tar:
+#            features_tar = features_tar[:,:-1]
+    
+    if energy:
+        feat_src = np.concatenate((features_src, f0_src, ec_src), 1)
+    else:
+        feat_src = np.concatenate((features_src, f0_src), 1)
+        
+    if keep_tar:
+        if energy:
+            feat_tar = np.concatenate((features_tar, f0_tar, ec_tar), 1)
+        else:
+            feat_tar = np.concatenate((features_tar, f0_tar), 1)
+
+    dim_feat = feat_src.shape[1]
+    momentum_pitch = data['momentum_pitch']
+    dim_pitch = momentum_pitch.shape[1]
+    if energy:
+        momentum_energy = data['momentum_energy']
+        dim_energy = momentum_energy.shape[1]
+    
+    if shuffle:
+        if keep_tar:
+            if energy:
+                joint_data = np.concatenate((feat_src, feat_tar, momentum_pitch, momentum_energy), 1)
+            else:
+                joint_data = np.concatenate((feat_src, feat_tar, momentum_pitch), 1)
+        else:
+            if energy:
+                joint_data = np.concatenate((feat_src, momentum_pitch, momentum_energy), 1)
+            else:
+                joint_data = np.concatenate((feat_src, momentum_pitch), 1)
+        np.random.shuffle(joint_data)
+        
+        feat_src = joint_data[:, :dim_feat]
+        if keep_tar:
+            feat_tar = joint_data[:,dim_feat:2*dim_feat]
+            momentum_pitch = joint_data[:, 2*dim_feat:2*dim_feat+dim_pitch]
+            if energy:
+                momentum_energy = joint_data[:, 2*dim_feat+dim_pitch:]
+        else:
+            momentum_pitch = joint_data[:, dim_feat:dim_feat+dim_pitch]
+            if energy:
+                momentum_energy = joint_data[:, dim_feat+dim_pitch:]
+    
+    if keep_tar:
+        if energy:
+            return np.asarray(feat_src, np.float32), \
+                    np.asarray(feat_tar, np.float32), \
+                    np.asarray(momentum_pitch, np.float32), \
+                    np.asarray(momentum_energy, np.float32)
+        else:
+            return np.asarray(feat_src, np.float32), \
+                    np.asarray(feat_tar, np.float32), \
+                    np.asarray(momentum_pitch, np.float32)
+    else:
+        if energy:
+            return np.asarray(feat_src, np.float32), \
+                    np.asarray(momentum_pitch, np.float32), \
+                    np.asarray(momentum_energy, np.float32)
+        else:
+            return np.asarray(feat_src, np.float32), \
+                    np.asarray(momentum_pitch, np.float32)
+
+
+def cdf_transform(Y_train, Y_valid, Y_test, bins=256):
+    
+    Y_train_cdf = np.zeros(Y_train.shape)
+    Y_valid_cdf = np.zeros(Y_valid.shape)
+    Y_test_cdf = np.zeros(Y_test.shape)
+    
+    for dim in range(Y_train.shape[1]):
+        histo = np.histogram(Y_train[:,dim], bins=bins)
+        
+        bin_count = histo[0]
+        bin_ends = histo[1]
+        
+        cummu_count = np.cumsum(bin_count)
+        for i in range(1, bin_ends.shape[0]):
+            idx_train = np.where((Y_train[:,dim]<=bin_ends[i]) & (Y_train[:,dim]>bin_ends[i-1]))[0]
+            idx_valid = np.where((Y_valid[:,dim]<=bin_ends[i]) & (Y_valid[:,dim]>bin_ends[i-1]))[0]
+            idx_test = np.where((Y_test[:,dim]<=bin_ends[i]) & (Y_test[:,dim]>bin_ends[i-1]))[0]
+            Y_train_cdf[idx_train,dim] = cummu_count[i-1] / Y_train.shape[0]
+            Y_valid_cdf[idx_valid,dim] = cummu_count[i-1] / Y_train.shape[0]
+            Y_test_cdf[idx_test,dim] = cummu_count[i-1] / Y_train.shape[0]
+        
+        idx_train = np.where(Y_train[:,dim]<=bin_ends[0])[0]
+        Y_train_cdf[idx_train,dim] = cummu_count[0] / Y_train.shape[0]
+        
+        idx_valid = np.where(Y_valid[:,dim]<=bin_ends[0])[0]
+        Y_valid_cdf[idx_valid,dim] = cummu_count[0] / Y_train.shape[0]
+        idx_valid = np.where(Y_valid[:,dim]>=bin_ends[-1])[0]
+        Y_valid_cdf[idx_valid,dim] = cummu_count[-1] / Y_train.shape[0]
+        
+        idx_test = np.where(Y_test[:,dim]<=bin_ends[0])[0]
+        Y_test_cdf[idx_test,dim] = cummu_count[0] / Y_train.shape[0]
+        idx_test = np.where(Y_test[:,dim]>=bin_ends[-1])[0]
+        Y_test_cdf[idx_test,dim] = cummu_count[-1] / Y_train.shape[0]
+
+    return Y_train_cdf, Y_valid_cdf, Y_test_cdf
 
 def create_train_valid_fold(data, fold, speaker_dict, keep_norm=False, shuffle=False, \
                             keep_tar=False, energy=False):
@@ -244,9 +376,7 @@ def make_train_valid_test(data, files, fold, speaker_list):
         sys.stdout.flush()
     return final_train, final_valid, final_test
 
-def compute_difference_pca(x, pca):
-    difference = np.sum((pca - x)**2, axis=1)
-    return np.mean(np.sqrt(difference))
+
 
 
 

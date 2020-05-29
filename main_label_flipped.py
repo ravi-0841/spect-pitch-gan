@@ -9,11 +9,12 @@ import scipy.io as scio
 import scipy.signal as scisig
 import pylab
 import logging
-import preprocess as preproc
 
 from glob import glob
-from model_label_flipped import VariationalCycleGAN
-from helper import smooth, generate_interpolation
+
+from nn_models.model_label_flipped import VariationalCycleGAN
+from utils.helper import smooth, generate_interpolation
+import utils.preprocess as preproc
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'

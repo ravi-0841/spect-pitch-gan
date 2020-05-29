@@ -1,11 +1,3 @@
-            #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sun Feb 10 13:39:45 2019
-
-@author: ravi
-"""
-
 from glob import glob
 import os
 import scipy.io.wavfile as scwav
@@ -21,7 +13,7 @@ from functools import partial
 import warnings
 warnings.filterwarnings('ignore')
 
-from feat_utils import smooth, \
+from utils.feat_utils import smooth, \
     smooth_contour, generate_interpolation, 
 
 
