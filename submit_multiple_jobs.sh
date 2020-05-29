@@ -1,8 +1,8 @@
 #! /bin/bash
 
-cycle_array_pitch=( 1e-06 1e-05 1e-04 )
-cycle_array_mfc=( 0.001 0.01 0.1 )
-momenta_array=( 1e-06 1e-04 1e-02 )
+cycle_array_pitch=( 0.1 1 5 )
+cycle_array_mfc=( 1 10 20 )
+momenta_array=( 1e-06 1e-04 )
 
 counter=1
 for p in "${cycle_array_pitch[@]}"

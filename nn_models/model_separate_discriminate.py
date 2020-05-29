@@ -170,9 +170,15 @@ class VariationalCycleGAN(object):
         self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
+#        self.generator_loss \
+#            = (1-self.lambda_cycle_pitch-self.lambda_momenta-self.lambda_cycle_mfc)*self.gen_disc_loss \
+#                + self.lambda_cycle_pitch * self.cycle_loss_pitch \
+#                + self.lambda_cycle_mfc * self.cycle_loss_mfc \
+#                + self.lambda_momenta * self.momenta_loss
+
+        # Merge the two sampler-generator, the cycle loss and momenta prior
         self.generator_loss \
-            = (1-self.lambda_cycle_pitch-self.lambda_momenta-self.lambda_cycle_mfc)*self.gen_disc_loss \
-                + self.lambda_cycle_pitch * self.cycle_loss_pitch \
+            = self.gen_disc_loss + self.lambda_cycle_pitch * self.cycle_loss_pitch \
                 + self.lambda_cycle_mfc * self.cycle_loss_mfc \
                 + self.lambda_momenta * self.momenta_loss
 
