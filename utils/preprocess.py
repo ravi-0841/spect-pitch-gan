@@ -263,50 +263,6 @@ def sample_data(mfc_A, pitch_A, mfc_B, pitch_B):
 
     return mfc_data_A, pitch_data_A, mfc_data_B, pitch_data_B
 
-def smooth_mfc(mfc):
-    
-    assert len(mfc.shape) > 1
-
-    if len(mfc.shape)==4:
-        for utt in range(mfc.shape[0]):
-            for randsamp in range(mfc.shape[1]):
-                mfc[utt,randsamp,:,:] \
-                        = scifilt.gaussian_filter1d(np.squeeze(mfc[utt,randsamp,:,:]), \
-                            sigma=1.0, axis=0)
-    elif len(mfc.shape)==3:
-        for utt in range(mfc.shape[0]):
-            mfc[utt,:,:]  = scifilt.gaussian_filter1d(np.squeeze(mfc[utt,:,:]), \
-                        sigma=1.0, axis=0)
-    else:
-        mfc = scifilt.gaussian_filter1d(mfc, sigma=1.0, axis=0)
-
-    return mfc
-
-def sample_data_smoothed(mfc_A, pitch_A, mfc_B, pitch_B):
-    mfc_data_A = list()
-    mfc_data_B = list()
-    pitch_data_A = list()
-    pitch_data_B = list()
-
-    for i in range(mfc_A.shape[0]):
-        q = np.random.randint(0, mfc_A.shape[1])
-        mfc_data_A.append(np.squeeze(mfc_A[i,q,:,:]))
-        mfc_data_B.append(np.squeeze(mfc_B[i,q,:,:]))
-        pitch_data_A.append(np.squeeze(pitch_A[i,q,:,:]))
-        pitch_data_B.append(np.squeeze(pitch_B[i,q,:,:]))
-    
-    mfc_data_A = np.transpose(np.asarray(mfc_data_A), axes=(0,2,1))
-    mfc_data_B = np.transpose(np.asarray(mfc_data_B), axes=(0,2,1))
-    pitch_data_A = np.transpose(np.expand_dims(np.asarray(pitch_data_A), \
-                                               axis=-1), axes=(0,2,1))
-    pitch_data_B = np.transpose(np.expand_dims(np.asarray(pitch_data_B), \
-                                               axis=-1), axes=(0,2,1))
-    
-    mfc_A = smooth_mfc(mfc_A)
-    mfc_B = smooth_mfc(mfc_B)
-
-    return mfc_data_A, pitch_data_A, mfc_data_B, pitch_data_B
-
 def normalize_f0s(f0_A, f0_B):
 
     if len(f0_A.shape)==3:
@@ -357,6 +313,38 @@ def normalize_f0s(f0_A, f0_B):
             f0_B[i,:] = (f0_B[i,:] - means_B[i,0]) / stds_B[i,0]
         
     return f0_A, f0_B, means_A, means_B, stds_A, stds_B
+
+def normalize_mfc(mfc_A, mfc_B, means_A=None, means_B=None, 
+        stds_A=None, stds_B=None):
+
+    assert (len(mfc_A.shape)==4), "Check mfc dimensionality"
+    utt = mfc_A.shape[0]
+    rand_samp = mfc_A.shape[1]
+    dim_mfc = mfc_A.shape[2]
+    n_frames = mfc_A.shape[3]
+
+    mfc_A = np.vstack(mfc_A)
+    mfc_B = np.vstack(mfc_B)
+
+    if means_A is None:
+        means_A = np.mean(mfc_A, axis=0)
+        stds_A = np.std(mfc_A, axis=0)
+        means_B = np.mean(mfc_B, axis=0)
+        stds_B = np.std(mfc_B, axis=0)
+
+        mfc_A = (mfc_A - means_A) / stds_A
+        mfc_B = (mfc_B - means_B) / stds_B
+        
+        mfc_A = np.reshape(mfc_A, (utt, rand_samp, dim_mfc, n_frames))
+        mfc_B = np.reshape(mfc_B, (utt, rand_samp, dim_mfc, n_frames))
+        return mfc_A, mfc_B, means_A, means_B, stds_A, stds_B
+    else:
+        mfc_A = (mfc_A - means_A) / stds_A
+        mfc_B = (mfc_B - means_B) / stds_B
+        
+        mfc_A = np.reshape(mfc_A, (utt, rand_samp, dim_mfc, n_frames))
+        mfc_B = np.reshape(mfc_B, (utt, rand_samp, dim_mfc, n_frames))
+        return mfc_A, mfc_B
 
 
 
