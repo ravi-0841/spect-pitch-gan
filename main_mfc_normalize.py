@@ -38,7 +38,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_msg_separate_discriminate'
+            +"_lmo_"+str(lambda_momenta) + '_msg_mfc_nmz'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -329,9 +329,9 @@ if __name__ == '__main__':
     parser.add_argument('--current_iter', type = int, \
                         help = "Current iteration of the model (Fine tuning)", default=1)
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", \
-                        default=0.00001)
+                        default=0.01)
     parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
-                        default=0.1)
+                        default=0.01)
     parser.add_argument("--lambda_momenta", type=float, help="hyperparam for momenta magnitude", \
                         default=1e-4)
 
