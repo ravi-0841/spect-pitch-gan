@@ -17,3 +17,4 @@
 /modules/__pycache__/*.pyc
 /nn_models/__pycache__/*.pyc
 /utils/__pycache__/*.pyc
+/tensorboard_log
