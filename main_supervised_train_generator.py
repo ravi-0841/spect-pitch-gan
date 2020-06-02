@@ -9,7 +9,8 @@ import scipy.io as scio
 import scipy.signal as scisig
 import pylab
 import logging
-import preprocess as preproc
+
+import utils.preprocess as preproc
 
 from glob import glob
 from nn_models.model_supervised_train_generator import VariationalCycleGAN
@@ -23,7 +24,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     np.random.seed(random_seed)
 
-    num_epochs = 2000
+    num_epochs = 5#2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     generator_learning_rate = 0.00001
@@ -95,7 +96,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         start_time_epoch = time.time()
 
         mfc_A, pitch_A, momenta_A2B, mfc_B, pitch_B, momenta_B2A \
-                = preproc.sample_data(mfc_A=mfc_A_train, mfc_B=mfc_B_train, 
+                = preproc.sample_data_momenta(mfc_A=mfc_A_train, mfc_B=mfc_B_train, 
                         pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                         momenta_A2B=momenta_A2B_train, 
                         momenta_B2A=momenta_B2A_train)
@@ -156,7 +157,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1))) 
 
-        if epoch%100==0:
+        if epoch%1==0:
             model.save(model_dir, model_name+str(epoch)+'.ckpt')
 
 

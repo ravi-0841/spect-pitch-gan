@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_separate_discriminate import sampler, generator, discriminator
+from modules.modules_separate_discriminate_dropout import sampler, generator, discriminator
 from utils.model_utils import l1_loss
 from utils.tf_forward_tan import forward_tan
 
@@ -125,12 +125,13 @@ class VariationalCycleGAN(object):
         Initialize the discriminators
         '''
         # Discriminator initialized to keep parameters in memory
-        self.discrimination_B_fake = self.discriminator(input1=tf.concat([self.mfc_A_real, 
-            self.pitch_A_real], axis=1), input2=tf.concat([self.mfc_generation_A2B, 
-                self.pitch_generation_A2B], axis=1), reuse=False, scope_name="discriminator_A")
-        self.discrimination_A_fake = self.discriminator(input1=tf.concat([self.mfc_B_real, 
-            self.pitch_B_real], axis=1), input2=tf.concat([self.mfc_generation_B2A, 
-                self.pitch_generation_B2A], axis=1), reuse=False, scope_name="discriminator_B")
+        self.discrimination_B_fake = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, 
+            self.mfc_generation_A2B], axis=1), input_pitch=tf.concat([self.pitch_A_real, 
+                self.pitch_generation_A2B], axis=1), reuse=False, scope_name='discriminator_A')
+
+        self.discrimination_A_fake = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, 
+            self.mfc_generation_B2A], axis=1), input_pitch=tf.concat([self.pitch_B_real, 
+                self.pitch_generation_B2A], axis=1), reuse=False, scope_name='discriminator_B')
 
 
         '''
@@ -157,13 +158,51 @@ class VariationalCycleGAN(object):
         self.generator_loss = self.loss_A2B + self.loss_B2A
 
         
-        self.discriminator_loss
+        # Compute the discriminator probability for pair of inputs
+        self.discrimination_input_A_real_B_fake \
+            = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, self.mfc_B_fake], axis=1), 
+                    input_pitch=tf.concat([self.pitch_A_real, self.pitch_B_fake], axis=1), 
+                    reuse=True, scope_name='discriminator_A')
+        self.discrimination_input_A_fake_B_real \
+            = self.discriminator(input_mfc=tf.concat([self.mfc_A_fake, self.mfc_B_real], axis=1), 
+                    input_pitch=tf.concat([self.pitch_A_fake, self.pitch_B_real], axis=1), 
+                    reuse=True, scope_name='discriminator_A')
 
+        self.discrimination_input_B_real_A_fake \
+            = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, self.mfc_A_fake], axis=1), 
+                    input_pitch=tf.concat([self.pitch_B_real, self.pitch_A_fake], axis=1), 
+                    reuse=True, scope_name='discriminator_B')
+        self.discrimination_input_B_fake_A_real \
+            = self.discriminator(input_mfc=tf.concat([self.mfc_B_fake, self.mfc_A_real], axis=1), 
+                    input_pitch=tf.concat([self.pitch_B_fake, self.pitch_A_real], axis=1), 
+                    reuse=True, scope_name='discriminator_B')
+        
+        # Compute discriminator loss for backprop
+        self.discriminator_loss_input_A_real \
+            = l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
+                    y_hat=self.discrimination_input_A_real_B_fake)
+        self.discriminator_loss_input_A_fake \
+            = l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
+                    y_hat=self.discrimination_input_A_fake_B_real)
+        self.discriminator_loss_A = (self.discriminator_loss_input_A_real \
+                                     + self.discriminator_loss_input_A_fake) / 2.0
+
+        self.discriminator_loss_input_B_real \
+            = l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
+                    y_hat=self.discrimination_input_B_real_A_fake)
+        self.discriminator_loss_input_B_fake \
+            = l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
+                    y_hat=self.discrimination_input_B_fake_A_real)
+        self.discriminator_loss_B = (self.discriminator_loss_input_B_real \
+                                     + self.discriminator_loss_input_B_fake) / 2.0
+
+        # Merge the two discriminators into one
+        self.discriminator_loss = (self.discriminator_loss_A + self.discriminator_loss_B) / 2.0
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
-        self.generator_vars = [var for var in trainable_variables if 'generator' in var.name]
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
+        self.generator_vars = [var for var in trainable_variables if 'generator' in var.name]
 
         # Reserved for test
         self.momenta_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
@@ -220,7 +259,7 @@ class VariationalCycleGAN(object):
                     self.mfc_generation_A2B, self.momenta_loss_A2B, self.pitch_loss_A2B, 
                     self.mfc_loss_A2B, self.momenta_generation_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.momenta_loss_B2A, self.pitch_loss_B2A, 
-                    self.mfc_loss_B2A, self.generator_optimizer], 
+                    self.mfc_loss_B2A, self.generator_train_op], 
                     feed_dict = {self.lambda_pitch:lambda_pitch, 
                         self.lambda_mfc:lambda_mfc, self.lambda_momenta:lambda_momenta, 
                         self.pitch_A_real:pitch_A, self.mfc_A_real:mfc_A, 

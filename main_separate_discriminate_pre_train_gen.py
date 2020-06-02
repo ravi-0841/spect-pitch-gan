@@ -38,7 +38,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_msg_separate_discriminate'
+            +"_lmo_"+str(lambda_momenta) + '_sepdisc_pre_train_gen'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -345,6 +345,6 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/cmu-arctic/cmu-arctic900.ckpt', 
+          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_train/cmu-arctic5.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_momenta=lambda_momenta)
