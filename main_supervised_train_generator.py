@@ -24,7 +24,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     np.random.seed(random_seed)
 
-    num_epochs = 5#2000
+    num_epochs = 2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     generator_learning_rate = 0.00001
@@ -157,7 +157,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1))) 
 
-        if epoch%1==0:
+        if epoch%100==0:
             model.save(model_dir, model_name+str(epoch)+'.ckpt')
 
 
