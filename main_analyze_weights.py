@@ -18,27 +18,33 @@ import utils.preprocess as preproc
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-def train(train_dir, model_dir, model_name, random_seed, \
-            validation_dir, output_dir, \
-            tensorboard_log_dir, pre_train=None, \
-            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0):
+def train(train_dir, model_dir, model_name, random_seed, 
+        validation_dir, output_dir, 
+        tensorboard_log_dir, generator_learning_rate=1e-07, 
+        discriminator_learning_rate=1e-07, pre_train=None, 
+        lambda_cycle_pitch=0, lambda_cycle_mfc=0, 
+        lambda_momenta=0):
 
     np.random.seed(random_seed)
 
     num_epochs = 2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
-    generator_learning_rate = 0.0000001
-    discriminator_learning_rate = 0.0000001
+    generator_learning_rate = generator_learning_rate
+    discriminator_learning_rate = discriminator_learning_rate
 
     sampling_rate = 16000
     num_mcep = 23
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "lp_"+str(lambda_cycle_pitch) \
-            + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_analyze_weights'
+#    lc_lm = "lp_"+str(lambda_cycle_pitch) \
+#            + '_lm_'+str(lambda_cycle_mfc) \
+#            +"_lmo_"+str(lambda_momenta) + '_analyze_weights'
+
+    lc_lm = "glr_"+str(generator_learning_rate) \
+            + '_dlr_'+str(discriminator_learning_rate) \
+            + '_analyze_weights_lr'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -320,12 +326,16 @@ if __name__ == '__main__':
                         default=tensorboard_log_dir_default)
     parser.add_argument('--current_iter', type = int, \
                         help = "Current iteration of the model (Fine tuning)", default=1)
+    parser.add_argument("--generator_learning_rate", type=float, help="learning rate for generators", \
+                        default=0.0000001)
+    parser.add_argument("--discriminator_learning_rate", type=float, help="learning rate for discriminator", \
+                        default=0.0000001)
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", \
-                        default=0.00001)
+                        default=0.0001)
     parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
                         default=0.1)
     parser.add_argument("--lambda_momenta", type=float, help="hyperparam for momenta magnitude", \
-                        default=1e-4)
+                        default=1e-06)
 
     argv = parser.parse_args()
 
@@ -342,8 +352,13 @@ if __name__ == '__main__':
     lambda_cycle_mfc = argv.lambda_cycle_mfc
     lambda_momenta = argv.lambda_momenta
 
+    generator_learning_rate = argv.generator_learning_rate
+    discriminator_learning_rate = argv.discriminator_learning_rate
+
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
-          output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
+          output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir,
           pre_train=None, lambda_cycle_pitch=lambda_cycle_pitch, 
-          lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta)
+          lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta, 
+          generator_learning_rate=generator_learning_rate, 
+          discriminator_learning_rate=discriminator_learning_rate)
