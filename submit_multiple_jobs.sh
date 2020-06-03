@@ -23,8 +23,8 @@
 
 
 
-generator_learning_rate=( 0.0000001 0.00001 0.001 0.01 )
-discriminator_learning_rate=( 0.0000001 0.00001 0.001 0.01)
+generator_learning_rate=( 0.0000001 0.000001 0.00001 0.001 0.01 )
+discriminator_learning_rate=( 0.0000001 0.000001 0.00001 0.001 0.01)
 
 counter=1
 for g in "${generator_learning_rate[@]}"
