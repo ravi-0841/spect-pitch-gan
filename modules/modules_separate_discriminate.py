@@ -2,8 +2,9 @@ import tensorflow as tf
 from modules.base_modules_default_init import *
 
 
-def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
-                       scope_name='sampler_generator'):
+def sampler(input_pitch, input_mfc, final_filters=1, 
+        keep_rate=1.0, reuse=False, 
+        scope_name='sampler_generator'):
 
     # Inputs have shape [batch_size, num_features, time]
     inputs = tf.concat([input_mfc, input_pitch], axis=1, \
@@ -57,7 +58,7 @@ def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
                 shuffle_size=2, name_prefix='upsample1d_block2_')
         
         # Dropout for stochasticity
-        u2 = tf.nn.dropout(u2, keep_prob=1.0)
+        u2 = tf.nn.dropout(u2, keep_prob=keep_rate)
 
         # Output
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
@@ -73,8 +74,9 @@ def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
         return o2
 
 
-def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
-                       scope_name='generator'):
+def generator(input_pitch, input_mfc, final_filters=23, 
+        keep_rate=1.0, reuse=False, 
+        scope_name='generator'):
 
     # Inputs have shape [batch_size, num_features, time]
     inputs = tf.concat([input_mfc, input_pitch], axis=1, \
@@ -128,7 +130,7 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
                 shuffle_size=2, name_prefix='upsample1d_block2_')
         
         # Dropout for stochasticity
-        u2 = tf.nn.dropout(u2, keep_prob=1.0)
+        u2 = tf.nn.dropout(u2, keep_prob=keep_rate)
 
         # Output
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
@@ -146,7 +148,8 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
     
 
 def discriminator(input_mfc, input_pitch, 
-        reuse=False, scope_name='discriminator'):
+        keep_rate=1.0, reuse=False, 
+        scope_name='discriminator'):
 
     # input_mfc and input_pitch has shape [batch_size, num_features, time]
     input_mfc = tf.transpose(input_mfc, perm=[0,2,1], 
@@ -192,6 +195,8 @@ def discriminator(input_mfc, input_pitch,
         d3 = downsample1d_block(inputs=d2, filters=256, 
                 kernel_size=3, strides=2, 
                 name_prefix='downsample2d_block3_')
+
+        d3 = tf.nn.dropout(d3, keep_prob=keep_rate)
 
         # Output
         o1 = tf.layers.dense(inputs=d3, units=1, \
