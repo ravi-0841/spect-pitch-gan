@@ -23,8 +23,8 @@
 
 
 
-generator_learning_rate=( 0.0000001 0.000001 0.00001 0.001 0.01 )
-discriminator_learning_rate=( 0.0000001 0.000001 0.00001 0.001 0.01)
+generator_learning_rate=( 0.0000005 0.000001 0.000005 0.00001 0.00002 0.00005 0.0001 )
+discriminator_learning_rate=( 0.0001 0.0002 0.0005 0.001 0.003 0.007 0.01)
 
 counter=1
 for g in "${generator_learning_rate[@]}"
@@ -34,7 +34,7 @@ do
         if [ "$counter" -ge 1 ];
         then
             echo $counter;
-            sbatch -J $counter -o "./txt_files/job_lr_${counter}.txt" gen_disc_job_analyze_weights_lr.sh $g $d
+            sbatch -J $counter -o "./txt_files/job_lr_${counter}.txt" gen_disc_job_analyze_weights_dropout.sh $g $d
         fi;
         counter=$((counter+1))
     done
