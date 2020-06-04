@@ -35,6 +35,7 @@ class VariationalCycleGAN(object):
         self.generator = generator
         self.discriminator = discriminator
         self.mode = mode
+        self.keep_rate = keep_rate
 
         self.build_model()
         self.optimizer_initializer()
@@ -100,21 +101,21 @@ class VariationalCycleGAN(object):
         '''
         # Generate pitch from A to B
         self.momentum_A2B = self.sampler(input_pitch=self.pitch_A_real, 
-                input_mfc=self.mfc_A_real, keep_rate=keep_rate, 
+                input_mfc=self.mfc_A_real, keep_rate=self.keep_rate, 
                 reuse=False, scope_name='sampler_generator_A2B')
         self.pitch_generation_A2B = forward_tan(x=self.pitch_A_real, 
                 p=self.momentum_A2B, kernel=self.kernel)
         self.mfc_generation_A2B = self.generator(input_pitch=self.pitch_generation_A2B, 
-                input_mfc=self.mfc_A_real, keep_rate=keep_rate, reuse=False, 
+                input_mfc=self.mfc_A_real, keep_rate=self.keep_rate, reuse=False, 
                 scope_name='generator_A2B')
         # Cyclic generation
         self.momentum_cycle_A2A = self.sampler(input_pitch=self.pitch_generation_A2B, 
-                input_mfc=self.mfc_generation_A2B, keep_rate=keep_rate, 
+                input_mfc=self.mfc_generation_A2B, keep_rate=self.keep_rate, 
                 reuse=False, scope_name='sampler_generator_B2A')
         self.pitch_cycle_A2A = forward_tan(x=self.pitch_generation_A2B, 
                 p=self.momentum_cycle_A2A, kernel=self.kernel)
         self.mfc_cycle_A2A = self.generator(input_pitch=self.pitch_cycle_A2A, 
-                input_mfc=self.mfc_generation_A2B, keep_rate=keep_rate, 
+                input_mfc=self.mfc_generation_A2B, keep_rate=self.keep_rate, 
                 reuse=False, scope_name='generator_B2A')
 
 
@@ -123,33 +124,33 @@ class VariationalCycleGAN(object):
         '''
         # Generate pitch from B to A
         self.momentum_B2A = self.sampler(input_pitch=self.pitch_B_real, 
-                input_mfc=self.mfc_B_real, keep_rate=keep_rate, 
+                input_mfc=self.mfc_B_real, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_B2A')
         self.pitch_generation_B2A = forward_tan(x=self.pitch_B_real, 
                 p=self.momentum_B2A, kernel=self.kernel)
         self.mfc_generation_B2A = self.generator(input_pitch=self.pitch_generation_B2A, 
-                input_mfc=self.mfc_B_real, keep_rate=keep_rate, 
+                input_mfc=self.mfc_B_real, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_B2A')
         # Cyclic generation
         self.momentum_cycle_B2B = self.sampler(input_pitch=self.pitch_generation_B2A, 
-                input_mfc=self.mfc_generation_B2A, keep_rate=keep_rate, 
+                input_mfc=self.mfc_generation_B2A, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_A2B')
         self.pitch_cycle_B2B = forward_tan(x=self.pitch_generation_B2A, 
                 p=self.momentum_cycle_B2B, kernel=self.kernel)
         self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
-                input_mfc=self.mfc_generation_B2A, keep_rate=keep_rate, 
+                input_mfc=self.mfc_generation_B2A, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_A2B')
 
 
         # Generator Discriminator Loss
         self.discrimination_B_fake = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, 
             self.mfc_generation_A2B], axis=1), input_pitch=tf.concat([self.pitch_A_real, 
-                self.pitch_generation_A2B], axis=1), keep_rate=keep_rate, 
+                self.pitch_generation_A2B], axis=1), keep_rate=self.keep_rate, 
                 reuse=False, scope_name='discriminator_A')
 
         self.discrimination_A_fake = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, 
             self.mfc_generation_B2A], axis=1), input_pitch=tf.concat([self.pitch_B_real, 
-                self.pitch_generation_B2A], axis=1), keep_rate=keep_rate, 
+                self.pitch_generation_B2A], axis=1), keep_rate=self.keep_rate, 
                 reuse=False, scope_name='discriminator_B')
 
         # Cycle loss
@@ -199,20 +200,20 @@ class VariationalCycleGAN(object):
         self.discrimination_input_A_real_B_fake \
             = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, self.mfc_B_fake], axis=1), 
                     input_pitch=tf.concat([self.pitch_A_real, self.pitch_B_fake], axis=1), 
-                    keep_rate=keep_rate, reuse=True, scope_name='discriminator_A')
+                    keep_rate=self.keep_rate, reuse=True, scope_name='discriminator_A')
         self.discrimination_input_A_fake_B_real \
             = self.discriminator(input_mfc=tf.concat([self.mfc_A_fake, self.mfc_B_real], axis=1), 
                     input_pitch=tf.concat([self.pitch_A_fake, self.pitch_B_real], axis=1), 
-                    keep_rate=keep_rate, reuse=True, scope_name='discriminator_A')
+                    keep_rate=self.keep_rate, reuse=True, scope_name='discriminator_A')
 
         self.discrimination_input_B_real_A_fake \
             = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, self.mfc_A_fake], axis=1), 
                     input_pitch=tf.concat([self.pitch_B_real, self.pitch_A_fake], axis=1), 
-                    keep_rate=keep_rate, reuse=True, scope_name='discriminator_B')
+                    keep_rate=self.keep_rate, reuse=True, scope_name='discriminator_B')
         self.discrimination_input_B_fake_A_real \
             = self.discriminator(input_mfc=tf.concat([self.mfc_B_fake, self.mfc_A_real], axis=1), 
                     input_pitch=tf.concat([self.pitch_B_fake, self.pitch_A_real], axis=1), 
-                    keep_rate=keep_rate, reuse=True, scope_name='discriminator_B')
+                    keep_rate=self.keep_rate, reuse=True, scope_name='discriminator_B')
 
 
         # Compute discriminator loss for backprop
@@ -244,21 +245,21 @@ class VariationalCycleGAN(object):
 
         # Reserved for test
         self.momentum_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
-                input_mfc=self.mfc_A_test, keep_rate=keep_rate, 
+                input_mfc=self.mfc_A_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_A2B')
         self.pitch_A2B_test = forward_tan(x=self.pitch_A_test, 
                 p=self.momentum_A2B_test, kernel=self.kernel)
         self.mfc_A2B_test = self.generator(input_pitch=self.pitch_A2B_test, 
-                input_mfc=self.mfc_A_test, keep_rate=keep_rate, 
+                input_mfc=self.mfc_A_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_A2B')
 
         self.momentum_B2A_test = self.sampler(input_pitch=self.pitch_B_test, 
-                input_mfc=self.mfc_B_test, keep_rate=keep_rate, 
+                input_mfc=self.mfc_B_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_B2A')
         self.pitch_B2A_test = forward_tan(x=self.pitch_B_test, 
                 p=self.momentum_B2A_test, kernel=self.kernel)
         self.mfc_B2A_test = self.generator(input_pitch=self.pitch_B2A_test, 
-                input_mfc=self.mfc_B_test, keep_rate=keep_rate, 
+                input_mfc=self.mfc_B_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_B2A')
 
 
