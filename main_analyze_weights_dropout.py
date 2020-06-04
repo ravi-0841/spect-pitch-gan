@@ -145,7 +145,7 @@ def train(train_dir, model_dir, model_name, random_seed,
 
             generator_loss, discriminator_loss, \
             gen_pitch_A, gen_mfc_A, gen_pitch_B, \
-            gen_mfc_B, mom_A, mom_B, gen_grad, disc_grad \
+            gen_mfc_B, gen_mom_A, gen_mom_B, gen_grad, disc_grad \
                 = model.train_grad(mfc_A=mfc_A[start:end], 
                     mfc_B=mfc_B[start:end], pitch_A=pitch_A[start:end], 
                     pitch_B=pitch_B[start:end], lambda_cycle_pitch=lambda_cycle_pitch, 
@@ -153,34 +153,32 @@ def train(train_dir, model_dir, model_name, random_seed,
                     generator_learning_rate=generator_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
-#            if (i+1)%50 == 0:
+#            if (i+1)%151 == 0:
 #
 #                pylab.figure(figsize=(13,13))
 #                pylab.subplot(221)
-#                pylab.hist(np.reshape(np.divide(gen_grad[0][0], 1e-10+gen_grad[0][1]), 
-#                                      (-1,)), bins=100, facecolor='red', alpha=0.5, 
-#                    label='Sampler 1')
+#                pylab.plot(pitch_A[start:end].reshape(-1,), label='Input A')
+#                pylab.plot(gen_pitch_B.reshape(-1,), label='Generated B')
+#                pylab.plot(gen_mom_B.reshape(-1,), label='Generated momenta')
 #                pylab.legend(loc=2)
 #                pylab.subplot(222)
-#                pylab.hist(np.reshape(np.divide(gen_grad[62][0], 1e-10+gen_grad[62][1]), 
-#                                      (-1,)), bins=100, facecolor='blue', alpha=0.5, 
-#                    label='Generator 1')
+#                pylab.plot(mfc_A[start:end,0,:].reshape(-1,), label='Input Mfc A')
+#                pylab.plot(gen_mfc_B[0,0,:].reshape(-1,), label='Generated Mfc B')
 #                pylab.legend(loc=2)
 #
 #                pylab.subplot(223)
-#                pylab.hist(np.reshape(np.divide(gen_grad[136][0], 1e-10+gen_grad[136][1]), 
-#                                      (-1,)), bins=100, facecolor='red', alpha=0.5, 
-#                    label='Sampler 2')
+#                pylab.plot(pitch_B[start:end].reshape(-1,), label='Input B')
+#                pylab.plot(gen_pitch_A.reshape(-1,), label='Generated A')
+#                pylab.plot(gen_mom_A.reshape(-1,), label='Generated momenta')
 #                pylab.legend(loc=2)
 #                pylab.subplot(224)
-#                pylab.hist(np.reshape(np.divide(gen_grad[198][0], 1e-10+gen_grad[198][1]), 
-#                                      (-1,)), bins=100, facecolor='blue', alpha=0.5, 
-#                    label='Generator 2')
+#                pylab.plot(mfc_B[start:end,0,:].reshape(-1,), label='Input Mfc B')
+#                pylab.plot(gen_mfc_A[0,0,:].reshape(-1,), label='Generated Mfc A')
 #                pylab.legend(loc=2)
 #
 #                pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
-#                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
-#                        +'grads_'+str(epoch)+'_'+str(i+1)+'.png')
+#                pylab.savefig('/home/ravi/Desktop/epoch_mods/' \
+#                        +str(epoch)+'_'+str(i+1)+'.png')
 #                pylab.close()
             
             train_gen_loss.append(generator_loss)
