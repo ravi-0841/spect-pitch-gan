@@ -21,15 +21,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 def train(train_dir, model_dir, model_name, random_seed, \
             validation_dir, output_dir, \
             tensorboard_log_dir, pre_train=None, \
-            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0):
+            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0, 
+            generator_learning_rate=1e-05, discriminator_learning_rate=1e-03):
 
     np.random.seed(random_seed)
 
     num_epochs = 2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
-
-    generator_learning_rate = 0.0000001
-    discriminator_learning_rate = 0.0000001
 
     sampling_rate = 16000
     num_mcep = 23
@@ -303,31 +301,33 @@ if __name__ == '__main__':
     tensorboard_log_dir_default = './log/'+emo_pair
     random_seed_default = 0
 
-    parser.add_argument('--train_dir', type=str, help='Directory for A.', \
-                        default=train_dir_default)
-    parser.add_argument('--model_dir', type=str, help='Directory for saving models.', \
-                        default=model_dir_default)
-    parser.add_argument('--model_name', type=str, help='File name for saving model.', \
-                        default=model_name_default)
-    parser.add_argument('--random_seed', type=int, help='Random seed for model training.', \
-                        default=random_seed_default)
-    parser.add_argument('--validation_dir', type=str, \
-                        help='Convert validation after each training epoch. Set None for no conversion', \
-                        default=validation_dir_default)
-    parser.add_argument('--output_dir', type=str, \
-                        help='Output directory for converted validation voices.', default=output_dir_default)
-    parser.add_argument('--tensorboard_log_dir', type=str, help='TensorBoard log directory.', \
-                        default=tensorboard_log_dir_default)
-    parser.add_argument('--current_iter', type = int, \
-                        help = "Current iteration of the model (Fine tuning)", default=1)
-    parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", \
-                        default=0.00001)
-    parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
-                        default=0.1)
-    parser.add_argument("--lambda_momenta", type=float, help="hyperparam for momenta magnitude", \
-                        default=1e-4)
-
-    argv = parser.parse_args()
+    parser.add_argument('--train_dir', type=str, help='Directory for A.', 
+            default=train_dir_default)
+    parser.add_argument('--model_dir', type=str, help='Directory for saving models.', 
+            default=model_dir_default)
+    parser.add_argument('--model_name', type=str, help='File name for saving model.', 
+            default=model_name_default)
+    parser.add_argument('--random_seed', type=int, help='Random seed for model training.', 
+            default=random_seed_default)
+    parser.add_argument('--validation_dir', type=str, 
+            help='Convert validation after each training epoch. Set None for no conversion', 
+            default=validation_dir_default)
+    parser.add_argument('--output_dir', type=str, help='Output directory for converted validation voices.', 
+            default=output_dir_default)
+    parser.add_argument('--tensorboard_log_dir', type=str, help='TensorBoard log directory.', 
+            default=tensorboard_log_dir_default)
+    parser.add_argument('--current_iter', type=int, help="Current iteration of the model (Fine tuning)", 
+            default=1)
+    parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
+            default=0.00001)
+    parser.add_argument('--lambda_cycle_mfc', type=float, help="hyperparam for cycle loss mfc", 
+            default=0.1)
+    parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
+            default=1e-4)
+    parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
+            default=1e-07)
+    argv = parser.parse_args('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
+            default=1e-07)
 
     train_dir = argv.train_dir
     model_dir = argv.model_dir
@@ -342,9 +342,13 @@ if __name__ == '__main__':
     lambda_cycle_mfc = argv.lambda_cycle_mfc
     lambda_momenta = argv.lambda_momenta
 
+    generator_learning_rate = argv.generator_learning_rate
+    discriminator_learning_rate = argv.discriminator_learning_rate
+
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
           pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_train/cmu-arctic900.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
-          lambda_momenta=lambda_momenta)
+          lambda_momenta=lambda_momenta, generator_learning_rate=generator_learning_rate, 
+          discriminator_learning_rate=discriminator_learning_rate)
