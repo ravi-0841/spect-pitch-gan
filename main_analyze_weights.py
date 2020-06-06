@@ -18,20 +18,16 @@ import utils.preprocess as preproc
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-def train(train_dir, model_dir, model_name, random_seed, 
-        validation_dir, output_dir, 
-        tensorboard_log_dir, generator_learning_rate=1e-07, 
-        discriminator_learning_rate=1e-07, pre_train=None, 
-        lambda_cycle_pitch=0, lambda_cycle_mfc=0, 
-        lambda_momenta=0):
+def train(train_dir, model_dir, model_name, random_seed, \
+            validation_dir, output_dir, \
+            tensorboard_log_dir, pre_train=None, \
+            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0, 
+            generator_learning_rate=1e-05, discriminator_learning_rate=1e-03):
 
     np.random.seed(random_seed)
 
     num_epochs = 2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
-
-    generator_learning_rate = generator_learning_rate
-    discriminator_learning_rate = discriminator_learning_rate
 
     sampling_rate = 16000
     num_mcep = 23
@@ -309,6 +305,7 @@ if __name__ == '__main__':
     tensorboard_log_dir_default = './log/'+emo_pair
     random_seed_default = 0
 
+<<<<<<< HEAD:main_analyze_weights.py
     parser.add_argument('--train_dir', type=str, help='Directory for A.', \
                         default=train_dir_default)
     parser.add_argument('--model_dir', type=str, help='Directory for saving models.', \
@@ -327,9 +324,9 @@ if __name__ == '__main__':
     parser.add_argument('--current_iter', type = int, \
                         help = "Current iteration of the model (Fine tuning)", default=1)
     parser.add_argument("--generator_learning_rate", type=float, help="learning rate for generators", \
-                        default=0.0000001)
+                        default=0.000001)
     parser.add_argument("--discriminator_learning_rate", type=float, help="learning rate for discriminator", \
-                        default=0.0000001)
+                        default=0.001)
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", \
                         default=0.0001)
     parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
