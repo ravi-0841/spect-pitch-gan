@@ -40,7 +40,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = "glr_"+str(generator_learning_rate) \
             + '_dlr_'+str(discriminator_learning_rate) \
-            + '_analyze_weights_lr'
+            + '_lp_'+str(lambda_cycle_pitch)+'_lm_'+str(lambda_cycle_mfc) \
+            + '_analyze_weights_hparams'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -305,7 +306,6 @@ if __name__ == '__main__':
     tensorboard_log_dir_default = './log/'+emo_pair
     random_seed_default = 0
 
-<<<<<<< HEAD:main_analyze_weights.py
     parser.add_argument('--train_dir', type=str, help='Directory for A.', \
                         default=train_dir_default)
     parser.add_argument('--model_dir', type=str, help='Directory for saving models.', \
