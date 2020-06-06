@@ -324,7 +324,7 @@ if __name__ == '__main__':
     parser.add_argument('--current_iter', type = int, \
                         help = "Current iteration of the model (Fine tuning)", default=1)
     parser.add_argument("--generator_learning_rate", type=float, help="learning rate for generators", \
-                        default=0.000001)
+                        default=0.00001)
     parser.add_argument("--discriminator_learning_rate", type=float, help="learning rate for discriminator", \
                         default=0.001)
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", \
