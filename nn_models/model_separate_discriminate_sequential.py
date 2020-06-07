@@ -10,7 +10,7 @@ class VariationalCycleGAN(object):
 
     def __init__(self, dim_pitch=1, dim_mfc=23, n_frames=128, 
             discriminator=discriminator, generator=generator,
-            predictor=predictor, mode='train', log_dir='./tensorboard_log', 
+            predictor=predictor, mode='train', log_dir_name='no_name_seq', 
             pre_train=None):
         
         self.n_frames = n_frames
@@ -50,7 +50,7 @@ class VariationalCycleGAN(object):
 
         if self.mode == 'train':
             self.train_step = 0
-            self.writer = tf.summary.FileWriter('./tensorboard_log', 
+            self.writer = tf.summary.FileWriter('./tensorboard_log/'+log_dir_name, 
                     tf.get_default_graph())
             self.predictor_summaries, self.discriminator_summaries = self.summary()
 

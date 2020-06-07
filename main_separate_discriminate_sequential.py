@@ -112,7 +112,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     
     #use pre_train arg to provide trained model
     model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, \
-                n_frames=n_frames, pre_train=pre_train)
+                n_frames=n_frames, pre_train=pre_train, log_dir_name=lc_lm)
     
     for epoch in range(1,num_epochs+1):
 
@@ -186,7 +186,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info("Train Generator Loss- {}".format(np.mean(train_gen_loss)))
         logging.info("Train Discriminator Loss- {}".format(np.mean(train_disc_loss)))
 
-        if epoch%1 == 0:
+        if epoch%100 == 0:
 
             for i in range(mfc_A_valid.shape[0]):
 
@@ -344,7 +344,7 @@ if __name__ == '__main__':
     lambda_cycle_mfc = argv.lambda_cycle_mfc
     lambda_momenta = argv.lambda_momenta
 
-    pre_train = '/home/ravi/Desktop/pitch-gan/pitch-lddmm-gan/model_f0/neu-ang/selected/neu-ang.ckpt'
+    pre_train = './model/model_f0/neu-ang/selected/neu-ang.ckpt'
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
