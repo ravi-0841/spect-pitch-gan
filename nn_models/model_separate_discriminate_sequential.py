@@ -346,12 +346,9 @@ class VariationalCycleGAN(object):
             predictor_gradient_summary = tf.summary.scalar('predictor_gradients', 
                     tf.divide(tf.reduce_sum(self.predictor_grads[0][0]**2), 
                     tf.reduce_sum(self.predictor_grads[0][1]**2)))
-            predictor_momenta_loss = tf.summary.scalar('momenta_loss', 
-                    self.momenta_loss)
             predictor_summaries = tf.summary.merge([cycle_loss_mfc_summary, 
                 predictor_loss_A2B_summary, predictor_loss_B2A_summary, 
-                predictor_loss_summary, predictor_momenta_loss, 
-                predictor_gradient_summary])
+                predictor_loss_summary, predictor_gradient_summary])
 
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_A_summary = tf.summary.scalar('discriminator_loss_A', 

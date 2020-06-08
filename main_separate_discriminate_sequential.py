@@ -18,11 +18,11 @@ import utils.preprocess as preproc
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-def train(train_dir, model_dir, model_name, random_seed, \
-            validation_dir, output_dir, \
-            tensorboard_log_dir, pre_train=None, \
-            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0, 
-            predictor_learning_rate=1e-05, discriminator_learning_rate=1e-05):
+def train(train_dir, model_dir, model_name, random_seed, 
+          validation_dir, output_dir, 
+          tensorboard_log_dir, pre_train=None, 
+          lambda_cycle_mfc=0, 
+          predictor_learning_rate=1e-05, discriminator_learning_rate=1e-05):
 
     np.random.seed(random_seed)
 
@@ -34,7 +34,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "lp_"+str(lambda_cycle_pitch) \
+    lc_lm = "lm_"+str(lambda_cycle_mfc) \
             + '_plr_'+str(predictor_learning_rate) \
             +"_dlr_"+str(discriminator_learning_rate) + '_sequential'
 
@@ -47,9 +47,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.basicConfig(filename=logger_file, \
                             level=logging.DEBUG)
 
-    print("lambda_cycle pitch - {}".format(lambda_cycle_pitch))
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
-    print("lambda_momenta - {}".format(lambda_momenta))
     print("cycle_loss - L1")
 
     logging.info("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
@@ -142,36 +140,6 @@ def train(train_dir, model_dir, model_name, random_seed, \
                     pitch_B=pitch_B[start:end], lambda_cycle_mfc=lambda_cycle_mfc, 
                     predictor_learning_rate=predictor_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
-            
-#            if (i+1)%50 == 0:
-#
-#                pylab.figure(figsize=(13,13))
-#                pylab.subplot(221)
-#                pylab.hist(np.reshape(np.divide(gen_grad[0][0], 1e-10+gen_grad[0][1]), 
-#                                      (-1,)), bins=100, facecolor='red', alpha=0.5, 
-#                    label='Sampler 1')
-#                pylab.legend(loc=2)
-#                pylab.subplot(222)
-#                pylab.hist(np.reshape(np.divide(gen_grad[62][0], 1e-10+gen_grad[62][1]), 
-#                                      (-1,)), bins=100, facecolor='blue', alpha=0.5, 
-#                    label='Generator 1')
-#                pylab.legend(loc=2)
-#
-#                pylab.subplot(223)
-#                pylab.hist(np.reshape(np.divide(gen_grad[136][0], 1e-10+gen_grad[136][1]), 
-#                                      (-1,)), bins=100, facecolor='red', alpha=0.5, 
-#                    label='Sampler 2')
-#                pylab.legend(loc=2)
-#                pylab.subplot(224)
-#                pylab.hist(np.reshape(np.divide(gen_grad[198][0], 1e-10+gen_grad[198][1]), 
-#                                      (-1,)), bins=100, facecolor='blue', alpha=0.5, 
-#                    label='Generator 2')
-#                pylab.legend(loc=2)
-#
-#                pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
-#                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
-#                        +'grads_'+str(epoch)+'_'+str(i+1)+'.png')
-#                pylab.close()
             
             train_gen_loss.append(generator_loss)
             train_disc_loss.append(discriminator_loss)
@@ -318,12 +286,10 @@ if __name__ == '__main__':
                         default=tensorboard_log_dir_default)
     parser.add_argument('--current_iter', type = int, \
                         help = "Current iteration of the model (Fine tuning)", default=1)
-    parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", \
-                        default=0.00001)
     parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
                         default=0.1)
     parser.add_argument('--predictor_learning_rate', type=float, help="learning rate for predictor", 
-                        default=1e-06)
+                        default=1e-04)
     parser.add_argument('--discriminator_learning_rate', type=float, help="learning rate for discriminator", 
                         default=1e-03)
     argv = parser.parse_args()
@@ -347,9 +313,9 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train=pre_train, lambda_cycle_pitch=lambda_cycle_pitch, 
-          lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta, 
-          predictor_learning_rate=predictor_lr, discriminator_learning_rate=discriminator_lr)
+          pre_train=pre_train, lambda_cycle_mfc=lambda_cycle_mfc, 
+          predictor_learning_rate=predictor_lr, 
+          discriminator_learning_rate=discriminator_lr)
 
 
 
