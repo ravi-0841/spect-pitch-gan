@@ -1,8 +1,8 @@
 #! /bin/bash
 
-cycle_array_mfc=( 0.001 0.01 )
-predictor_learning_rate=( 0.000001 0.00001 0.0001 )
-discriminator_learning_rate=( 0.0001 0.001 0.01 )
+cycle_array_mfc=( 0.001 0.01 0.1 )
+predictor_learning_rate=( 0.00001 0.0001 0.001 )
+discriminator_learning_rate=( 0.00001 0.0001 0.001 )
 counter=1
 for c in "${cycle_array_mfc[@]}"
 do
