@@ -1,9 +1,9 @@
 #!/bin/bash -l
-#SBATCH --partition=gpup100
+#SBATCH --partition=gpuk80
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
-#SBATCH -t 12:00:00
+#SBATCH -t 15:00:00
 
 module load cuda/9.0
 module load singularity
@@ -17,4 +17,4 @@ singularity pull --name tf.simg shub://ravi-0841/singularity-tensorflow-1.14
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf.simg python3 main_separate_discriminate_sequential.py --lambda_cycle_mfc $1 --lambda_momenta $2
+singularity exec --nv ./tf.simg python3 main_separate_discriminate_sequential.py --lambda_cycle_mfc $1 --predictor_learning_rate $2 --discriminator_learning_rate $3

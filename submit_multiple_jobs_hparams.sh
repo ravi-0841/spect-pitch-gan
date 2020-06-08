@@ -39,7 +39,7 @@ do
         do
             for cm in "${cycle_mfc[@]}"
             do
-                if [ "$counter" -ge 1 ];
+                if [ "$counter" -ge 49 ];
                 then
                     echo $counter;
                     sbatch -J $counter -o "./txt_files/job_hparams_${counter}.txt" gen_disc_job_analyze_weights_hparams.sh $g $d $cp $cm
