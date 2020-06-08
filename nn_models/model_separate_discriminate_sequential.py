@@ -90,12 +90,8 @@ class VariationalCycleGAN(object):
                 name='mfc_B_test')
 
         # Place holder for lambda_cycle and lambda_identity
-        self.lambda_cycle_pitch = tf.placeholder(tf.float32, None, 
-                name='lambda_cycle_pitch')
         self.lambda_cycle_mfc = tf.placeholder(tf.float32, None, 
                 name='lambda_cycle_mfc')
-        self.lambda_momenta = tf.placeholder(tf.float32, None, 
-                name='lambda_momenta')
 
         '''
         Generator A
@@ -156,21 +152,7 @@ class VariationalCycleGAN(object):
                 y_hat=self.discrimination_A_fake)
         self.pred_disc_loss = (self.predictor_loss_A2B + self.predictor_loss_B2A) / 2.0
 
-        self.momentum_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momentum_A2B, [-1,1])))) \
-                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-                        tf.reshape(self.momentum_cycle_A2A, [-1,1]))))
-
-        self.momentum_loss_B2A = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momentum_B2A, [-1,1])))) \
-                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-                        tf.reshape(self.momentum_cycle_B2B, [-1,1]))))
-
-        self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
-
-        self.predictor_loss \
-            = self.pred_disc_loss + self.lambda_cycle_mfc * self.cycle_loss_mfc \
-                + self.lambda_momenta * self.momenta_loss
+        self.predictor_loss = self.pred_disc_loss + self.lambda_cycle_mfc*self.cycle_loss_mfc
 
         # Compute the discriminator probability for pair of inputs
         self.discrimination_input_A_real_B_fake \
@@ -256,9 +238,8 @@ class VariationalCycleGAN(object):
                 = self.predictor_optimizer.apply_gradients(self.predictor_grads)
                 
 
-    def train_grad(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
-            lambda_cycle_mfc, lambda_momenta, predictor_learning_rate, 
-            discriminator_learning_rate):
+    def train_grad(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_mfc, 
+            predictor_learning_rate, discriminator_learning_rate):
 
         momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
                 generation_pitch_A, generation_mfc_A, predictor_loss, \
@@ -267,11 +248,9 @@ class VariationalCycleGAN(object):
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.pred_disc_loss, self.predictor_grads, 
                     self.predictor_train_op, self.predictor_summaries], 
-                    feed_dict = {self.lambda_cycle_pitch:lambda_cycle_pitch, 
-                        self.lambda_cycle_mfc:lambda_cycle_mfc, 
-                        self.lambda_momenta:lambda_momenta, self.pitch_A_real:pitch_A, 
-                        self.pitch_B_real:pitch_B, self.mfc_A_real:mfc_A, 
-                        self.mfc_B_real:mfc_B, 
+                    feed_dict = {self.lambda_cycle_mfc:lambda_cycle_mfc, 
+                        self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
+                        self.mfc_A_real:mfc_A, self.mfc_B_real:mfc_B, 
                         self.predictor_learning_rate:predictor_learning_rate})
 
         self.writer.add_summary(predictor_summaries, self.train_step)

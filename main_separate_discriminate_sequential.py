@@ -21,15 +21,13 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 def train(train_dir, model_dir, model_name, random_seed, \
             validation_dir, output_dir, \
             tensorboard_log_dir, pre_train=None, \
-            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0):
+            lambda_cycle_pitch=0, lambda_cycle_mfc=0, lambda_momenta=0, 
+            predictor_learning_rate=1e-05, discriminator_learning_rate=1e-05):
 
     np.random.seed(random_seed)
 
     num_epochs = 2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
-
-    predictor_learning_rate = 0.00001
-    discriminator_learning_rate = 0.00001
 
     sampling_rate = 16000
     num_mcep = 23
@@ -37,8 +35,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     n_frames = 128
 
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
-            + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_sequential'
+            + '_plr_'+str(predictor_learning_rate) \
+            +"_dlr_"+str(discriminator_learning_rate) + '_sequential'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -54,9 +52,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
     print("lambda_momenta - {}".format(lambda_momenta))
     print("cycle_loss - L1")
 
-    logging.info("lambda_cycle_pitch - {}".format(lambda_cycle_pitch))
     logging.info("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
-    logging.info("lambda_momenta - {}".format(lambda_momenta))
+    logging.info("predictor_lr - {}".format(predictor_learning_rate))
+    logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
     if not os.path.isdir("./pitch_spect/"+lc_lm):
         os.makedirs(os.path.join("./pitch_spect/", lc_lm))
@@ -141,8 +139,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             gen_mfc_B, mom_A, mom_B, gen_grad, disc_grad \
                 = model.train_grad(mfc_A=mfc_A[start:end], 
                     mfc_B=mfc_B[start:end], pitch_A=pitch_A[start:end], 
-                    pitch_B=pitch_B[start:end], lambda_cycle_pitch=lambda_cycle_pitch, 
-                    lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta, 
+                    pitch_B=pitch_B[start:end], lambda_cycle_mfc=lambda_cycle_mfc, 
                     predictor_learning_rate=predictor_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
@@ -325,9 +322,10 @@ if __name__ == '__main__':
                         default=0.00001)
     parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
                         default=0.1)
-    parser.add_argument("--lambda_momenta", type=float, help="hyperparam for momenta magnitude", \
-                        default=1e-4)
-
+    parser.add_argument('--predictor_learning_rate', type=float, help="learning rate for predictor", 
+                        default=1e-06)
+    parser.add_argument('--discriminator_learning_rate', type=float, help="learning rate for discriminator", 
+                        default=1e-03)
     argv = parser.parse_args()
 
     train_dir = argv.train_dir
@@ -340,16 +338,18 @@ if __name__ == '__main__':
     output_dir = argv.output_dir
     tensorboard_log_dir = argv.tensorboard_log_dir
 
-    lambda_cycle_pitch = argv.lambda_cycle_pitch
     lambda_cycle_mfc = argv.lambda_cycle_mfc
-    lambda_momenta = argv.lambda_momenta
+    
+    predictor_lr = argv.predictor_learning_rate
+    discriminator_lr = argv.discriminator_learning_rate
 
     pre_train = './model/model_f0/neu-ang/selected/neu-ang.ckpt'
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
           pre_train=pre_train, lambda_cycle_pitch=lambda_cycle_pitch, 
-          lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta)
+          lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta, 
+          predictor_learning_rate=predictor_lr, discriminator_learning_rate=discriminator_lr)
 
 
 
