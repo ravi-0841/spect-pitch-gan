@@ -289,9 +289,9 @@ if __name__ == '__main__':
     parser.add_argument("--lambda_cycle_mfc", type=float, help="hyperparam for cycle loss mfc", \
                         default=0.1)
     parser.add_argument('--predictor_learning_rate', type=float, help="learning rate for predictor", 
-                        default=1e-04)
+                        default=0.001)
     parser.add_argument('--discriminator_learning_rate', type=float, help="learning rate for discriminator", 
-                        default=1e-03)
+                        default=1e-05)
     argv = parser.parse_args()
 
     train_dir = argv.train_dir
