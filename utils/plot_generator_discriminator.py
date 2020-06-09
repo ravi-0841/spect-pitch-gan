@@ -27,10 +27,10 @@ if __name__=="__main__":
         for line in r:
             try:
                 if "Train Generator" in line:
-                    n = re.findall(r"[-+]?\d*\.\d+|\d+", line)
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
                     train_generator_loss.append(float(n[0]))
                 if "Train Discriminator" in line:
-                    n = re.findall(r"[-+]?\d*\.\d+|\d+", line)
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
                     train_discriminator_loss.append(float(n[0]))
             except Exception as e:
                 pass
