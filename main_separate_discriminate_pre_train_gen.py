@@ -326,8 +326,10 @@ if __name__ == '__main__':
             default=1e-4)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
             default=1e-07)
-    argv = parser.parse_args('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
+    parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
+    
+    argv = parser.parse_args()
 
     train_dir = argv.train_dir
     model_dir = argv.model_dir
