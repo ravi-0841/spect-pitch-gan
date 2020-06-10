@@ -3,7 +3,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
-#SBATCH -t 10:00:00
+#SBATCH -t 3:00:00
 
 module load cuda/9.0
 module load singularity
