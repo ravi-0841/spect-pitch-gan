@@ -50,6 +50,7 @@ def train(train_dir, model_dir, model_name, random_seed,
     print("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
     print("lambda_identity_mfc - {}".format(lambda_identity_mfc))
     print("cycle_loss - L1")
+    print("Identity_loss - L1")
 
     logging.info("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
     logging.info("lambda_identity_mfc - {}".format(lambda_identity_mfc))
