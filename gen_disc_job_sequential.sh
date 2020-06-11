@@ -17,4 +17,4 @@ singularity pull --name tf.simg shub://ravi-0841/singularity-tensorflow-1.14
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf.simg python3 main_separate_discriminate_sequential.py --lambda_cycle_mfc $1 --predictor_learning_rate $2 --discriminator_learning_rate $3
+singularity exec --nv ./tf.simg python3 main_sequential.py --lambda_cycle_mfc $1 --predictor_learning_rate $2 --discriminator_learning_rate $3

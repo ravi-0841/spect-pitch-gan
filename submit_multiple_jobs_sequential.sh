@@ -13,7 +13,7 @@ do
             if [ "$counter" -ge 1 ];
             then
                 echo $counter;
-                sbatch -J $counter -o "./txt_files/job_seq_${counter}.txt" gen_disc_job_separate_discriminate_sequential.sh $c $p $d
+                sbatch -J $counter -o "./txt_files/job_seq_${counter}.txt" gen_disc_job_sequential.sh $c $p $d
             fi;
             counter=$((counter+1))
         done
