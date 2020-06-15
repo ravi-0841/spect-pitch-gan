@@ -188,29 +188,29 @@ def discriminator(input_mfc_1, input_mfc_2, final_filters=1,
                 activation=tf.nn.sigmoid, name='sigmoid_output')
 
         # Residual blocks
-        r1_pitch = residual1d_block(inputs=d2_pitch, filters=512, \
+        r1 = residual1d_block(inputs=d2, filters=512, \
                 kernel_size=3, strides=1, \
-                name_prefix='residual1d_pitch_block1_')
-        r2_pitch = residual1d_block(inputs=r1_pitch, filters=512, \
+                name_prefix='residual1d_block1_')
+        r2 = residual1d_block(inputs=r1, filters=512, \
                 kernel_size=3, strides=1, \
-                name_prefix='residual1d_pitch_block2_')
-        r3_pitch = residual1d_block(inputs=r2_pitch, filters=512, \
+                name_prefix='residual1d_block2_')
+        r3 = residual1d_block(inputs=r2, filters=512, \
                 kernel_size=3, strides=1, \
-                name_prefix='residual1d_pitch_block3_')
+                name_prefix='residual1d_block3_')
 
         # Upsample
-        u1_pitch = upsample1d_block(inputs=r3_pitch, filters=512, \
+        u1 = upsample1d_block(inputs=r3, filters=512, \
                 kernel_size=5, strides=1, \
-                shuffle_size=2, name_prefix='upsample1d_pitch_block1_')
-        u2_pitch = upsample1d_block(inputs=u1_pitch, filters=256, \
+                shuffle_size=2, name_prefix='upsample1d_block1_')
+        u2 = upsample1d_block(inputs=u1, filters=256, \
                 kernel_size=5, strides=1, \
-                shuffle_size=2, name_prefix='upsample1d_pitch_block2_')
+                shuffle_size=2, name_prefix='upsample1d_block2_')
         
         # Dropout for stochasticity
-        u2_pitch = tf.nn.dropout(u2_pitch, keep_prob=keep_rate)
+        u2 = tf.nn.dropout(u2, keep_prob=keep_rate)
 
         # Output 2
-        o2 = conv1d_layer(inputs=u2_pitch, filters=final_filters, \
+        o2 = conv1d_layer(inputs=u2, filters=final_filters, \
                 kernel_size=15, strides=1, \
                 activation=None, name='o1_pitch_conv')
 

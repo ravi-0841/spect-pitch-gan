@@ -161,9 +161,9 @@ class VariationalCycleGAN(object):
                 y_hat=self.mfc_identity_A))
 
         # Information Maximization
-        self.infomax_pred_loss_A2B = l1_los(y=self.pitch_generation_A2B, 
+        self.infomax_pred_loss_A2B = l1_loss(y=self.pitch_generation_A2B, 
                 y_hat=self.infomax_pitch_B) 
-        self.infomax_pred_loss_B2A = l1_los(y=self.pitch_generation_B2A, 
+        self.infomax_pred_loss_B2A = l1_loss(y=self.pitch_generation_B2A, 
                 y_hat=self.infomax_pitch_A) 
         self.infomax_pred_loss = (self.infomax_pred_loss_A2B \
                 + self.infomax_pred_loss_B2A)
@@ -178,7 +178,7 @@ class VariationalCycleGAN(object):
 
         self.predictor_loss = self.pred_disc_loss \
                 + self.lambda_cycle_mfc*self.cycle_loss_mfc \
-                + self.lambda_identity_mfc*self.identity_loss_mfc
+                + self.lambda_identity_mfc*self.identity_loss_mfc \
                 + self.lambda_infomax*self.infomax_pred_loss
 
         # Compute the discriminator probability for pair of inputs
@@ -382,7 +382,7 @@ class VariationalCycleGAN(object):
             predictor_summaries = tf.summary.merge([cycle_loss_mfc_summary, 
                 predictor_loss_A2B_summary, predictor_loss_B2A_summary, 
                 predictor_loss_summary, predictor_infomax_loss_A2B_summary, 
-                predictor_infomax_B2A_summary])
+                predictor_infomax_loss_B2A_summary])
 
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_A_summary = tf.summary.scalar('discriminator_loss_A', 

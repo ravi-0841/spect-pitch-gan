@@ -16,7 +16,7 @@ from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, 
           validation_dir, output_dir, 
@@ -49,8 +49,10 @@ def train(train_dir, model_dir, model_name, random_seed,
 
     print("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
     print("lambda_identity_mfc - {}".format(lambda_identity_mfc))
+    print("lambda_infomax - {}".format(lambda_infomax))
     print("cycle_loss - L1")
     print("Identity_loss - L1")
+    print("Infomax_loss - L1")
 
     logging.info("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
     logging.info("lambda_identity_mfc - {}".format(lambda_identity_mfc))
@@ -297,7 +299,7 @@ if __name__ == '__main__':
     parser.add_argument("--lambda_identity_mfc", type=float, help="hyperparam for cycle loss mfc", \
                         default=5)
     parser.add_argument("--lambda_infomax", type=float, help="hyperparam for infomax loss pitch", \
-                        default=1)
+                        default=0.001)
     parser.add_argument('--predictor_learning_rate', type=float, help="learning rate for predictor", 
                         default=0.0002)
     parser.add_argument('--discriminator_learning_rate', type=float, help="learning rate for discriminator", 
