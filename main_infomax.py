@@ -11,7 +11,7 @@ import pylab
 import logging
 
 from glob import glob
-from nn_models.model_sequential_id import VariationalCycleGAN
+from nn_models.model_infomax import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 
@@ -21,8 +21,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 def train(train_dir, model_dir, model_name, random_seed, 
           validation_dir, output_dir, 
           tensorboard_log_dir, pre_train=None, 
-          lambda_cycle_mfc=10, lambda_identity_mfc=5, 
-          predictor_learning_rate=0.0002, 
+          lambda_cycle_mfc=10, lambda_identity_mfc=5,
+          lambda_infomax=1, predictor_learning_rate=0.0002, 
           discriminator_learning_rate=0.0001):
 
     np.random.seed(random_seed)
@@ -36,7 +36,7 @@ def train(train_dir, model_dir, model_name, random_seed,
     n_frames = 128
 
     lc_lm = "plr_"+str(predictor_learning_rate) \
-            +"_dlr_"+str(discriminator_learning_rate) + "_sequential_id"
+            +"_dlr_"+str(discriminator_learning_rate) + "_infomax"
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -54,6 +54,7 @@ def train(train_dir, model_dir, model_name, random_seed,
 
     logging.info("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
     logging.info("lambda_identity_mfc - {}".format(lambda_identity_mfc))
+    logging.info("lambda_infomax - {}".format(lambda_infomax))
     logging.info("predictor_lr - {}".format(predictor_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
@@ -142,6 +143,7 @@ def train(train_dir, model_dir, model_name, random_seed,
                     mfc_B=mfc_B[start:end], pitch_A=pitch_A[start:end], 
                     pitch_B=pitch_B[start:end], lambda_cycle_mfc=lambda_cycle_mfc, 
                     lambda_identity_mfc=lambda_identity_mfc, 
+                    lambda_infomax=lambda_infomax, 
                     predictor_learning_rate=predictor_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
@@ -294,6 +296,8 @@ if __name__ == '__main__':
                         default=10)
     parser.add_argument("--lambda_identity_mfc", type=float, help="hyperparam for cycle loss mfc", \
                         default=5)
+    parser.add_argument("--lambda_infomax", type=float, help="hyperparam for infomax loss pitch", \
+                        default=1)
     parser.add_argument('--predictor_learning_rate', type=float, help="learning rate for predictor", 
                         default=0.0002)
     parser.add_argument('--discriminator_learning_rate', type=float, help="learning rate for discriminator", 
@@ -312,6 +316,7 @@ if __name__ == '__main__':
 
     lambda_cycle_mfc = argv.lambda_cycle_mfc
     lambda_identity_mfc = argv.lambda_identity_mfc
+    lambda_infomax = argv.lambda_infomax
     
     predictor_lr = argv.predictor_learning_rate
     discriminator_lr = argv.discriminator_learning_rate
@@ -322,6 +327,7 @@ if __name__ == '__main__':
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
           pre_train=pre_train, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_identity_mfc=lambda_identity_mfc, 
+          lambda_infomax=lambda_infomax, 
           predictor_learning_rate=predictor_lr, 
           discriminator_learning_rate=discriminator_lr)
 
