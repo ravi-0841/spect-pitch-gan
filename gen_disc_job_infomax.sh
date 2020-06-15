@@ -17,4 +17,4 @@ singularity pull --name tf.simg shub://ravi-0841/singularity-tensorflow-1.14
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf.simg python3 main_infomax.py --lambda_cycle_mfc 10 --lambda_identity_mfc 5 --lambda_infomax 0.001
+singularity exec --nv ./tf.simg python3 main_infomax.py --lambda_cycle_mfc 10 --lambda_identity_mfc 1 --lambda_infomax 0.001
