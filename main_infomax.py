@@ -35,7 +35,7 @@ def train(train_dir, model_dir, model_name, random_seed,
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "li_"+str(lambda_identity) \
+    lc_lm = "li_"+str(lambda_identity_mfc) \
             +"_lf_"+str(lambda_infomax) + "_infomax"
 
     model_dir = os.path.join(model_dir, lc_lm)
