@@ -94,6 +94,9 @@ def lddmm(x, p, kernel, num_iter=3, reuse=False, scope_name='warping_generator')
 
 #if __name__ == "__main__":
 #    tf.reset_default_graph()
+#    import scipy.io as scio
+#    import numpy as np
+#    import pylab
 #    data = scio.loadmat('/home/ravi/Desktop/momentum-warping/data/neu-ang/mom-valid.mat')
 #    src_feat = np.asarray(data['src_f0_feat'], np.float64)
 #    tar_feat = np.asarray(data['tar_f0_feat'], np.float64)
@@ -106,7 +109,7 @@ def lddmm(x, p, kernel, num_iter=3, reuse=False, scope_name='warping_generator')
 #    P = tf.placeholder(dtype=tf.float32, shape=[None, 1, None], name="momenta")
 #    K = tf.placeholder(dtype=tf.float32, shape=[1,2], name="kernel")
 #    
-#    warped_curve = forward_tan(X, P, K)
+#    warped_curve = lddmm(X, P, K, num_iter=5)
 #    grads = tf.gradients(ys=warped_curve, xs=P, stop_gradients=X)
 #  
 #    x = np.reshape(src_feat[q,:], (1,1,-1))
