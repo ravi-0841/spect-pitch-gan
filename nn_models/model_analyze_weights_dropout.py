@@ -4,13 +4,13 @@ import numpy as np
 
 from modules.modules_separate_discriminate import sampler, generator, discriminator
 from utils.model_utils import l1_loss
-from utils.tf_forward_tan import forward_tan
+from utils.tf_forward_tan import lddmm 
 
 class VariationalCycleGAN(object):
 
     def __init__(self, dim_pitch=1, dim_mfc=23, n_frames=128, 
             discriminator=discriminator, generator=generator,
-            sampler=sampler, keep_rate=0.5, mode='train', 
+            sampler=sampler, lddmm=lddmm, keep_rate=0.5, mode='train', 
             log_dir_name='no_name', pre_train=None):
         
         self.n_frames = n_frames
@@ -34,6 +34,7 @@ class VariationalCycleGAN(object):
         self.sampler = sampler
         self.generator = generator
         self.discriminator = discriminator
+        self.lddmm = lddmm
         self.mode = mode
         self.keep_rate = keep_rate
 
@@ -103,8 +104,8 @@ class VariationalCycleGAN(object):
         self.momentum_A2B = self.sampler(input_pitch=self.pitch_A_real, 
                 input_mfc=self.mfc_A_real, keep_rate=self.keep_rate, 
                 reuse=False, scope_name='sampler_generator_A2B')
-        self.pitch_generation_A2B = forward_tan(x=self.pitch_A_real, 
-                p=self.momentum_A2B, kernel=self.kernel)
+        self.pitch_generation_A2B = self.lddmm(x=self.pitch_A_real, 
+                p=self.momentum_A2B, kernel=self.kernel, reuse=False, scope_name='lddmm')
         self.mfc_generation_A2B = self.generator(input_pitch=self.pitch_generation_A2B, 
                 input_mfc=self.mfc_A_real, keep_rate=self.keep_rate, reuse=False, 
                 scope_name='generator_A2B')
@@ -112,8 +113,8 @@ class VariationalCycleGAN(object):
         self.momentum_cycle_A2A = self.sampler(input_pitch=self.pitch_generation_A2B, 
                 input_mfc=self.mfc_generation_A2B, keep_rate=self.keep_rate, 
                 reuse=False, scope_name='sampler_generator_B2A')
-        self.pitch_cycle_A2A = forward_tan(x=self.pitch_generation_A2B, 
-                p=self.momentum_cycle_A2A, kernel=self.kernel)
+        self.pitch_cycle_A2A = self.lddmm(x=self.pitch_generation_A2B, 
+                p=self.momentum_cycle_A2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_cycle_A2A = self.generator(input_pitch=self.pitch_cycle_A2A, 
                 input_mfc=self.mfc_generation_A2B, keep_rate=self.keep_rate, 
                 reuse=False, scope_name='generator_B2A')
@@ -126,8 +127,8 @@ class VariationalCycleGAN(object):
         self.momentum_B2A = self.sampler(input_pitch=self.pitch_B_real, 
                 input_mfc=self.mfc_B_real, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_B2A')
-        self.pitch_generation_B2A = forward_tan(x=self.pitch_B_real, 
-                p=self.momentum_B2A, kernel=self.kernel)
+        self.pitch_generation_B2A = self.lddmm(x=self.pitch_B_real, 
+                p=self.momentum_B2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_generation_B2A = self.generator(input_pitch=self.pitch_generation_B2A, 
                 input_mfc=self.mfc_B_real, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_B2A')
@@ -135,8 +136,8 @@ class VariationalCycleGAN(object):
         self.momentum_cycle_B2B = self.sampler(input_pitch=self.pitch_generation_B2A, 
                 input_mfc=self.mfc_generation_B2A, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_A2B')
-        self.pitch_cycle_B2B = forward_tan(x=self.pitch_generation_B2A, 
-                p=self.momentum_cycle_B2B, kernel=self.kernel)
+        self.pitch_cycle_B2B = self.lddmm(x=self.pitch_generation_B2A, 
+                p=self.momentum_cycle_B2B, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
                 input_mfc=self.mfc_generation_B2A, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_A2B')
@@ -247,8 +248,8 @@ class VariationalCycleGAN(object):
         self.momentum_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
                 input_mfc=self.mfc_A_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_A2B')
-        self.pitch_A2B_test = forward_tan(x=self.pitch_A_test, 
-                p=self.momentum_A2B_test, kernel=self.kernel)
+        self.pitch_A2B_test = self.lddmm(x=self.pitch_A_test, 
+                p=self.momentum_A2B_test, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_A2B_test = self.generator(input_pitch=self.pitch_A2B_test, 
                 input_mfc=self.mfc_A_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_A2B')
@@ -256,8 +257,8 @@ class VariationalCycleGAN(object):
         self.momentum_B2A_test = self.sampler(input_pitch=self.pitch_B_test, 
                 input_mfc=self.mfc_B_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='sampler_generator_B2A')
-        self.pitch_B2A_test = forward_tan(x=self.pitch_B_test, 
-                p=self.momentum_B2A_test, kernel=self.kernel)
+        self.pitch_B2A_test = self.lddmm(x=self.pitch_B_test, 
+                p=self.momentum_B2A_test, kernel=self.kernel), reuse=True, scope_name='lddmm'
         self.mfc_B2A_test = self.generator(input_pitch=self.pitch_B2A_test, 
                 input_mfc=self.mfc_B_test, keep_rate=self.keep_rate, 
                 reuse=True, scope_name='generator_B2A')
