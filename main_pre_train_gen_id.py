@@ -58,6 +58,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.info("lambda_cycle_mfc - {}".format(lambda_cycle_mfc))
     logging.info("lambda_identity_mfc - {}".format(lambda_identity_mfc))
     logging.info("lambda_momenta - {}".format(lambda_momenta))
+    logging.info("generator_lr - {}".format(generator_learning_rate))
+    logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
     if not os.path.isdir("./pitch_spect/"+lc_lm):
         os.makedirs(os.path.join("./pitch_spect/", lc_lm))
@@ -205,8 +207,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         if epoch % 100 == 0:
             
-#            cur_model_name = model_name+"_"+str(epoch)+".ckpt"
-#            model.save(directory=model_dir, filename=cur_model_name)
+            cur_model_name = model_name+"_"+str(epoch)+".ckpt"
+            model.save(directory=model_dir, filename=cur_model_name)
 
             if validation_dir is not None:
                 print('Generating Validation Data B from A...')
@@ -299,7 +301,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_identity_mfc', type=float, help="hyperparam for identity loss mfc", 
             default=0.05)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
-            default=1e-4)
+            default=1e-6)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
             default=1e-07)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
