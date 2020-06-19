@@ -6,6 +6,7 @@ from sklearn.preprocessing import StandardScaler
 import sys
 import scipy.signal as scisig
 from scipy import interpolate
+import librosa
 
 color_iter = itertools.cycle(['navy', 'c', 'cornflowerblue', 'gold',
                               'darkorange', 'm', 'g', 'k'])
@@ -240,8 +241,17 @@ def compute_difference_pca(x, pca):
     difference = np.sum((pca - x)**2, axis=1)
     return np.mean(np.sqrt(difference))
 
-
-
+def mfcc_to_spectrum(S, axis=1, sr=16000, n_fft=1024):
+    n_mels = S.shape[axis]
+    if axis == 1:
+        S = S.T
+    mel_filters = librosa.filters.mel(sr, n_fft=n_fft, n_mels=S.shape[axis])
+    spectrum = librosa.feature.inverse.mel_to_stft(S, sr=sr, n_fft=n_fft)
+    if axis == 1:
+        return spectrum.T
+    else:
+        return spectrum
+    
 
 
 
