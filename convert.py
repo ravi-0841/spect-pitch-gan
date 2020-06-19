@@ -57,7 +57,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         
         decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                      fs=sampling_rate)
-
+        decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=decoded_sp_converted, 
                                                          ap=ap, fs=sampling_rate, 
@@ -104,7 +104,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                          fs=sampling_rate)
-    
+            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
@@ -122,7 +122,7 @@ if __name__ == '__main__':
     model_name_default = 'neu-ang_1000.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/converted_emotion'
+    output_dir_default = '/home/ravi/Desktop/converted_emotion_unmz'
     audio_file_default = None
 
     parser.add_argument('--model_dir', type = str, help = 'Directory for the pre-trained model.', default=model_dir_default)
