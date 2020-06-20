@@ -10,6 +10,7 @@ import pylab
 import librosa
 import scipy
 
+from numpy.fft import rfft
 from utils.helper import smooth, generate_interpolation, mfcc_to_spectrum
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 from scipy.optimize import nnls, fmin_l_bfgs_b
@@ -155,6 +156,40 @@ def compute_power_spectrum_from_mel(A, B):
     return spectrum
 
 
+def _hz2mel(hz):
+    """Convert a value in Hertz to Mels
+    :param hz: a value in Hz. This can also be a numpy array, conversion proceeds element-wise.
+    :returns: a value in Mels. If an array was passed in, an identical sized array is returned.
+    """
+    return 2595 * np.log10(1 + hz / 700.)
+
+
+def _mel2hz(mel):
+    """Convert a value in Mels to Hertz
+    :param mel: a value in Mels. This can also be a numpy array, conversion proceeds element-wise.
+    :returns: a value in Hertz. If an array was passed in, an identical sized array is returned.
+    """
+    return 700 * (10 ** (mel / 2595.0) - 1)
+
+
+def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
+    """
+    Compute magnitude spectrum from mcep Tuanad implementation
+    """
+    lowmel = _hz2mel(0)
+    highmel = _hz2mel(8000)
+    n0 = cepstrum.shape[1]
+    Yc = np.zeros((cepstrum.shape[0], fft_size))
+    Yc[:, :n0] = cepstrum
+    Yc[:, :-n0:-1] = Yc[:, 1:n0]
+    Yl = rfft(Yc).real
+    melpoints = np.linspace(lowmel, highmel, int(fft_size // 2 + 1))
+    bin = np.floor(fft_size * _mel2hz(melpoints) / 16000)
+    Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
+                   for s in Yl])
+    return np.exp(Yl)
+
+
 if __name__ == '__main__':
     
     tf.reset_default_graph()
@@ -211,6 +246,12 @@ if __name__ == '__main__':
     decoded_sp_librosa = mfcc_to_spectrum(coded_sp_converted, axis=1, 
                                          sr=sampling_rate)
     print('Librosa decoded')
+    
+    """
+    Tuanad conversion of mfcc to spectrum
+    """
+    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
+    print('Tuanad decoded')
 
     """
     Manual conversion of mfcc to spectrum
@@ -227,16 +268,16 @@ if __name__ == '__main__':
 
     # Plot the spectrum
     pylab.figure(), pylab.subplot(221)
-    pylab.imshow(decoded_sp_librosa.T), pylab.colorbar(), pylab.title('Librosa')
+    pylab.imshow(decoded_sp_librosa.T / np.max(decoded_sp_librosa)), pylab.colorbar(), pylab.title('Librosa')
     pylab.subplot(222)
-    pylab.imshow(decoded_sp_manual.T), pylab.colorbar(), pylab.title('Manual')
+    pylab.imshow(decoded_sp_manual.T/np.max(decoded_sp_manual)), pylab.colorbar(), pylab.title('Manual')
     pylab.subplot(223)
-    pylab.imshow(decoded_sp_pyworld.T), pylab.colorbar(), pylab.title('Pyworld')
+    pylab.imshow(decoded_sp_pyworld.T/np.max(decoded_sp_pyworld)), pylab.colorbar(), pylab.title('Pyworld')
     pylab.subplot(224)
-    pylab.imshow(decoded_sp_pyworld.T), pylab.colorbar(), pylab.title('Pyworld')
+    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
 
     wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_pyworld/np.max(decoded_sp_pyworld), 
+                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
                                                      ap=ap, fs=sampling_rate, 
                                                      frame_period=frame_period)
     scwav.write(os.path.join('/home/ravi/Desktop', 

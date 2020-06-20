@@ -57,7 +57,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         
         decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                      fs=sampling_rate)
-        decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
+#        decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=decoded_sp_converted, 
                                                          ap=ap, fs=sampling_rate, 
@@ -104,7 +104,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                          fs=sampling_rate)
-            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
+#            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
