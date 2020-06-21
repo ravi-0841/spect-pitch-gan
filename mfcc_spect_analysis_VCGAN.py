@@ -9,6 +9,7 @@ import utils.preprocess as preproc
 import pylab
 import librosa
 import scipy
+import argparse
 
 from numpy.fft import rfft, irfft
 from utils.helper import smooth, generate_interpolation, mfcc_to_spectrum
@@ -258,12 +259,15 @@ if __name__ == '__main__':
     model_dir = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
     model_name = 'neu-ang_1000.ckpt'
     conversion_direction = 'A2B'
-    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1081.wav'
+    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1034.wav'
     
+    parser.add_argument('--audio_file', type=str, help='audio file to convert', default=audio_file)
+    argv = parser.parse_args()
+
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
     model.load(filepath=os.path.join(model_dir, model_name))
 
-    wav, sr = librosa.load(audio_file, sr=sampling_rate, mono=True)
+    wav, sr = librosa.load(argv.audio_file, sr=sampling_rate, mono=True)
     assert (sr==sampling_rate)
     wav = preproc.wav_padding(wav=wav, sr=sampling_rate, \
                       frame_period=frame_period, multiple=4)
@@ -300,49 +304,53 @@ if __name__ == '__main__':
     decoded_sp_pyworld = smooth_spectrum(decoded_sp_pyworld)
     print('Pyworld decoded')
     
-    """
-    Librosa conversion of mfcc to spectrum
-    """
-    decoded_sp_librosa = mfcc_to_spectrum(coded_sp_converted, axis=1, 
-                                         sr=sampling_rate)
-    print('Librosa decoded')
+    _,_, error_conv = check_reconstructed_sanity(f0_converted, decoded_sp_pyworld)
+    _,_, error_orig = check_reconstructed_sanity(f0.reshape(-1,), sp)
+    print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
     
-    """
-    Tuanad conversion of mfcc to spectrum
-    """
-#    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
-    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
-    print('Tuanad decoded')
-
-    """
-    Manual conversion of mfcc to spectrum
-    """
-    filters = librosa.filters.mel(sr=sampling_rate, n_fft=n_fft, 
-                                  n_mels=num_mels, htk=True)
-    log_filter_energy = scipy.fftpack.idct(coded_sp_converted, axis=1, 
-                                     type=2, norm='ortho', n=num_mels)
-    filter_energy = _db_to_power(log_filter_energy)
-    
-    decoded_sp_manual = np.transpose(np.power(nnls_lbfgs_block(np.asarray(filters, np.float64), 
-                                                   filter_energy.T), 1/2.0))
-    print('Manual decoded')
-
-    # Plot the spectrum
-    pylab.figure(), pylab.subplot(221)
-    pylab.imshow(decoded_sp_librosa.T / np.max(decoded_sp_librosa)), pylab.colorbar(), pylab.title('Librosa')
-    pylab.subplot(222)
-    pylab.imshow(decoded_sp_manual.T/np.max(decoded_sp_manual)), pylab.colorbar(), pylab.title('Manual')
-    pylab.subplot(223)
-    pylab.imshow(decoded_sp_pyworld.T/np.max(decoded_sp_pyworld)), pylab.colorbar(), pylab.title('Pyworld')
-    pylab.subplot(224)
-    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
-
-    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
-                                                     ap=ap, fs=sampling_rate, 
-                                                     frame_period=frame_period)
-    scwav.write(os.path.join('/home/ravi/Desktop', 
-                             os.path.basename(audio_file)), 
-                            sampling_rate, wav_transformed)
-    print('Processed: ' + audio_file)
+#    """
+#    Librosa conversion of mfcc to spectrum
+#    """
+#    decoded_sp_librosa = mfcc_to_spectrum(coded_sp_converted, axis=1, 
+#                                         sr=sampling_rate)
+#    print('Librosa decoded')
+#    
+#    """
+#    Tuanad conversion of mfcc to spectrum
+#    """
+##    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
+#    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
+#    print('Tuanad decoded')
+#
+#    """
+#    Manual conversion of mfcc to spectrum
+#    """
+#    filters = librosa.filters.mel(sr=sampling_rate, n_fft=n_fft, 
+#                                  n_mels=num_mels, htk=True)
+#    log_filter_energy = scipy.fftpack.idct(coded_sp_converted, axis=1, 
+#                                     type=2, norm='ortho', n=num_mels)
+#    filter_energy = _db_to_power(log_filter_energy)
+#    
+#    decoded_sp_manual = np.transpose(np.power(nnls_lbfgs_block(np.asarray(filters, np.float64), 
+#                                                   filter_energy.T), 1/2.0))
+#    print('Manual decoded')
+#
+#    # Plot the spectrum
+#    pylab.figure(), pylab.subplot(221)
+#    pylab.imshow(decoded_sp_librosa.T / np.max(decoded_sp_librosa)), pylab.colorbar(), pylab.title('Librosa')
+#    pylab.subplot(222)
+#    pylab.imshow(decoded_sp_manual.T/np.max(decoded_sp_manual)), pylab.colorbar(), pylab.title('Manual')
+#    pylab.subplot(223)
+#    pylab.imshow(decoded_sp_pyworld.T/np.max(decoded_sp_pyworld)), pylab.colorbar(), pylab.title('Pyworld')
+#    pylab.subplot(224)
+#    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
+#
+#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+#                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
+#                                                     ap=ap, fs=sampling_rate, 
+#                                                     frame_period=frame_period)
+#    scwav.write(os.path.join('/home/ravi/Desktop', 
+#                             os.path.basename(audio_file)), 
+#                            sampling_rate, wav_transformed)
+#    print('Processed: ' + audio_file)
     
