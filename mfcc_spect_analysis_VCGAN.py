@@ -240,8 +240,7 @@ def f0_spect_consistency(f0, spect):
     f0 = f0[nz_idx]
     spect = spect[nz_idx]
     interp_spect = np.array([_f0_interp(f0[i], spect[i]) for i in range(spect.shape[0])])
-    print(spect.shape, interp_spect.shape)
-    return (spect, interp_spect, np.sum(np.abs(spect - interp_spect))/len(nz_idx))
+    return (spect, interp_spect, np.mean(np.sum(np.abs(spect - interp_spect), axis=1)))
 
 
 if __name__ == '__main__':
