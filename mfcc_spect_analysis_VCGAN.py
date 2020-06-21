@@ -10,20 +10,12 @@ import pylab
 import librosa
 import scipy
 
-from numpy.fft import rfft
+from numpy.fft import rfft, irfft
 from utils.helper import smooth, generate_interpolation, mfcc_to_spectrum
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 from scipy.optimize import nnls, fmin_l_bfgs_b
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
-
-
-num_mfcc = 23
-num_pitch = 1
-sampling_rate = 16000
-frame_period = 5.0
-num_mels = 128
-n_fft = 1024
 
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -172,6 +164,27 @@ def _mel2hz(mel):
     return 700 * (10 ** (mel / 2595.0) - 1)
 
 
+def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000, 
+                       lowhz=0, highhz=8000):
+    """
+    Warp magnitude spectrum with Mel-scale
+    Then, cepstrum analysis with order of n0
+    Spec is magnitude spectrogram (N x D) array
+    """
+
+    lowmel = _hz2mel(lowhz)
+    highmel = _hz2mel(highhz)
+    """return the real cepstrum X is N x D array; N frames and D dimensions"""
+    Xl = np.log(spec)
+    D = spec.shape[1]
+    melpoints = np.linspace(lowmel, highmel, D)
+    bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
+    Xml = np.array([np.interp(bin, np.arange(D), s)
+                    for s in Xl])  #
+    Xc = irfft(Xml)  # Xl is real, not complex
+    return Xc[:, :n0]
+
+
 def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
     """
     Compute magnitude spectrum from mcep Tuanad implementation
@@ -193,6 +206,14 @@ def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
 if __name__ == '__main__':
     
     tf.reset_default_graph()
+    
+    num_mfcc = 23
+    num_pitch = 1
+    sampling_rate = 16000
+    frame_period = 5.0
+    num_mels = 128
+    n_fft = 1024
+
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
     model_dir = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
@@ -250,6 +271,7 @@ if __name__ == '__main__':
     """
     Tuanad conversion of mfcc to spectrum
     """
+    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
     decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
     print('Tuanad decoded')
 
