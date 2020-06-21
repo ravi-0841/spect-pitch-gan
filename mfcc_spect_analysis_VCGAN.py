@@ -14,6 +14,7 @@ from numpy.fft import rfft, irfft
 from utils.helper import smooth, generate_interpolation, mfcc_to_spectrum
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 from scipy.optimize import nnls, fmin_l_bfgs_b
+from scipy.signal import butter, lfilter, freqz, filtfilt
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 
@@ -71,6 +72,44 @@ def _nnls_obj(x, shape, A, B):
 
     # Flatten the gradient
     return value, grad.flatten()
+
+
+def _butter_lowpass(cutoff, fs, order=5):
+    nyq = 0.5 * fs
+    normal_cutoff = cutoff / nyq
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    return b, a
+
+
+def _butter_lowpass_filter(data, cutoff, fs, order=5):
+    b, a = _butter_lowpass(cutoff, fs, order=order)
+    y = filtfilt(b, a, data)
+    return y
+
+
+def _hz2mel(hz):
+    """Convert a value in Hertz to Mels
+    :param hz: a value in Hz. This can also be a numpy array, conversion proceeds element-wise.
+    :returns: a value in Mels. If an array was passed in, an identical sized array is returned.
+    """
+    return 2595 * np.log10(1 + hz / 700.)
+
+
+def _mel2hz(mel):
+    """Convert a value in Mels to Hertz
+    :param mel: a value in Mels. This can also be a numpy array, conversion proceeds element-wise.
+    :returns: a value in Hertz. If an array was passed in, an identical sized array is returned.
+    """
+    return 700 * (10 ** (mel / 2595.0) - 1)
+
+
+def _f0_interp(f0, s):
+    bin_sep = int(np.ceil(f0 / ((sampling_rate/2)/(n_fft//2 + 1))))
+    sampling_x = np.asarray(np.floor(np.arange(0, (n_fft//2 + 1), bin_sep)), np.int)
+    sampling_y = s[sampling_x]
+    interp_x = np.arange(0, (n_fft//2 + 1), 1)
+    interp_y = np.interp(interp_x, sampling_x, sampling_y)
+    return interp_y
 
 
 def smooth_spectrum(A, window_len=27, window='flat'):
@@ -148,22 +187,6 @@ def compute_power_spectrum_from_mel(A, B):
     return spectrum
 
 
-def _hz2mel(hz):
-    """Convert a value in Hertz to Mels
-    :param hz: a value in Hz. This can also be a numpy array, conversion proceeds element-wise.
-    :returns: a value in Mels. If an array was passed in, an identical sized array is returned.
-    """
-    return 2595 * np.log10(1 + hz / 700.)
-
-
-def _mel2hz(mel):
-    """Convert a value in Mels to Hertz
-    :param mel: a value in Mels. This can also be a numpy array, conversion proceeds element-wise.
-    :returns: a value in Hertz. If an array was passed in, an identical sized array is returned.
-    """
-    return 700 * (10 ** (mel / 2595.0) - 1)
-
-
 def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000, 
                        lowhz=0, highhz=8000):
     """
@@ -176,7 +199,7 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     highmel = _hz2mel(highhz)
     """return the real cepstrum X is N x D array; N frames and D dimensions"""
     Xl = np.log(spec)
-    D = spec.shape[1]
+    D = spec.shape[-1]
     melpoints = np.linspace(lowmel, highmel, D)
     bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
     Xml = np.array([np.interp(bin, np.arange(D), s)
@@ -201,6 +224,22 @@ def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
     Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
                    for s in Yl])
     return np.exp(Yl)
+
+
+def low_pass_filt(S, cutoff_freq=10, fs=32):
+    S_filtered = np.empty((0,S.shape[-1]))
+    for i in S:
+        i_filtered = _butter_lowpass_filter(i, cutoff_freq, fs)
+        S_filtered = np.concatenate((S_filtered, i_filtered.reshape(1,-1)))
+    return S_filtered
+
+
+def check_reconstructed_sanity(f0, spect):
+    nz_idx = np.where(f0>10.0)
+    f0 = f0[nz_idx]
+    spect = spect[nz_idx]
+    interp_spect = np.array([_f0_interp(f0[i], spect[i]) for i in range(spect.shape[0])])
+    return (spect, interp_spect, np.sum(np.abs(spect - interp_spect)))
 
 
 if __name__ == '__main__':
@@ -271,7 +310,7 @@ if __name__ == '__main__':
     """
     Tuanad conversion of mfcc to spectrum
     """
-    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
+#    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
     decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
     print('Tuanad decoded')
 
