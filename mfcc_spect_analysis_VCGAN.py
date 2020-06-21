@@ -235,12 +235,13 @@ def low_pass_filt(S, cutoff_freq=10, fs=32):
     return S_filtered
 
 
-def check_reconstructed_sanity(f0, spect):
+def f0_spect_consistency(f0, spect):
     nz_idx = np.where(f0>10.0)
     f0 = f0[nz_idx]
     spect = spect[nz_idx]
     interp_spect = np.array([_f0_interp(f0[i], spect[i]) for i in range(spect.shape[0])])
-    return (spect, interp_spect, np.sum(np.abs(spect - interp_spect)))
+    print(spect.shape, interp_spect.shape)
+    return (spect, interp_spect, np.sum(np.abs(spect - interp_spect))/len(nz_idx))
 
 
 if __name__ == '__main__':
@@ -304,8 +305,8 @@ if __name__ == '__main__':
     decoded_sp_pyworld = smooth_spectrum(decoded_sp_pyworld)
     print('Pyworld decoded')
     
-    _,_, error_conv = check_reconstructed_sanity(f0_converted, decoded_sp_pyworld)
-    _,_, error_orig = check_reconstructed_sanity(f0.reshape(-1,), sp)
+    _,_, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
+    _,_, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
     print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
     
 #    """
