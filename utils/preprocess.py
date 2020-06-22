@@ -4,6 +4,7 @@ import os
 import pyworld
 import scipy.io.wavfile as scwav
 import scipy.ndimage.filters as scifilt
+import scipy.fftpack as scfft
 
 from joblib import Parallel, delayed
 
@@ -91,6 +92,18 @@ def world_speech_synthesis(f0, decoded_sp, ap, fs, frame_period):
     wav = wav.astype(np.float32)
 
     return wav
+
+def encode_raw_spectrum(spectrum, axis=1, dim_mfc=23):
+    linear_mfcc = scfft.dct(np.log(spectrum), axis=axis, norm='ortho')
+    if axis==0:
+        return linear_mfcc[:dim_mfc, :]
+    else:
+        return linear_mfcc[:, :dim_mfc]
+
+def decode_raw_spectrum(linear_mfcc, axis=1, n_fft=1024):
+    spectrum = scfft.idct(linear_mfcc, axis=axis, 
+                          n=(n_fft//2 + 1), norm='ortho')
+    return np.exp(spectrum)
 
 def world_synthesis_data(f0s, decoded_sps, aps, fs, frame_period):
 
