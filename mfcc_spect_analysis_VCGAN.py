@@ -259,7 +259,7 @@ if __name__ == '__main__':
     model_dir = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
     model_name = 'neu-ang_1000.ckpt'
     conversion_direction = 'A2B'
-    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1034.wav'
+    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
     
     parser.add_argument('--audio_file', type=str, help='audio file to convert', default=audio_file)
     argv = parser.parse_args()
@@ -301,12 +301,43 @@ if __name__ == '__main__':
     
     decoded_sp_pyworld = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                  fs=sampling_rate)
-    decoded_sp_pyworld = smooth_spectrum(decoded_sp_pyworld)
+#    decoded_sp_pyworld = smooth_spectrum(decoded_sp_pyworld)
     print('Pyworld decoded')
     
-    _,_, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
-    _,_, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
+    
+#    sp = sp / np.max(sp)
+#    decoded_sp_pyworld = decoded_sp_pyworld / np.max(decoded_sp_pyworld)
+    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
+    spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
     print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
+    
+    spect_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
+    spect_extend_tensor = tf.pad(spect_tensor, [[0,0],[0,1024-45]], 'constant')
+    spect_extend_copy = tf.concat([spect_extend_tensor, spect_tensor[:,1:]], axis=1)
+    idct_op = tf.math.real(tf.signal.rfft(spect_extend_copy))
+    with tf.Session() as sess:
+        z = sess.run(idct_op, feed_dict={spect_tensor:coded_sp_converted})
+    
+    lowmel = _hz2mel(0)
+    highmel = _hz2mel(sampling_rate/2)
+    melpoints = np.linspace(lowmel, highmel, int(n_fft // 2 + 1))
+    bin = np.floor(n_fft * _mel2hz(melpoints) / sampling_rate)
+    z = np.array([np.interp(np.arange(int(n_fft // 2 + 1)), bin, s) for s in z])
+    z = np.exp(z)
+#    z = z / np.max(z)
+    z_nz, interp_znz, error_znz = f0_spect_consistency(f0_converted, z)
+    print('Tensorflow mismatch- {}'.format(error_znz))
+
+#    for i in range(10):
+#        q = np.random.randint(0, min([spect.shape[0], spect_conv.shape[0]]))
+#        pylab.figure(), pylab.subplot(121), pylab.plot(spect[q,:], label='original')
+#        pylab.plot(interp_spect[q,:], label='interpolated')
+#        pylab.title('Non Converted'), pylab.legend()
+#        pylab.subplot(122), pylab.plot(spect_conv[q,:], label='original')
+#        pylab.plot(interp_spect_conv[q,:], label='interpolated')
+#        pylab.title('Converted'), pylab.legend()
+#        pylab.suptitle('Frame %d' % q)
+    
     
 #    """
 #    Librosa conversion of mfcc to spectrum
@@ -344,13 +375,13 @@ if __name__ == '__main__':
 #    pylab.imshow(decoded_sp_pyworld.T/np.max(decoded_sp_pyworld)), pylab.colorbar(), pylab.title('Pyworld')
 #    pylab.subplot(224)
 #    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
-#
-#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-#                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
-#                                                     ap=ap, fs=sampling_rate, 
-#                                                     frame_period=frame_period)
-#    scwav.write(os.path.join('/home/ravi/Desktop', 
-#                             os.path.basename(audio_file)), 
-#                            sampling_rate, wav_transformed)
-#    print('Processed: ' + audio_file)
+
+    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+                                                     decoded_sp=decoded_sp_pyworld/np.max(decoded_sp_pyworld), 
+                                                     ap=ap, fs=sampling_rate, 
+                                                     frame_period=frame_period)
+    scwav.write(os.path.join('/home/ravi/Desktop', 
+                             os.path.basename(audio_file)), 
+                            sampling_rate, wav_transformed)
+    print('Processed: ' + audio_file)
     
