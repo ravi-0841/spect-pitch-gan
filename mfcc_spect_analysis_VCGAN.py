@@ -216,36 +216,55 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     Spec is magnitude spectrogram (N x D) array
     """
 
-    lowmel = _hz2mel(lowhz)
-    highmel = _hz2mel(highhz)
-    """return the real cepstrum X is N x D array; N frames and D dimensions"""
-    Xl = np.log(spec)
-    D = spec.shape[-1]
-    melpoints = np.linspace(lowmel, highmel, D)
-    bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
-    Xml = np.array([np.interp(bin, np.arange(D), s)
-                    for s in Xl])  #
+    """
+    Old version
+    """
+#    lowmel = _hz2mel(lowhz)
+#    highmel = _hz2mel(highhz)
+#    """return the real cepstrum X is N x D array; N frames and D dimensions"""
+#    Xl = np.log(spec)
+#    D = spec.shape[-1]
+#    melpoints = np.linspace(lowmel, highmel, D)
+#    bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
+#    Xml = np.array([np.interp(bin, np.arange(D), s)
+#                    for s in Xl])
 #    Xc = irfft(Xml)  # Xl is real, not complex ###------Old version----------#
+    """
+    New version
+    """
+    interp_mat = _interp_matrix_hz2mel()
+    Xml = np.dot(interp_mat, np.log(spec.T)).T
     Xc = scipy.fftpack.dct(Xml, axis=1, norm='ortho')
     return Xc[:, :n0]
 
 
 def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
     """
-    Compute magnitude spectrum from mcep Tuanad implementation
+    cepstrum: array TxD, T - timeframes and D - fft_size//2 + 1
     """
-    lowmel = _hz2mel(0)
-    highmel = _hz2mel(8000)
+    
+    """
+    Old version
+    """
+#    lowmel = _hz2mel(0)
+#    highmel = _hz2mel(8000)
 #    n0 = cepstrum.shape[1]
 #    Yc = np.zeros((cepstrum.shape[0], fft_size))
 #    Yc[:, :n0] = cepstrum
 #    Yc[:, :-n0:-1] = Yc[:, 1:n0]
-#    Yl = rfft(Yc).real ###------------------------------Old version----------#
-    Yl = scipy.fftpack.idct(cepstrum, axis=1, n=(fft_size//2 + 1), norm='ortho')
-    melpoints = np.linspace(lowmel, highmel, int(fft_size // 2 + 1))
-    bin = np.floor(fft_size * _mel2hz(melpoints) / 16000)
-    Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
-                   for s in Yl])
+#    Yl = rfft(Yc).real 
+#    melpoints = np.linspace(lowmel, highmel, int(fft_size // 2 + 1))
+#    bin = np.floor(fft_size * _mel2hz(melpoints) / 16000)
+#    Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
+#                   for s in Yl])
+    """
+    New version
+    """
+    interp_mat = _interp_matrix_hz2mel()
+    Yl = scipy.fftpack.idct(cepstrum, axis=1, 
+                            n=(fft_size//2 + 1), norm='ortho')
+    Yl = np.transpose(nnls_lbfgs_block(interp_mat, Yl.T))
+
     return np.exp(Yl)
 
 
@@ -295,8 +314,9 @@ if __name__ == '__main__':
                       frame_period=frame_period, multiple=4)
     f0, sp, ap = preproc.world_decompose(wav=wav, \
                     fs=sampling_rate, frame_period=frame_period)
-    coded_sp = preproc.world_encode_spectral_envelope(sp=sp, \
-                        fs=sampling_rate, dim=num_mfcc)
+#    coded_sp = preproc.world_encode_spectral_envelope(sp=sp, \
+#                        fs=sampling_rate, dim=num_mfcc)
+    coded_sp = tuanad_encode_mcep(spec=sp, n0=num_mfcc, fs=sampling_rate)
     
     coded_sp = np.expand_dims(coded_sp, axis=0)
     coded_sp = np.transpose(coded_sp, (0,2,1))
@@ -364,8 +384,8 @@ if __name__ == '__main__':
     Tuanad conversion of mfcc to spectrum
     """
 #    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
-#    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
-#    print('Tuanad decoded')
+    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
+    print('Tuanad decoded')
 
     """
     Manual conversion of mfcc to spectrum
@@ -391,16 +411,30 @@ if __name__ == '__main__':
 #    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
 
     """
-    Synthesizing Speech
+    Synthesizing Speech Pyworld
     """
-#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-#                                                     decoded_sp=decoded_sp_pyworld, 
-#                                                     ap=ap, fs=sampling_rate, 
-#                                                     frame_period=frame_period)
-#    scwav.write(os.path.join('/home/ravi/Desktop', 
-#                             os.path.basename(audio_file)), 
-#                            sampling_rate, wav_transformed)
-#    print('Processed: ' + audio_file)
+    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+                                                     decoded_sp=decoded_sp_pyworld, 
+                                                     ap=ap, fs=sampling_rate, 
+                                                     frame_period=frame_period)
+    scwav.write(os.path.join('/home/ravi/Desktop/', 
+                             'pyworld_'+os.path.basename(audio_file)), 
+                            sampling_rate, wav_transformed)
+    print('Processed: ' + audio_file)
+    
+    """
+    Synthesizing Speech Tuanad
+    """
+    decoded_sp_tuanad = np.ascontiguousarray(decoded_sp_tuanad)
+    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+                                                     decoded_sp=decoded_sp_tuanad, 
+                                                     ap=ap, fs=sampling_rate, 
+                                                     frame_period=frame_period)
+    scwav.write(os.path.join('/home/ravi/Desktop/', 
+                             'tuanad_'+os.path.basename(audio_file)), 
+                            sampling_rate, wav_transformed)
+    print('Processed: ' + audio_file)
+    
     
 ######################################################################################################
 
