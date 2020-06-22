@@ -104,6 +104,25 @@ def _mel2hz(mel):
     return 700 * (10 ** (mel / 2595.0) - 1)
 
 
+def _interp_matrix_hz2mel(sr=16000, n_fft=1024):
+    lowmel = _hz2mel(0)
+    highmel = _hz2mel(sr/2)
+    mel_points = np.linspace(lowmel, highmel, n_fft//2 + 1)
+    center_freq_points = _mel2hz(mel_points)
+    bin_width = sr / n_fft
+    freq_ends = np.arange(0, sr/2 + bin_width, bin_width)
+    F = np.zeros((n_fft//2+1, n_fft//2+1))
+    for m in range(n_fft//2+1):
+        mf = center_freq_points[m]
+        for i in range(n_fft//2):
+            if (mf >= freq_ends[i]) and (mf < freq_ends[i+1]):
+                ldist = 1 - ((mf - freq_ends[i]) / bin_width)
+                rdist = 1 - ((freq_ends[i+1] - mf) / bin_width)
+                F[m, i] = ldist
+                F[m, i+1] = rdist
+    return F
+
+
 def _f0_interp(f0, s):
     bin_sep = int(np.ceil(f0 / ((sampling_rate/2)/(n_fft//2 + 1))))
     sampling_x = np.asarray(np.floor(np.arange(0, (n_fft//2 + 1), bin_sep)), np.int)
@@ -337,15 +356,7 @@ if __name__ == '__main__':
 #        pylab.plot(interp_spect_conv[q,:], label='interpolated')
 #        pylab.title('Converted'), pylab.legend()
 #        pylab.suptitle('Frame %d' % q)
-    
-    
-#    """
-#    Librosa conversion of mfcc to spectrum
-#    """
-#    decoded_sp_librosa = mfcc_to_spectrum(coded_sp_converted, axis=1, 
-#                                         sr=sampling_rate)
-#    print('Librosa decoded')
-#    
+#
 #    """
 #    Tuanad conversion of mfcc to spectrum
 #    """
@@ -385,3 +396,6 @@ if __name__ == '__main__':
                             sampling_rate, wav_transformed)
     print('Processed: ' + audio_file)
     
+######################################################################################################
+
+
