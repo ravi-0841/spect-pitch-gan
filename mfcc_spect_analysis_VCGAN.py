@@ -224,7 +224,8 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
     Xml = np.array([np.interp(bin, np.arange(D), s)
                     for s in Xl])  #
-    Xc = irfft(Xml)  # Xl is real, not complex
+#    Xc = irfft(Xml)  # Xl is real, not complex
+    Xc = scipy.fftpack.dct(Xml, axis=1, type=2, norm='ortho')
     return Xc[:, :n0]
 
 
@@ -238,7 +239,8 @@ def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
     Yc = np.zeros((cepstrum.shape[0], fft_size))
     Yc[:, :n0] = cepstrum
     Yc[:, :-n0:-1] = Yc[:, 1:n0]
-    Yl = rfft(Yc).real
+#    Yl = rfft(Yc).real
+    Yl = scipy.fftpack.idct(cepstrum, axis=1, n=(fft_size//2+1), type=2, norm='ortho')
     melpoints = np.linspace(lowmel, highmel, int(fft_size // 2 + 1))
     bin = np.floor(fft_size * _mel2hz(melpoints) / 16000)
     Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
