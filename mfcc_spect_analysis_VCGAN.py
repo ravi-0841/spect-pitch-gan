@@ -120,6 +120,7 @@ def _interp_matrix_hz2mel(sr=16000, n_fft=1024):
                 rdist = 1 - ((freq_ends[i+1] - mf) / bin_width)
                 F[m, i] = ldist
                 F[m, i+1] = rdist
+    F[-1,-1] = 1
     return F
 
 
@@ -224,8 +225,8 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
     Xml = np.array([np.interp(bin, np.arange(D), s)
                     for s in Xl])  #
-#    Xc = irfft(Xml)  # Xl is real, not complex
-    Xc = scipy.fftpack.dct(Xml, axis=1, type=2, norm='ortho')
+#    Xc = irfft(Xml)  # Xl is real, not complex ###------Old version----------#
+    Xc = scipy.fftpack.dct(Xml, axis=1, norm='ortho')
     return Xc[:, :n0]
 
 
@@ -235,12 +236,12 @@ def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
     """
     lowmel = _hz2mel(0)
     highmel = _hz2mel(8000)
-    n0 = cepstrum.shape[1]
-    Yc = np.zeros((cepstrum.shape[0], fft_size))
-    Yc[:, :n0] = cepstrum
-    Yc[:, :-n0:-1] = Yc[:, 1:n0]
-#    Yl = rfft(Yc).real
-    Yl = scipy.fftpack.idct(cepstrum, axis=1, n=(fft_size//2+1), type=2, norm='ortho')
+#    n0 = cepstrum.shape[1]
+#    Yc = np.zeros((cepstrum.shape[0], fft_size))
+#    Yc[:, :n0] = cepstrum
+#    Yc[:, :-n0:-1] = Yc[:, 1:n0]
+#    Yl = rfft(Yc).real ###------------------------------Old version----------#
+    Yl = scipy.fftpack.idct(cepstrum, axis=1, n=(fft_size//2 + 1), norm='ortho')
     melpoints = np.linspace(lowmel, highmel, int(fft_size // 2 + 1))
     bin = np.floor(fft_size * _mel2hz(melpoints) / 16000)
     Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
@@ -325,30 +326,30 @@ if __name__ == '__main__':
 #    decoded_sp_pyworld = smooth_spectrum(decoded_sp_pyworld)
     print('Pyworld decoded')
     
-    
-#    sp = sp / np.max(sp)
-#    decoded_sp_pyworld = decoded_sp_pyworld / np.max(decoded_sp_pyworld)
-    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
-    spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
-    print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
-    
-    spect_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
-    spect_extend_tensor = tf.pad(spect_tensor, [[0,0],[0,1024-45]], 'constant')
-    spect_extend_copy = tf.concat([spect_extend_tensor, spect_tensor[:,1:]], axis=1)
-    idct_op = tf.math.real(tf.signal.rfft(spect_extend_copy))
-    with tf.Session() as sess:
-        z = sess.run(idct_op, feed_dict={spect_tensor:coded_sp_converted})
-    
-    lowmel = _hz2mel(0)
-    highmel = _hz2mel(sampling_rate/2)
-    melpoints = np.linspace(lowmel, highmel, int(n_fft // 2 + 1))
-    bin = np.floor(n_fft * _mel2hz(melpoints) / sampling_rate)
-    z = np.array([np.interp(np.arange(int(n_fft // 2 + 1)), bin, s) for s in z])
-    z = np.exp(z)
-#    z = z / np.max(z)
-    z_nz, interp_znz, error_znz = f0_spect_consistency(f0_converted, z)
-    print('Tensorflow mismatch- {}'.format(error_znz))
 
+#    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
+#    spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
+#    print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
+#    
+#    spect_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
+#    spect_extend_tensor = tf.pad(spect_tensor, [[0,0],[0,1024-45]], 'constant')
+#    spect_extend_copy = tf.concat([spect_extend_tensor, spect_tensor[:,1:]], axis=1)
+#    idct_op = tf.math.real(tf.signal.rfft(spect_extend_copy))
+#    with tf.Session() as sess:
+#        z = sess.run(idct_op, feed_dict={spect_tensor:coded_sp_converted})
+#    
+#    lowmel = _hz2mel(0)
+#    highmel = _hz2mel(sampling_rate/2)
+#    melpoints = np.linspace(lowmel, highmel, int(n_fft // 2 + 1))
+#    bin = np.floor(n_fft * _mel2hz(melpoints) / sampling_rate)
+#    z = np.array([np.interp(np.arange(int(n_fft // 2 + 1)), bin, s) for s in z])
+#    z = np.exp(z)
+#    z_nz, interp_znz, error_znz = f0_spect_consistency(f0_converted, z)
+#    print('Tensorflow mismatch- {}'.format(error_znz))
+
+    """
+    Plotting random spectrum slices
+    """
 #    for i in range(10):
 #        q = np.random.randint(0, min([spect.shape[0], spect_conv.shape[0]]))
 #        pylab.figure(), pylab.subplot(121), pylab.plot(spect[q,:], label='original')
@@ -358,17 +359,17 @@ if __name__ == '__main__':
 #        pylab.plot(interp_spect_conv[q,:], label='interpolated')
 #        pylab.title('Converted'), pylab.legend()
 #        pylab.suptitle('Frame %d' % q)
-#
-#    """
-#    Tuanad conversion of mfcc to spectrum
-#    """
-##    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
+
+    """
+    Tuanad conversion of mfcc to spectrum
+    """
+#    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
 #    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
 #    print('Tuanad decoded')
-#
-#    """
-#    Manual conversion of mfcc to spectrum
-#    """
+
+    """
+    Manual conversion of mfcc to spectrum
+    """
 #    filters = librosa.filters.mel(sr=sampling_rate, n_fft=n_fft, 
 #                                  n_mels=num_mels, htk=True)
 #    log_filter_energy = scipy.fftpack.idct(coded_sp_converted, axis=1, 
@@ -389,14 +390,17 @@ if __name__ == '__main__':
 #    pylab.subplot(224)
 #    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
 
-    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_pyworld/np.max(decoded_sp_pyworld), 
-                                                     ap=ap, fs=sampling_rate, 
-                                                     frame_period=frame_period)
-    scwav.write(os.path.join('/home/ravi/Desktop', 
-                             os.path.basename(audio_file)), 
-                            sampling_rate, wav_transformed)
-    print('Processed: ' + audio_file)
+    """
+    Synthesizing Speech
+    """
+#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+#                                                     decoded_sp=decoded_sp_pyworld, 
+#                                                     ap=ap, fs=sampling_rate, 
+#                                                     frame_period=frame_period)
+#    scwav.write(os.path.join('/home/ravi/Desktop', 
+#                             os.path.basename(audio_file)), 
+#                            sampling_rate, wav_transformed)
+#    print('Processed: ' + audio_file)
     
 ######################################################################################################
 
