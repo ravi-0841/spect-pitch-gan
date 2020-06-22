@@ -14,7 +14,7 @@ import warnings
 warnings.filterwarnings('ignore')
 
 from feat_utils import smooth, \
-    smooth_contour, generate_interpolation, encode_spectrum
+    smooth_contour, generate_interpolation, encode_raw_spectrum
 
 
 def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128, 
@@ -70,8 +70,8 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         ec_tar = smooth(ec_tar, window_len=13)
         
         if encode_raw_spect:
-            src_mfc = encode_spectrum(straight_src, axis=1, dim_mfc=n_mfc)
-            tar_mfc = encode_spectrum(straight_tar, axis=1, dim_mfc=n_mfc)
+            src_mfc = encode_raw_spectrum(straight_src, axis=1, dim_mfc=n_mfc)
+            tar_mfc = encode_raw_spectrum(straight_tar, axis=1, dim_mfc=n_mfc)
         else:
             src_mfc = pw.code_spectral_envelope(straight_src, sample_rate, n_mfc)
             tar_mfc = pw.code_spectral_envelope(straight_tar, sample_rate, n_mfc)
@@ -203,9 +203,7 @@ def get_feats(FILE_LIST, sample_rate, window_len,
             
             file_list.append(result[8])
         except TypeError:
-            print('File name- %s' % FILE_LIST_src[i])
-            print('File name- %s' % FILE_LIST_tar[i])
-            print("We have some type issues here.")
+            print(FILE_LIST_src[i] + " has less than 128 frames.")
 
     file_list = np.asarray(file_list).reshape(-1,1)
     return file_list, (f0_feat_src, log_f0_feat_src, ec_feat_src, \
@@ -243,45 +241,45 @@ def get_feats(FILE_LIST, sample_rate, window_len,
 #       tar_mfc_feat, tar_f0_feat, tar_log_f0_feat, tar_ec_feat
 
 ##---------------------------generate VESUS features-------------------------------------------
-#if __name__=='__main__':
-#    file_name_dict = {}
-#    target_emo = 'angry'
-#    emo_dict = {'neutral-angry':'neu-ang', 'neutral-happy':'neu-hap', \
-#                'neutral-sad':'neu-sad'}
-#   
-#    for i in ['test', 'valid', 'train']:
-#   
-#        FILE_LIST_src = sorted(glob(os.path.join('/home/ravi/Downloads/Emo-Conv/', \
-#                                                 'neutral-'+target_emo+'/'+i+'/neutral/', '*.wav')))
-#        FILE_LIST_tar = sorted(glob(os.path.join('/home/ravi/Downloads/Emo-Conv/', \
-#                                                 'neutral-'+target_emo+'/'+i+'/'+target_emo+'/', '*.wav')))
-#        weights = scio.loadmat('/home/ravi/Downloads/Emo-Conv/neutral-' \
-#                               +target_emo+'/emo_weight.mat')
-#       
-#        sample_rate = 16000.0
-#        window_len = 0.005
-#        window_stride = 0.005
-#       
-#        FILE_LIST = [FILE_LIST_src, FILE_LIST_tar]
-#       
-#        file_names, (src_f0_feat, src_log_f0_feat, src_ec_feat, src_mfc_feat, \
-#                     tar_f0_feat, tar_log_f0_feat, tar_ec_feat, tar_mfc_feat) \
-#                     = get_feats(FILE_LIST, sample_rate, window_len, 
-#                             window_stride, n_feats=128, n_mfc=23, num_samps=32)
-#
-#        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'_raw_encoded.mat', \
-#                    { \
-#                         'src_mfc_feat':   np.asarray(src_mfc_feat, np.float32), \
-#                         'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \
-#                         'src_f0_feat':    np.asarray(src_f0_feat, np.float32), \
-#                         'tar_f0_feat':    np.asarray(tar_f0_feat, np.float32), \
-#                         'file_names':     file_names
-#                     })
-#
-#        file_name_dict[i] = file_names
-#
-#        del file_names, src_mfc_feat, src_f0_feat, src_log_f0_feat, src_ec_feat, \
-#               tar_mfc_feat, tar_f0_feat, tar_log_f0_feat, tar_ec_feat
+if __name__=='__main__':
+    file_name_dict = {}
+    target_emo = 'angry'
+    emo_dict = {'neutral-angry':'neu-ang', 'neutral-happy':'neu-hap', \
+                'neutral-sad':'neu-sad'}
+   
+    for i in ['test', 'valid', 'train']:
+   
+        FILE_LIST_src = sorted(glob(os.path.join('/home/ravi/Downloads/Emo-Conv/', \
+                                                 'neutral-'+target_emo+'/'+i+'/neutral/', '*.wav')))
+        FILE_LIST_tar = sorted(glob(os.path.join('/home/ravi/Downloads/Emo-Conv/', \
+                                                 'neutral-'+target_emo+'/'+i+'/'+target_emo+'/', '*.wav')))
+        weights = scio.loadmat('/home/ravi/Downloads/Emo-Conv/neutral-' \
+                               +target_emo+'/emo_weight.mat')
+       
+        sample_rate = 16000.0
+        window_len = 0.005
+        window_stride = 0.005
+       
+        FILE_LIST = [FILE_LIST_src, FILE_LIST_tar]
+       
+        file_names, (src_f0_feat, src_log_f0_feat, src_ec_feat, src_mfc_feat, \
+                     tar_f0_feat, tar_log_f0_feat, tar_ec_feat, tar_mfc_feat) \
+                     = get_feats(FILE_LIST, sample_rate, window_len, 
+                             window_stride, n_feats=128, n_mfc=23, num_samps=32)
+
+        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'_raw_encode.mat', \
+                    { \
+                         'src_mfc_feat':   np.asarray(src_mfc_feat, np.float32), \
+                         'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \
+                         'src_f0_feat':    np.asarray(src_f0_feat, np.float32), \
+                         'tar_f0_feat':    np.asarray(tar_f0_feat, np.float32), \
+                         'file_names':     file_names
+                     })
+
+        file_name_dict[i] = file_names
+
+        del file_names, src_mfc_feat, src_f0_feat, src_log_f0_feat, src_ec_feat, \
+               tar_mfc_feat, tar_f0_feat, tar_log_f0_feat, tar_ec_feat
 
 
 
