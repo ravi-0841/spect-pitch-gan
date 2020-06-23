@@ -32,7 +32,9 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                           frame_period=frame_period, multiple=4)
         f0, sp, ap = preproc.world_decompose(wav=wav, \
                         fs=sampling_rate, frame_period=frame_period)
-        coded_sp = preproc.encode_raw_spectrum(sp=sp, axis=1, dim_mfc=num_mfcc)
+        coded_sp = preproc.encode_raw_spectrum(spectrum=sp, 
+                                               axis=1, 
+                                               dim_mfc=num_mfcc)
         
         coded_sp = np.expand_dims(coded_sp, axis=0)
         coded_sp = np.transpose(coded_sp, (0,2,1))
@@ -54,7 +56,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         f0_converted = np.ascontiguousarray(f0_converted)
         f0_converted[z_idx] = 0
         
-        decoded_sp_converted = preproc.decode_raw_spectrum(coded_sp=coded_sp_converted, 
+        decoded_sp_converted = preproc.decode_raw_spectrum(linear_mfcc=coded_sp_converted, 
                                                                      axis=1, n_fft=1024)
         # Normalization of converted features
         decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
