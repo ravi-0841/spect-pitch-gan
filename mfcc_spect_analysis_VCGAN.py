@@ -120,8 +120,30 @@ def _interp_matrix_hz2mel(sr=16000, n_fft=1024):
                 rdist = 1 - ((freq_ends[i+1] - mf) / bin_width)
                 F[m, i] = ldist
                 F[m, i+1] = rdist
+                break
     F[-1,-1] = 1
     return F
+
+
+def _interp_matrix_mel2hz(sr=16000, n_fft=1024):
+    lowmel = _hz2mel(0)
+    highmel = _hz2mel(sr/2)
+    mel_points = np.linspace(lowmel, highmel, n_fft//2 + 1)
+    values_available_at = _mel2hz(mel_points)
+    values_desired_at = np.linspace(0, sr/2, n_fft//2 + 1)
+    F_inv = np.zeros((n_fft//2+1, n_fft//2+1))
+    for f in range(n_fft//2+1):
+        cf = values_desired_at[f]
+        for i in range(n_fft//2):
+            if (cf >= values_available_at[i]) and (cf <= values_available_at[i+1]):
+                bin_width = values_available_at[i+1] - values_available_at[i]
+                ldist = 1 - ((cf - values_available_at[i]) / bin_width)
+                rdist = 1 - ((values_available_at[i+1] - cf) / bin_width)
+                F_inv[f, i] = ldist
+                F_inv[f, i+1] = rdist
+                break
+    F_inv[-1,-1] = 1
+    return F_inv
 
 
 def _f0_interp(f0, s):
@@ -234,11 +256,11 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     """
     interp_mat = _interp_matrix_hz2mel()
     Xml = np.dot(interp_mat, np.log(spec.T)).T
-    Xc = scipy.fftpack.dct(Xml, axis=1, norm='ortho')
+    Xc = scipy.fftpack.dct(Xml, axis=1, norm='ortho') / np.sqrt(n_fft)
     return Xc[:, :n0]
 
 
-def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
+def tuanad_decode_mcep(cepstrum: np.ndarray, n_fft:int):
     """
     cepstrum: array TxD, T - timeframes and D - fft_size//2 + 1
     """
@@ -260,10 +282,10 @@ def tuanad_decode_mcep(cepstrum: np.ndarray, fft_size:int):
     """
     New version
     """
-    interp_mat = _interp_matrix_hz2mel()
-    Yl = scipy.fftpack.idct(cepstrum, axis=1, 
-                            n=(fft_size//2 + 1), norm='ortho')
-    Yl = np.transpose(nnls_lbfgs_block(interp_mat, Yl.T))
+    interp_mat = _interp_matrix_mel2hz()
+    Yl = scipy.fftpack.idct(cepstrum*np.sqrt(n_fft), axis=1, 
+                            n=(n_fft//2 + 1), norm='ortho')
+    Yl = np.dot(interp_mat, Yl.T).T
 
     return np.exp(Yl)
 
@@ -314,9 +336,11 @@ if __name__ == '__main__':
                       frame_period=frame_period, multiple=4)
     f0, sp, ap = preproc.world_decompose(wav=wav, \
                     fs=sampling_rate, frame_period=frame_period)
-#    coded_sp = preproc.world_encode_spectral_envelope(sp=sp, \
-#                        fs=sampling_rate, dim=num_mfcc)
-    coded_sp = tuanad_encode_mcep(spec=sp, n0=num_mfcc, fs=sampling_rate)
+    coded_sp = preproc.world_encode_spectral_envelope(sp=sp, \
+                        fs=sampling_rate, dim=num_mfcc)
+#    coded_sp = tuanad_encode_mcep(spec=sp, n0=num_mfcc, fs=sampling_rate)
+#    coded_sp = preproc.encode_raw_spectrum(spectrum=sp, axis=1, 
+#                                           dim_mfc=num_mfcc)
     
     coded_sp = np.expand_dims(coded_sp, axis=0)
     coded_sp = np.transpose(coded_sp, (0,2,1))
@@ -335,14 +359,17 @@ if __name__ == '__main__':
     """
     Pyworld conversion of mfcc to spectrum
     """
+    coded_sp = np.asarray(np.transpose(coded_sp[0]), np.float64)
     coded_sp_converted = np.asarray(np.transpose(coded_sp_converted[0]), np.float64)
-    coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
+    coded_sp_converted = np.copy(coded_sp_converted, order='C')
     f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
-    f0_converted = np.ascontiguousarray(f0_converted)
+    f0_converted = np.copy(f0_converted, order='C')
     f0_converted[z_idx] = 0
     
     decoded_sp_pyworld = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                  fs=sampling_rate)
+#    decoded_sp_pyworld = preproc.decode_raw_spectrum(linear_mfcc=coded_sp_converted, 
+#                                                     axis=1, n_fft=n_fft)
 #    decoded_sp_pyworld = smooth_spectrum(decoded_sp_pyworld)
     print('Pyworld decoded')
     
@@ -371,12 +398,10 @@ if __name__ == '__main__':
     Plotting random spectrum slices
     """
 #    for i in range(10):
-#        q = np.random.randint(0, min([spect.shape[0], spect_conv.shape[0]]))
-#        pylab.figure(), pylab.subplot(121), pylab.plot(spect[q,:], label='original')
-#        pylab.plot(interp_spect[q,:], label='interpolated')
+#        q = np.random.randint(0, min([sp.shape[0], decoded_sp_pyworld.shape[0]]))
+#        pylab.figure(), pylab.subplot(121), pylab.plot(coded_sp[q,:], 'g', label='natural')
 #        pylab.title('Non Converted'), pylab.legend()
-#        pylab.subplot(122), pylab.plot(spect_conv[q,:], label='original')
-#        pylab.plot(interp_spect_conv[q,:], label='interpolated')
+#        pylab.subplot(122), pylab.plot(coded_sp_converted[q,:], 'r', label='converted')
 #        pylab.title('Converted'), pylab.legend()
 #        pylab.suptitle('Frame %d' % q)
 
@@ -384,7 +409,7 @@ if __name__ == '__main__':
     Tuanad conversion of mfcc to spectrum
     """
 #    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
-    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, fft_size=n_fft)
+    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, n_fft=n_fft)
     print('Tuanad decoded')
 
     """
