@@ -32,8 +32,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                           frame_period=frame_period, multiple=4)
         f0, sp, ap = preproc.world_decompose(wav=wav, \
                         fs=sampling_rate, frame_period=frame_period)
-        coded_sp = preproc.world_encode_spectral_envelope(sp=sp, \
-                            fs=sampling_rate, dim=num_mfcc)
+        coded_sp = preproc.encode_raw_spectrum(sp=sp, axis=1, dim_mfc=num_mfcc)
         
         coded_sp = np.expand_dims(coded_sp, axis=0)
         coded_sp = np.transpose(coded_sp, (0,2,1))
@@ -55,8 +54,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         f0_converted = np.ascontiguousarray(f0_converted)
         f0_converted[z_idx] = 0
         
-        decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
-                                                                     fs=sampling_rate)
+        decoded_sp_converted = preproc.decode_raw_spectrum(coded_sp=coded_sp_converted, 
+                                                                     axis=1, n_fft=1024)
         # Normalization of converted features
         decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
@@ -120,11 +119,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = 'model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
-    model_name_default = 'neu-ang_1000.ckpt'
+    model_dir_default = 'model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_raw'
+    model_name_default = 'neu-ang_1300.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/converted_emotion_nmz'
+    output_dir_default = '/home/ravi/Desktop/conversion_raw_spectrum'
     audio_file_default = None
 
     parser.add_argument('--model_dir', type = str, help = 'Directory for the pre-trained model.', default=model_dir_default)
