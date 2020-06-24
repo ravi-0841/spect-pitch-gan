@@ -2,7 +2,6 @@ import os
 import numpy as np
 import argparse
 import time
-import librosa
 import sys
 import scipy.io.wavfile as scwav
 import scipy.io as scio
@@ -252,8 +251,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
                                 decoded_sp=sp_conv, ap=ap_conv, fs=sampling_rate, 
                                 frame_period=frame_period)
-                        librosa.output.write_wav(os.path.join(validation_output_dir, \
-                                os.path.basename(file)), wav_transformed, sampling_rate)
+                        scwav.write(os.path.join(validation_output_dir, 
+                            os.path.basename(file)), sampling_rate, 
+                            np.asarray(wav_transformed, np.float32))
                     except Exception as ex:
                         print(ex)
                         logging.info(ex)
