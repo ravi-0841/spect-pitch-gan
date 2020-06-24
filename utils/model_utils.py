@@ -45,7 +45,7 @@ def cross_entropy_loss(logits, labels):
 
     return tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = logits, labels = labels))
 
-def spectral_loss(y, y_hat, pad_right=490, fft_size=1024, interp_mat=None):
+def spectral_loss(y, y_hat, pad_right=490, fft_size=1024.0, interp_mat=None):
     if interp_mat is None:
         interp_mat = _interp_mat_mel2hz()
     
