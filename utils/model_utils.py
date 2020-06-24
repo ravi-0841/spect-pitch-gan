@@ -62,6 +62,9 @@ def spectral_loss(y, y_hat, pad_right=490, fft_size=1024.0, interp_mat=None):
 
     spect_y = tf.math.exp(mel2hz_y)
     spect_y_hat = tf.math.exp(mel2hz_y_hat)
+    
+    spect_y = spect_y / tf.reduce_max(spect_y)
+    spect_y_hat = spect_y_hat / tf.reduce_max(spect_y_hat)
 
     return tf.reduce_mean(tf.abs(spect_y - spect_y_hat))
 

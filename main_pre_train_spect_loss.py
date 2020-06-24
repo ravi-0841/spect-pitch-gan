@@ -114,8 +114,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
                                                                    (time_elapsed % 60 // 1)))
     
     #use pre_train arg to provide trained model
-    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, \
-                n_frames=n_frames, pre_train=pre_train)
+    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, 
+            n_frames=n_frames, pre_train=pre_train, log_file_name=lc_lm)
     
     for epoch in range(1,num_epochs+1):
 
