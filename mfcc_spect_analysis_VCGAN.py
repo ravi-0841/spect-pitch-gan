@@ -322,7 +322,7 @@ if __name__ == '__main__':
     model_dir = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
     model_name = 'neu-ang_1000.ckpt'
     conversion_direction = 'A2B'
-    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
+    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1175.wav'
     
     parser.add_argument('--audio_file', type=str, help='audio file to convert', default=audio_file)
     argv = parser.parse_args()
@@ -377,13 +377,22 @@ if __name__ == '__main__':
 #    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
 #    spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
 #    print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
-#    
-#    spect_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
-#    spect_extend_tensor = tf.pad(spect_tensor, [[0,0],[0,1024-45]], 'constant')
-#    spect_extend_copy = tf.concat([spect_extend_tensor, spect_tensor[:,1:]], axis=1)
-#    idct_op = tf.math.real(tf.signal.rfft(spect_extend_copy))
-#    with tf.Session() as sess:
-#        z = sess.run(idct_op, feed_dict={spect_tensor:coded_sp_converted})
+    
+    interp_mat_mel2hz = np.asarray(_interp_matrix_mel2hz(sr=16000, n_fft=1024), 
+                                   np.float32)
+    mfcc_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
+    mfcc_extend_tensor = tf.pad(mfcc_tensor, [[0,0],[0,513-23]], 'constant')
+    idct_tensor = tf.signal.idct(mfcc_extend_tensor*np.sqrt(1024), 
+                                 type=2, norm='ortho')
+    mel2hz_tensor = tf.transpose(tf.matmul(interp_mat_mel2hz, idct_tensor, 
+                                       transpose_b=True))
+    spect_tensor = tf.math.exp(mel2hz_tensor)
+    
+    
+    with tf.Session() as sess:
+        decoded_sp_tensorflow = sess.run(spect_tensor, 
+                                         feed_dict={mfcc_tensor:np.asarray(coded_sp_converted,
+                                                                           np.float32)})
 #    
 #    lowmel = _hz2mel(0)
 #    highmel = _hz2mel(sampling_rate/2)
@@ -438,25 +447,40 @@ if __name__ == '__main__':
     """
     Synthesizing Speech Pyworld
     """
+    decoded_sp_pyworld = np.copy(decoded_sp_pyworld, order='C')
     wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_pyworld, 
+                                                     decoded_sp=decoded_sp_pyworld/np.max(decoded_sp_pyworld), 
                                                      ap=ap, fs=sampling_rate, 
                                                      frame_period=frame_period)
     scwav.write(os.path.join('/home/ravi/Desktop/', 
                              'pyworld_'+os.path.basename(audio_file)), 
                             sampling_rate, wav_transformed)
     print('Processed: ' + audio_file)
-    
+
     """
     Synthesizing Speech Tuanad
     """
-    decoded_sp_tuanad = np.ascontiguousarray(decoded_sp_tuanad)
+    decoded_sp_tuanad = np.copy(decoded_sp_tuanad, order='C')
     wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_tuanad, 
+                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
                                                      ap=ap, fs=sampling_rate, 
                                                      frame_period=frame_period)
     scwav.write(os.path.join('/home/ravi/Desktop/', 
                              'tuanad_'+os.path.basename(audio_file)), 
+                            sampling_rate, wav_transformed)
+    print('Processed: ' + audio_file)
+
+    """
+    Synthesizing Speech Tensorflow
+    """
+    decoded_sp_tensorflow = np.copy(np.asarray(decoded_sp_tensorflow, np.float64), 
+                                order='C')
+    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+                                                     decoded_sp=decoded_sp_tensorflow/np.max(decoded_sp_tensorflow), 
+                                                     ap=ap, fs=sampling_rate, 
+                                                     frame_period=frame_period)
+    scwav.write(os.path.join('/home/ravi/Desktop/', 
+                             'tensorflow_'+os.path.basename(audio_file)), 
                             sampling_rate, wav_transformed)
     print('Processed: ' + audio_file)
     
