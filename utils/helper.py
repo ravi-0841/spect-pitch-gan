@@ -1,7 +1,7 @@
 import numpy as np
 import h5py
 import itertools
-from sklearn.externals import joblib
+import joblib
 from sklearn.preprocessing import StandardScaler
 import sys
 import scipy.signal as scisig

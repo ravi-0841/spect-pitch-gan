@@ -38,7 +38,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
             +"_lmo_"+str(lambda_momenta) + '_li_' \
-            + str(lambda_identity_mfc) + '_pre_trained_raw'
+            + str(lambda_identity_mfc) + '_pre_trained_raw_rerun'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -207,8 +207,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         if epoch % 100 == 0:
             
-            cur_model_name = model_name+"_"+str(epoch)+".ckpt"
-            model.save(directory=model_dir, filename=cur_model_name)
+#            cur_model_name = model_name+"_"+str(epoch)+".ckpt"
+#            model.save(directory=model_dir, filename=cur_model_name)
 
             if validation_dir is not None:
                 print('Generating Validation Data B from A...')
