@@ -251,8 +251,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         ap_conv = ap.copy(order='C')
                         
                         wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
-                                decoded_sp=sp_conv, ap=ap_conv, fs=sampling_rate, 
-                                frame_period=frame_period)
+                                decoded_sp=sp_conv/np.max(sp_conv), ap=ap_conv, 
+                                fs=sampling_rate, frame_period=frame_period)
                         scwav.write(os.path.join(validation_output_dir, 
                             os.path.basename(file)), sampling_rate, 
                             np.asarray(wav_transformed, np.float32))
