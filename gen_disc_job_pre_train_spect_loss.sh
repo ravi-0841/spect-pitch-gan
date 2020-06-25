@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --partition=gpuk80
+#SBATCH --partition=gpup100
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
