@@ -204,6 +204,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
+        sys.stdout.flush()
+
         if epoch % 100 == 0:
             
 #            cur_model_name = model_name+"_"+str(epoch)+".ckpt"
@@ -211,7 +213,6 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
             if validation_dir is not None:
                 print('Generating Validation Data B from A...')
-                sys.stdout.flush()
 #                counter = 1
                 for file in sorted(os.listdir(validation_dir)):
                     try:
