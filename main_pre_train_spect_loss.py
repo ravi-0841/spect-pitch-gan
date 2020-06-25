@@ -15,7 +15,7 @@ from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 def train(train_dir, model_dir, model_name, random_seed, \
             validation_dir, output_dir, \
@@ -37,7 +37,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
             +"_lmo_"+str(lambda_momenta) + '_li_' \
-            + str(lambda_identity_mfc) + '_pre_train_spect_id'
+            + str(lambda_identity_mfc) + '_trained_spect_id'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -329,7 +329,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_train/cmu-arctic900.ckpt', 
+          pre_train='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_momenta=lambda_momenta, lambda_identity_mfc=lambda_identity_mfc,  
           generator_learning_rate=generator_learning_rate, 
