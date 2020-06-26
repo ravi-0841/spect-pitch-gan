@@ -6,6 +6,10 @@ import scipy.io.wavfile as scwav
 import scipy.signal as scisig
 import scipy.io as scio
 import pylab
+import sys
+import os
+
+sys.path.append(os.path.realpath('.'))
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
@@ -63,14 +67,14 @@ if __name__ == '__main__':
         spect_valid = np.concatenate((spect_valid, 
                                       np.expand_dims(spect_target.T, axis=0)), axis=0)
         
-        q = np.random.randint(0, 128)
+#        q = np.random.randint(0, 128)
         
-        pylab.figure()
-        pylab.plot(spect_target[q,:].reshape(-1,), 'g', label='Target Spect')
-        pylab.plot(pred_spect[q,:].reshape(-1,), 'r', label='Generated Spect')
-        pylab.legend(loc=1), pylab.title('Slice %d' % q)
-        pylab.savefig('/home/ravi/Desktop/'+str(i)+'_'+str(q)+'.png')
-        pylab.close()
+#        pylab.figure()
+#        pylab.plot(spect_target[q,:].reshape(-1,), 'g', label='Target Spect')
+#        pylab.plot(pred_spect[q,:].reshape(-1,), 'r', label='Generated Spect')
+#        pylab.legend(loc=1), pylab.title('Slice %d' % q)
+#        pylab.savefig('/home/ravi/Desktop/'+str(i)+'_'+str(q)+'.png')
+#        pylab.close()
     
     del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target
 
