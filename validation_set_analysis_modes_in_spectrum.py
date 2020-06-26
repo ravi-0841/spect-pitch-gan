@@ -6,14 +6,11 @@ import scipy.io.wavfile as scwav
 import scipy.signal as scisig
 import scipy.io as scio
 import pylab
-import sys
-import os
-
-sys.path.append(os.path.realpath('.'))
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
+from analysis_files.mfcc_spect_analysis_VCGAN import _power_to_db
 
 
 num_mfcc = 23
@@ -28,15 +25,22 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 if __name__ == '__main__':
     data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_5.mat')
     
-    pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
-    pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
-    mfc_A_valid = data_valid['src_mfc_feat']
-    mfc_B_valid = data_valid['tar_mfc_feat']
+#    pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
+#    pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
+    pitch_A_valid = np.transpose(data_valid['src_f0_feat'], (0,1,3,2))
+    pitch_B_valid = np.transpose(data_valid['tar_f0_feat'], (0,1,3,2))
+    mfc_A_valid = np.transpose(data_valid['src_mfc_feat'], (0,1,3,2))
+    mfc_B_valid = np.transpose(data_valid['tar_mfc_feat'], (0,1,3,2))
     
-    mfc_A_valid, pitch_A_valid, \
-        mfc_B_valid, pitch_B_valid = preproc.sample_data(mfc_A=mfc_A_valid, \
-                                    mfc_B=mfc_B_valid, pitch_A=pitch_A_valid, \
-                                    pitch_B=pitch_B_valid)
+#    mfc_A_valid, pitch_A_valid, \
+#        mfc_B_valid, pitch_B_valid = preproc.sample_data(mfc_A=mfc_A_valid, \
+#                                    mfc_B=mfc_B_valid, pitch_A=pitch_A_valid, \
+#                                    pitch_B=pitch_B_valid)
+
+    mfc_A_valid = np.vstack(mfc_A_valid)
+    mfc_B_valid = np.vstack(mfc_B_valid)
+    pitch_A_valid = np.vstack(pitch_A_valid)
+    pitch_B_valid = np.vstack(pitch_B_valid)
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
     model.load(filepath='/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
@@ -67,14 +71,24 @@ if __name__ == '__main__':
         spect_valid = np.concatenate((spect_valid, 
                                       np.expand_dims(spect_target.T, axis=0)), axis=0)
         
-#        q = np.random.randint(0, 128)
+        q = np.random.uniform(0,1)
         
+        if q < 0.02:
 #        pylab.figure()
 #        pylab.plot(spect_target[q,:].reshape(-1,), 'g', label='Target Spect')
 #        pylab.plot(pred_spect[q,:].reshape(-1,), 'r', label='Generated Spect')
 #        pylab.legend(loc=1), pylab.title('Slice %d' % q)
 #        pylab.savefig('/home/ravi/Desktop/'+str(i)+'_'+str(q)+'.png')
 #        pylab.close()
+            
+            pylab.figure()
+            pylab.subplot(121)
+            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
+            pylab.subplot(122)
+            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
+            pylab.suptitle('Example %d' % i)
+            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
+            pylab.close()
     
     del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target
 
