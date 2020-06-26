@@ -55,6 +55,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
     print("lambda_identity_mfc - {}".format(lambda_identity_mfc))
     print("lambda_momenta - {}".format(lambda_momenta))
+    print("generator_lr - {}".format(generator_learning_rate))
+    print("discriminator_lr - {}".format(discriminator_learning_rate))
     print("cycle_loss - L1")
 
     logging.info("lambda_cycle_pitch - {}".format(lambda_cycle_pitch))
