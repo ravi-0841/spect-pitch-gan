@@ -9,6 +9,14 @@ def _hz2mel(hz):
 def _mel2hz(mel):
     return 700 * (10 ** (mel/2595.0) - 1)
 
+def _sliding_windows(template, size):
+    template = np.asarray(template)
+    p = np.zeros(size-1, dtype=template.dtype)
+    b = np.concatenate((p, template, p))
+    s = b.strides[0]
+    strided = np.lib.stride_tricks.as_strided
+    return strided(b[size-1:], shape=(size,len(template)+size-1), strides=(-s,s))
+
 def _interp_mat_mel2hz(sr=16000, n_fft=1024):
     lowmel = _hz2mel(0)
     highmel = _hz2mel(sr/2)
@@ -28,6 +36,11 @@ def _interp_mat_mel2hz(sr=16000, n_fft=1024):
                 break
     F_inv[-1,-1] = 1
     return np.asarray(F_inv, np.float32)
+
+def delta_matrix(time_steps=128):
+    delta_matrix = _sliding_windows([1,0,-1], 130)
+    delta_matrix = delta_matrix[1:-1, 2:-2]
+    return np.asarray(delta_matrix, np.float32)
 
 def l1_loss(y, y_hat):
 
@@ -67,4 +80,64 @@ def spectral_loss(y, y_hat, pad_right=490, fft_size=1024.0, interp_mat=None):
     spect_y_hat = spect_y_hat / tf.reduce_max(spect_y_hat)
 
     return tf.reduce_mean(tf.abs(spect_y - spect_y_hat))
+
+def mfcc_derivative_loss(y, y_hat, derivative_op=None):
+    """
+    Expects y/y_hat to be of shape batch_size x features_dim x time_steps (default=128)
+    """
+    if derivative_op is None:
+        derivative_op = delta_matrix()
+    y_derivative = tf.matmul(y, derivative_op)
+    y_hat_derivative = tf.matmul(y_hat, derivative_op)
+    return tf.reduce_mean(tf.abs(y_derivative - y_hat_derivative))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
