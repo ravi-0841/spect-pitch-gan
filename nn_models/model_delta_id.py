@@ -158,8 +158,9 @@ class VariationalCycleGAN(object):
                 y_hat=self.mfc_cycle_B2B)) / 2.0
         
         self.cycle_loss_mfc_derivative = (utils.mfcc_derivative_loss(y=self.mfc_A_real, 
-            y_hat=self.mfc_cycle_A2A) + utils.mfcc_derivative_loss(y=self.mfc_B_real, 
-                y_hat=self.mfc_cycle_B2B)) / 2.0
+            y_hat=self.mfc_cycle_A2A, derivative_op=self.delta_matrix) \
+            + utils.mfcc_derivative_loss(y=self.mfc_B_real, 
+                y_hat=self.mfc_cycle_B2B, derivative_op=self.delta_matrix)) / 2.0
 
         self.cycle_loss_mfc += self.cycle_loss_mfc_derivative
 
@@ -169,8 +170,9 @@ class VariationalCycleGAN(object):
                     y_hat=self.mfc_A_real)) / 2.0
 
         self.identity_loss_mfc_derivative = (utils.mfcc_derivative_loss(y=self.mfc_identity_A2B, 
-            y_hat=self.mfc_B_real) + utils.mfcc_derivative_loss(y=self.mfc_identity_B2A, 
-                    y_hat=self.mfc_A_real)) / 2.0
+            y_hat=self.mfc_B_real, derivative_op=self.delta_matrix) \
+            + utils.mfcc_derivative_loss(y=self.mfc_identity_B2A, 
+                    y_hat=self.mfc_A_real, derivative_op=self.delta_matrix)) / 2.0
 
         self.identity_loss_mfc += self.identity_loss_mfc_derivative
 
