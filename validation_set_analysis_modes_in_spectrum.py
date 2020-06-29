@@ -9,6 +9,7 @@ import pylab
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
+from utils.model_utils import delta_matrix
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 from analysis_files.mfcc_spect_analysis_VCGAN import _power_to_db
 
@@ -91,6 +92,31 @@ if __name__ == '__main__':
 #            pylab.close()
     
     del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target
+    
+    
+        
+    z = delta_matrix([1,0,-1], 130)
+    z = z[1:-1, 2:-2]
+    mfc_B_valid[np.where(mfc_B_valid==0)] = 1e-10
+    mfc_conv[np.where(mfc_conv==0)] = 1e-10
+    
+    mfc_B_valid_delta = np.dot(mfc_B_valid, z)
+    mfc_conv_delta = np.dot(mfc_conv, z)
+        
+    spect_valid_delta = np.dot(spect_valid, z)
+    spect_conv_delta = np.dot(spect_conv, z)
+        
+    for i in range(10):
+        q = np.random.randint(448)
+        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(mfc_B_valid_delta[q,:,:] ** 2)))
+        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(mfc_conv_delta[q,:,:] ** 2)))
+        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/mfcc_grad_'+str(i)+'.png'), pylab.close()
+        
+#    for i in range(10):
+#        q = np.random.randint(448)
+#        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(spect_valid_delta[q,:,:] ** 2))), pylab.title('Spect Valid')
+#        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(spect_conv_delta[q,:,:] ** 2))), pylab.title('Spect Conv')
+#        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/spect_grad_'+str(i)+'.png'), pylab.close()
 
 
 
