@@ -95,8 +95,7 @@ if __name__ == '__main__':
     
     
         
-    z = delta_matrix([1,0,-1], 130)
-    z = z[1:-1, 2:-2]
+    z = delta_matrix()
     mfc_B_valid[np.where(mfc_B_valid==0)] = 1e-10
     mfc_conv[np.where(mfc_conv==0)] = 1e-10
     
