@@ -162,7 +162,7 @@ class VariationalCycleGAN(object):
             + utils.mfcc_derivative_loss(y=self.mfc_B_real, 
                 y_hat=self.mfc_cycle_B2B, derivative_op=self.delta_matrix)) / 2.0
 
-        self.cycle_loss_mfc += self.cycle_loss_mfc_derivative
+        self.cycle_loss_mfc += 50*self.cycle_loss_mfc_derivative
 
         # Identity Loss mfcc
         self.identity_loss_mfc = (utils.l1_loss(y=self.mfc_identity_A2B, 
@@ -174,7 +174,7 @@ class VariationalCycleGAN(object):
             + utils.mfcc_derivative_loss(y=self.mfc_identity_B2A, 
                     y_hat=self.mfc_A_real, derivative_op=self.delta_matrix)) / 2.0
 
-        self.identity_loss_mfc += self.identity_loss_mfc_derivative
+        self.identity_loss_mfc += 50*self.identity_loss_mfc_derivative
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
