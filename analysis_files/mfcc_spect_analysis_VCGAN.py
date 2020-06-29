@@ -237,23 +237,6 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     Then, cepstrum analysis with order of n0
     Spec is magnitude spectrogram (N x D) array
     """
-
-    """
-    Old version
-    """
-#    lowmel = _hz2mel(lowhz)
-#    highmel = _hz2mel(highhz)
-#    """return the real cepstrum X is N x D array; N frames and D dimensions"""
-#    Xl = np.log(spec)
-#    D = spec.shape[-1]
-#    melpoints = np.linspace(lowmel, highmel, D)
-#    bin = np.floor(((D - 1) * 2 + 1) * _mel2hz(melpoints) / fs)
-#    Xml = np.array([np.interp(bin, np.arange(D), s)
-#                    for s in Xl])
-#    Xc = irfft(Xml)  # Xl is real, not complex ###------Old version----------#
-    """
-    New version
-    """
     interp_mat = _interp_matrix_hz2mel()
     Xml = np.dot(interp_mat, np.log(spec.T)).T
     Xc = scipy.fftpack.dct(Xml, axis=1, norm='ortho') / np.sqrt(n_fft)
@@ -263,24 +246,6 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
 def tuanad_decode_mcep(cepstrum: np.ndarray, n_fft:int):
     """
     cepstrum: array TxD, T - timeframes and D - fft_size//2 + 1
-    """
-    
-    """
-    Old version
-    """
-#    lowmel = _hz2mel(0)
-#    highmel = _hz2mel(8000)
-#    n0 = cepstrum.shape[1]
-#    Yc = np.zeros((cepstrum.shape[0], fft_size))
-#    Yc[:, :n0] = cepstrum
-#    Yc[:, :-n0:-1] = Yc[:, 1:n0]
-#    Yl = rfft(Yc).real 
-#    melpoints = np.linspace(lowmel, highmel, int(fft_size // 2 + 1))
-#    bin = np.floor(fft_size * _mel2hz(melpoints) / 16000)
-#    Yl = np.array([np.interp(np.arange(int(fft_size // 2 + 1)), bin, s)
-#                   for s in Yl])
-    """
-    New version
     """
     interp_mat = _interp_matrix_mel2hz()
     Yl = scipy.fftpack.idct(cepstrum*np.sqrt(n_fft), axis=1, 
@@ -302,6 +267,7 @@ def f0_spect_consistency(f0, spect):
     nz_idx = np.where(f0>10.0)
     f0 = f0[nz_idx]
     spect = spect[nz_idx]
+    spect = _power_to_db(spect)
     interp_spect = np.array([_f0_interp(f0[i], spect[i]) for i in range(spect.shape[0])])
     return (spect, interp_spect, np.mean(np.sum(np.abs(spect - interp_spect), axis=1)))
 
@@ -374,25 +340,26 @@ if __name__ == '__main__':
     print('Pyworld decoded')
     
 
-#    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
-#    spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
-#    print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
-    
-    interp_mat_mel2hz = np.asarray(_interp_matrix_mel2hz(sr=16000, n_fft=1024), 
-                                   np.float32)
-    mfcc_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
-    mfcc_extend_tensor = tf.pad(mfcc_tensor, [[0,0],[0,513-23]], 'constant')
-    idct_tensor = tf.signal.idct(mfcc_extend_tensor*np.sqrt(1024), 
-                                 type=2, norm='ortho')
-    mel2hz_tensor = tf.transpose(tf.matmul(interp_mat_mel2hz, idct_tensor, 
-                                       transpose_b=True))
-    spect_tensor = tf.math.exp(mel2hz_tensor)
-    
-    
-    with tf.Session() as sess:
-        decoded_sp_tensorflow = sess.run(spect_tensor, 
-                                         feed_dict={mfcc_tensor:np.asarray(coded_sp_converted,
-                                                                           np.float32)})
+    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
+    spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
+    print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
+
+
+#    interp_mat_mel2hz = np.asarray(_interp_matrix_mel2hz(sr=16000, n_fft=1024), 
+#                                   np.float32)
+#    mfcc_tensor = tf.placeholder(dtype=tf.float32, shape=(None, 23))
+#    mfcc_extend_tensor = tf.pad(mfcc_tensor, [[0,0],[0,513-23]], 'constant')
+#    idct_tensor = tf.signal.idct(mfcc_extend_tensor*np.sqrt(1024), 
+#                                 type=2, norm='ortho')
+#    mel2hz_tensor = tf.transpose(tf.matmul(interp_mat_mel2hz, idct_tensor, 
+#                                       transpose_b=True))
+#    spect_tensor = tf.math.exp(mel2hz_tensor)
+#    
+#    
+#    with tf.Session() as sess:
+#        decoded_sp_tensorflow = sess.run(spect_tensor, 
+#                                         feed_dict={mfcc_tensor:np.asarray(coded_sp_converted,
+#                                                                           np.float32)})
 #    
 #    lowmel = _hz2mel(0)
 #    highmel = _hz2mel(sampling_rate/2)
@@ -418,8 +385,8 @@ if __name__ == '__main__':
     Tuanad conversion of mfcc to spectrum
     """
 #    encoded_sp_tuanad = tuanad_encode_mcep(sp, n0=num_mfcc)
-    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, n_fft=n_fft)
-    print('Tuanad decoded')
+#    decoded_sp_tuanad = tuanad_decode_mcep(coded_sp_converted, n_fft=n_fft)
+#    print('Tuanad decoded')
 
     """
     Manual conversion of mfcc to spectrum
@@ -444,45 +411,46 @@ if __name__ == '__main__':
 #    pylab.subplot(224)
 #    pylab.imshow(decoded_sp_tuanad.T/np.max(decoded_sp_tuanad)), pylab.colorbar(), pylab.title('Tuanad')
 
+
     """
     Synthesizing Speech Pyworld
     """
-    decoded_sp_pyworld = np.copy(decoded_sp_pyworld, order='C')
-    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_pyworld/np.max(decoded_sp_pyworld), 
-                                                     ap=ap, fs=sampling_rate, 
-                                                     frame_period=frame_period)
-    scwav.write(os.path.join('/home/ravi/Desktop/', 
-                             'pyworld_'+os.path.basename(audio_file)), 
-                            sampling_rate, wav_transformed)
-    print('Processed: ' + audio_file)
+#    decoded_sp_pyworld = np.copy(decoded_sp_pyworld, order='C')
+#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+#                                                     decoded_sp=decoded_sp_pyworld/np.max(decoded_sp_pyworld), 
+#                                                     ap=ap, fs=sampling_rate, 
+#                                                     frame_period=frame_period)
+#    scwav.write(os.path.join('/home/ravi/Desktop/', 
+#                             'pyworld_'+os.path.basename(audio_file)), 
+#                            sampling_rate, wav_transformed)
+#    print('Processed: ' + audio_file)
 
     """
     Synthesizing Speech Tuanad
     """
-    decoded_sp_tuanad = np.copy(decoded_sp_tuanad, order='C')
-    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
-                                                     ap=ap, fs=sampling_rate, 
-                                                     frame_period=frame_period)
-    scwav.write(os.path.join('/home/ravi/Desktop/', 
-                             'tuanad_'+os.path.basename(audio_file)), 
-                            sampling_rate, wav_transformed)
-    print('Processed: ' + audio_file)
+#    decoded_sp_tuanad = np.copy(decoded_sp_tuanad, order='C')
+#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+#                                                     decoded_sp=decoded_sp_tuanad/np.max(decoded_sp_tuanad), 
+#                                                     ap=ap, fs=sampling_rate, 
+#                                                     frame_period=frame_period)
+#    scwav.write(os.path.join('/home/ravi/Desktop/', 
+#                             'tuanad_'+os.path.basename(audio_file)), 
+#                            sampling_rate, wav_transformed)
+#    print('Processed: ' + audio_file)
 
     """
     Synthesizing Speech Tensorflow
     """
-    decoded_sp_tensorflow = np.copy(np.asarray(decoded_sp_tensorflow, np.float64), 
-                                order='C')
-    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                     decoded_sp=decoded_sp_tensorflow/np.max(decoded_sp_tensorflow), 
-                                                     ap=ap, fs=sampling_rate, 
-                                                     frame_period=frame_period)
-    scwav.write(os.path.join('/home/ravi/Desktop/', 
-                             'tensorflow_'+os.path.basename(audio_file)), 
-                            sampling_rate, wav_transformed)
-    print('Processed: ' + audio_file)
+#    decoded_sp_tensorflow = np.copy(np.asarray(decoded_sp_tensorflow, np.float64), 
+#                                order='C')
+#    wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
+#                                                     decoded_sp=decoded_sp_tensorflow/np.max(decoded_sp_tensorflow), 
+#                                                     ap=ap, fs=sampling_rate, 
+#                                                     frame_period=frame_period)
+#    scwav.write(os.path.join('/home/ravi/Desktop/', 
+#                             'tensorflow_'+os.path.basename(audio_file)), 
+#                            sampling_rate, wav_transformed)
+#    print('Processed: ' + audio_file)
     
     
 ######################################################################################################
