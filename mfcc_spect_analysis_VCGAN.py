@@ -147,11 +147,19 @@ def _interp_matrix_mel2hz(sr=16000, n_fft=1024):
 
 
 def _f0_interp(f0, s):
-    bin_sep = int(np.ceil(f0 / ((sampling_rate/2)/(n_fft//2 + 1))))
-    sampling_x = np.asarray(np.floor(np.arange(0, (n_fft//2 + 1), bin_sep)), np.int)
-    sampling_y = s[sampling_x]
+#    bin_sep = int(np.ceil(f0 / ((sampling_rate/2)/(n_fft//2 + 1))))
+#    sampling_x = np.asarray(np.floor(np.arange(0, (n_fft//2 + 1), bin_sep)), np.int)
+#    sampling_y = s[sampling_x]
+#    interp_x = np.arange(0, (n_fft//2 + 1), 1)
+#    interp_y = np.interp(interp_x, sampling_x, sampling_y)
+
+    x_org = np.arange(0, 8000, f0)
+    x_org = x_org*n_fft / sampling_rate
+    x_org = np.asarray(np.ceil(x_org), np.int32)
+    y_org = s[x_org]
     interp_x = np.arange(0, (n_fft//2 + 1), 1)
-    interp_y = np.interp(interp_x, sampling_x, sampling_y)
+    interp_y = np.interp(interp_x, x_org, y_org)
+
     return interp_y
 
 
