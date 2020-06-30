@@ -9,6 +9,12 @@ def _hz2mel(hz):
 def _mel2hz(mel):
     return 700 * (10 ** (mel/2595.0) - 1)
 
+def _log10(x):
+    return tf.divide(tf.log(x), tf.log(10))
+
+def _power_to_db(s):
+    return 20*_log10(s)
+
 def _sliding_windows(template, size):
     template = np.asarray(template)
     p = np.zeros(size-1, dtype=template.dtype)
@@ -76,8 +82,8 @@ def spectral_loss(y, y_hat, pad_right=490, fft_size=1024.0, interp_mat=None):
     spect_y = tf.math.exp(mel2hz_y)
     spect_y_hat = tf.math.exp(mel2hz_y_hat)
     
-    spect_y = spect_y / tf.reduce_max(spect_y)
-    spect_y_hat = spect_y_hat / tf.reduce_max(spect_y_hat)
+    spect_y = _power_to_db(spect_y / tf.reduce_max(spect_y))
+    spect_y_hat = _power_to_db(spect_y_hat / tf.reduce_max(spect_y_hat))
 
     return tf.reduce_mean(tf.abs(spect_y - spect_y_hat))
 
