@@ -84,24 +84,17 @@ if __name__ == '__main__':
         
         q = np.random.uniform(0,1)
         
-        if q < 0.04:
-#        pylab.figure()
-#        pylab.plot(spect_target[q,:].reshape(-1,), 'g', label='Target Spect')
-#        pylab.plot(pred_spect[q,:].reshape(-1,), 'r', label='Generated Spect')
-#        pylab.legend(loc=1), pylab.title('Slice %d' % q)
-#        pylab.savefig('/home/ravi/Desktop/'+str(i)+'_'+str(q)+'.png')
-#        pylab.close()
-            
-            pylab.figure()
-            pylab.subplot(131)
-            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
-            pylab.subplot(132)
-            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
-            pylab.subplot(133)
-            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
-            pylab.suptitle('Example %d' % i)
-            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
-            pylab.close()
+#        if q < 0.04:
+#            pylab.figure()
+#            pylab.subplot(131)
+#            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
+#            pylab.subplot(132)
+#            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
+#            pylab.subplot(133)
+#            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
+#            pylab.suptitle('Example %d' % i)
+#            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
+#            pylab.close()
     
     del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target
     
