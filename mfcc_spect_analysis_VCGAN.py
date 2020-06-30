@@ -275,7 +275,7 @@ def f0_spect_consistency(f0, spect):
     nz_idx = np.where(f0>10.0)
     f0 = f0[nz_idx]
     spect = spect[nz_idx]
-    spect = _power_to_db(spect)
+#    spect = _power_to_db(spect)
     interp_spect = np.array([_f0_interp(f0[i], spect[i]) for i in range(spect.shape[0])])
     return (spect, interp_spect, np.mean(np.sum(np.abs(spect - interp_spect), axis=1)))
 
@@ -296,7 +296,7 @@ if __name__ == '__main__':
     model_dir = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
     model_name = 'neu-ang_1000.ckpt'
     conversion_direction = 'A2B'
-    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1175.wav'
+    audio_file = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
     
     parser.add_argument('--audio_file', type=str, help='audio file to convert', default=audio_file)
     argv = parser.parse_args()
@@ -348,7 +348,11 @@ if __name__ == '__main__':
     print('Pyworld decoded')
     
 
-    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, decoded_sp_pyworld)
+    decoded_sp_pyworld = np.array([x / np.max(x) for x in decoded_sp_pyworld])#decoded_sp_pyworld / np.max(decoded_sp_pyworld)
+    sp = np.array([x / np.max(x) for x in sp])#sp / np.max(sp)
+    
+    spect_conv, interp_spect_conv, error_conv = f0_spect_consistency(f0_converted, 
+                                                                     decoded_sp_pyworld)
     spect, interp_spect, error_orig = f0_spect_consistency(f0.reshape(-1,), sp)
     print('Original mismatch- {} and reconstructed mismatch- {}'.format(error_orig, error_conv))
 
