@@ -12,6 +12,7 @@ import logging
 from glob import glob
 from nn_models.model_delta_id import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
+from importlib import reload
 import utils.preprocess as preproc
 
 
@@ -48,8 +49,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
+    reload(logging)
     logging.basicConfig(filename=logger_file, \
-                            level=logging.DEBUG)
+                            level=logging.INFO)
 
     print("lambda_cycle pitch - {}".format(lambda_cycle_pitch))
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
@@ -210,10 +212,10 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
-        sys.stdout.flush()
-
         if epoch % 100 == 0:
             
+            sys.stdout.flush()
+
             cur_model_name = model_name+"_"+str(epoch)+".ckpt"
             model.save(directory=model_dir, filename=cur_model_name)
 
