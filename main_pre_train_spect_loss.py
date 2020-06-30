@@ -13,6 +13,7 @@ from glob import glob
 from nn_models.model_spect_id import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
+from importlib import reload
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -48,8 +49,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
-    logging.basicConfig(filename=logger_file, \
-                            level=logging.DEBUG)
+    reload(logging)
+    logging.basicConfig(filename=logger_file, level=logging.INFO)
 
     print("lambda_cycle pitch - {}".format(lambda_cycle_pitch))
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
@@ -304,9 +305,9 @@ if __name__ == '__main__':
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
             default=0.00001)
     parser.add_argument('--lambda_cycle_mfc', type=float, help="hyperparam for cycle loss mfc", 
-            default=1.0)
+            default=0.01)
     parser.add_argument('--lambda_identity_mfc', type=float, help="hyperparam for identity loss mfc", 
-            default=0.5)
+            default=0.005)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
             default=1e-6)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
