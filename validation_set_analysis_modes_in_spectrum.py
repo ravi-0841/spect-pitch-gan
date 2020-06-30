@@ -50,6 +50,7 @@ if __name__ == '__main__':
     mfc_conv = np.empty((0,23,128))
     spect_conv = np.empty((0,513,128))
     spect_valid = np.empty((0,513,128))
+    spect_input = np.empty((0, 513, 128))
     
     for i in range(mfc_A_valid.shape[0]):
                 
@@ -67,14 +68,23 @@ if __name__ == '__main__':
         
         mfc_target = np.transpose(np.squeeze(mfc_B_valid[i]))
         mfc_target = np.asarray(np.copy(mfc_target, order='C'), np.float64)
+        
+        mfc_source = np.transpose(np.squeeze(mfc_A_valid[i]))
+        mfc_source = np.asarray(np.copy(mfc_source, order='C'), np.float64)
+        
         spect_target = preproc.world_decode_spectral_envelope(coded_sp=mfc_target, 
                                                        fs=sampling_rate)
+        spect_source = preproc.world_decode_spectral_envelope(coded_sp=mfc_source, 
+                                                       fs=sampling_rate)
+        
         spect_valid = np.concatenate((spect_valid, 
                                       np.expand_dims(spect_target.T, axis=0)), axis=0)
+        spect_input = np.concatenate((spect_input, 
+                                      np.expand_dims(spect_source.T, axis=0)), axis=0)
         
         q = np.random.uniform(0,1)
         
-#        if q < 0.02:
+        if q < 0.04:
 #        pylab.figure()
 #        pylab.plot(spect_target[q,:].reshape(-1,), 'g', label='Target Spect')
 #        pylab.plot(pred_spect[q,:].reshape(-1,), 'r', label='Generated Spect')
@@ -82,14 +92,16 @@ if __name__ == '__main__':
 #        pylab.savefig('/home/ravi/Desktop/'+str(i)+'_'+str(q)+'.png')
 #        pylab.close()
             
-#            pylab.figure()
-#            pylab.subplot(121)
-#            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
-#            pylab.subplot(122)
-#            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
-#            pylab.suptitle('Example %d' % i)
-#            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
-#            pylab.close()
+            pylab.figure()
+            pylab.subplot(131)
+            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
+            pylab.subplot(132)
+            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
+            pylab.subplot(133)
+            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
+            pylab.suptitle('Example %d' % i)
+            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
+            pylab.close()
     
     del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target
     
@@ -105,11 +117,11 @@ if __name__ == '__main__':
     spect_valid_delta = np.dot(spect_valid, z)
     spect_conv_delta = np.dot(spect_conv, z)
         
-    for i in range(10):
-        q = np.random.randint(448)
-        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(mfc_B_valid_delta[q,:,:] ** 2)))
-        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(mfc_conv_delta[q,:,:] ** 2)))
-        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/mfcc_grad_'+str(i)+'.png'), pylab.close()
+#    for i in range(10):
+#        q = np.random.randint(448)
+#        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(mfc_B_valid_delta[q,:,:] ** 2)))
+#        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(mfc_conv_delta[q,:,:] ** 2)))
+#        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/mfcc_grad_'+str(i)+'.png'), pylab.close()
         
 #    for i in range(10):
 #        q = np.random.randint(448)
