@@ -10,7 +10,7 @@ def _mel2hz(mel):
     return 700 * (10 ** (mel/2595.0) - 1)
 
 def _log10(x):
-    return tf.divide(tf.log(x), tf.log(10))
+    return tf.divide(tf.log(x), tf.log(10.0))
 
 def _power_to_db(s):
     return 20*_log10(s)
