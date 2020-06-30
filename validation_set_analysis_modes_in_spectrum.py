@@ -11,7 +11,7 @@ import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
-from analysis_files.mfcc_spect_analysis_VCGAN import _power_to_db
+from mfcc_spect_analysis_VCGAN import _power_to_db
 
 
 num_mfcc = 23
