@@ -27,7 +27,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     np.random.seed(random_seed)
 
-    num_epochs = 2000
+    num_epochs = 5000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
@@ -297,9 +297,9 @@ if __name__ == '__main__':
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
             default=0.00001)
     parser.add_argument('--lambda_cycle_mfc', type=float, help="hyperparam for cycle loss mfc", 
-            default=0.1)
+            default=1.0)
     parser.add_argument('--lambda_identity_mfc', type=float, help="hyperparam for identity loss mfc", 
-            default=0.05)
+            default=0.5)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
             default=1e-6)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
