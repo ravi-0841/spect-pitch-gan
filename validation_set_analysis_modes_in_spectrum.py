@@ -75,7 +75,7 @@ if __name__ == '__main__':
         mfc_source = np.asarray(np.copy(mfc_source, order='C'), np.float64)
         
         f0_valid = np.concatenate((f0_valid, pitch_B_valid[i:i+1].reshape(1,-1)), axis=0)
-        f0_input = np.concatenate((f0_input, pitch_B_valid[i:i+1].reshape(1,-1)), axis=0)
+        f0_input = np.concatenate((f0_input, pitch_A_valid[i:i+1].reshape(1,-1)), axis=0)
         
         spect_target = preproc.world_decode_spectral_envelope(coded_sp=mfc_target, 
                                                        fs=sampling_rate)
@@ -126,6 +126,59 @@ if __name__ == '__main__':
 #        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(spect_valid_delta[q,:,:] ** 2))), pylab.title('Spect Valid')
 #        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(spect_conv_delta[q,:,:] ** 2))), pylab.title('Spect Conv')
 #        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/spect_grad_'+str(i)+'.png'), pylab.close()
+
+##########################################################################################################################
+    """
+    PCA analysis
+    """
+    
+    import sklearn
+    from sklearn.preprocessing import StandardScaler
+    
+    data_train = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/train_5.mat')
+    pitch_A_train = np.transpose(data_train['src_f0_feat'], (0,1,3,2))
+    pitch_B_train = np.transpose(data_train['tar_f0_feat'], (0,1,3,2))
+    f0_source = np.squeeze(np.vstack(pitch_A_train))
+    f0_target = np.squeeze(np.vstack(pitch_B_train))
+    
+    pca_source = sklearn.decomposition.PCA(n_components=64)
+    pca_target = sklearn.decomposition.PCA(n_components=64)
+    pca_source.fit(f0_source)
+    pca_target.fit(f0_target)
+    
+    scaler = StandardScaler()
+    f0_conv = scaler.fit_transform(f0_conv)
+    dist_source = [[np.linalg.norm(x.reshape(-1,) - y.reshape(-1,)) for x in pca_source.components_] for y in f0_conv]
+    dist_source = [np.mean(d) for d in dist_source]
+    dist_target = [[np.linalg.norm(x.reshape(-1,) - y.reshape(-1,)) for x in pca_target.components_] for y in f0_conv]
+    dist_target = [np.mean(d) for d in dist_target]
+    pylab.boxplot([dist_source, dist_target], labels=['source dist', 'target dist'])
+    pylab.grid()
+    
+    f0_conv = scaler.inverse_transform(f0_conv)
+    
+    for i in range(10):
+        q = np.random.randint(64)
+        pylab.figure(), pylab.plot(pca_source.components_[q,:].reshape(-1,), label='source')
+        pylab.plot(pca_target.components_[q,:].reshape(-1,), label='target')
+        pylab.legend(), pylab.suptitle('Component %d' % q)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
