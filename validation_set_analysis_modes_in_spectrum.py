@@ -47,6 +47,8 @@ if __name__ == '__main__':
     model.load(filepath='/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
     
     f0_conv = np.empty((0,128))
+    f0_valid = np.empty((0,128))
+    f0_input = np.empty((0,128))
     mfc_conv = np.empty((0,23,128))
     spect_conv = np.empty((0,513,128))
     spect_valid = np.empty((0,513,128))
@@ -71,6 +73,9 @@ if __name__ == '__main__':
         
         mfc_source = np.transpose(np.squeeze(mfc_A_valid[i]))
         mfc_source = np.asarray(np.copy(mfc_source, order='C'), np.float64)
+        
+        f0_valid = np.concatenate((f0_valid, pitch_B_valid[i:i+1].reshape(1,-1)), axis=0)
+        f0_input = np.concatenate((f0_input, pitch_B_valid[i:i+1].reshape(1,-1)), axis=0)
         
         spect_target = preproc.world_decode_spectral_envelope(coded_sp=mfc_target, 
                                                        fs=sampling_rate)
