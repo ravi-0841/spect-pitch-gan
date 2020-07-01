@@ -14,6 +14,7 @@ from glob import glob
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
+from importlib import reload
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -46,6 +47,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
+    reload(logging)
     logging.basicConfig(filename=logger_file, \
                             level=logging.DEBUG)
 
