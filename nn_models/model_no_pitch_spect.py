@@ -113,8 +113,8 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='sampler_generator_B2A')
         self.pitch_cycle_A2A = self.lddmm(x=self.pitch_generation_A2B, 
                 p=self.momentum_cycle_A2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
-        self.mfc_cycle_A2A = self.generator(input_pitch=self.pitch_cycle_A2A, 
-                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='generator_B2A')
+        self.mfc_cycle_A2A = self.generator(input_mfc=self.mfc_generation_A2B, 
+                reuse=False, scope_name='generator_B2A')
         self.mfc_identity_A2B = self.generator(input_mfc=self.mfc_B_real, 
                 reuse=True, scope_name='generator_A2B')
 
@@ -134,8 +134,8 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='sampler_generator_A2B')
         self.pitch_cycle_B2B = self.lddmm(x=self.pitch_generation_B2A, 
                 p=self.momentum_cycle_B2B, kernel=self.kernel, reuse=True, scope_name='lddmm')
-        self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
-                input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='generator_A2B')
+        self.mfc_cycle_B2B = self.generator(input_mfc=self.mfc_generation_B2A, 
+                reuse=True, scope_name='generator_A2B')
         self.mfc_identity_B2A = self.generator(input_mfc=self.mfc_A_real, 
                 reuse=True, scope_name='generator_B2A')
 
