@@ -18,6 +18,7 @@ from scipy.optimize import nnls, fmin_l_bfgs_b
 from scipy.signal import butter, lfilter, freqz, filtfilt
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
+from scipy.interpolate import interp1d
 
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
@@ -146,20 +147,26 @@ def _interp_matrix_mel2hz(sr=16000, n_fft=1024):
     return F_inv
 
 
-def _f0_interp(f0, s):
-#    bin_sep = int(np.ceil(f0 / ((sampling_rate/2)/(n_fft//2 + 1))))
-#    sampling_x = np.asarray(np.floor(np.arange(0, (n_fft//2 + 1), bin_sep)), np.int)
-#    sampling_y = s[sampling_x]
-#    interp_x = np.arange(0, (n_fft//2 + 1), 1)
-#    interp_y = np.interp(interp_x, sampling_x, sampling_y)
+def _f0_interp_cubic(f0, s):
+    x_org = np.arange(0, 8000, f0)
+    x_org = x_org*n_fft / sampling_rate
+    x_org = np.asarray(np.ceil(x_org), np.int32)
+    if 512 not in x_org:
+        x_org[-1] = 512
+    y_org = s[x_org].reshape(-1,)
+    interp_x = np.arange(0, (n_fft//2 + 1), 1)
+    f = interp1d(x_org, y_org, kind='cubic')
+    interp_y = f(interp_x)
+    return interp_y
 
+
+def _f0_interp(f0, s):
     x_org = np.arange(0, 8000, f0)
     x_org = x_org*n_fft / sampling_rate
     x_org = np.asarray(np.ceil(x_org), np.int32)
     y_org = s[x_org]
     interp_x = np.arange(0, (n_fft//2 + 1), 1)
     interp_y = np.interp(interp_x, x_org, y_org)
-
     return interp_y
 
 
