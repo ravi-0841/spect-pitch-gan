@@ -41,7 +41,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + str(lambda_identity_mfc) \
             + '_glr'+str(generator_learning_rate) \
             +'_dlr_'+str(discriminator_learning_rate) \
-            +'_pre_trained_spect_id'
+            +'_pre_trained_spect_loss'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
