@@ -137,8 +137,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
         
         n_samples = mfc_A.shape[0]
         
-        train_gen_loss = []
-        train_disc_loss = []
+        train_gen_loss = list()
+        train_disc_loss = list()
 
         for i in range(n_samples // mini_batch_size):
 
