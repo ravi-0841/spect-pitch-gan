@@ -188,13 +188,6 @@ class VariationalCycleGAN(object):
         self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
-#        self.generator_loss \
-#            = (1-self.lambda_cycle_pitch-self.lambda_momenta-self.lambda_cycle_mfc)*self.gen_disc_loss \
-#                + self.lambda_cycle_pitch * self.cycle_loss_pitch \
-#                + self.lambda_cycle_mfc * self.cycle_loss_mfc \
-#                + self.lambda_momenta * self.momenta_loss
-
-        # Merge the two sampler-generator, the cycle loss and momenta prior
         self.generator_loss \
             = self.gen_disc_loss + self.lambda_cycle_pitch * self.cycle_loss_pitch \
                 + self.lambda_cycle_mfc * self.cycle_loss_mfc \
@@ -280,17 +273,18 @@ class VariationalCycleGAN(object):
                 beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
 
 
-    def train_grad(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
+    def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
             lambda_cycle_mfc, lambda_momenta, lambda_identity_mfc, 
             generator_learning_rate, discriminator_learning_rate):
 
         momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
                 generation_pitch_A, generation_mfc_A, generator_loss, \
-                _, generator_summaries \
+                _, generator_summaries, cycle_loss_mfc, id_loss_mfc \
                 = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.gen_disc_loss, 
-                    self.generator_train_op, self.generator_summaries], 
+                    self.generator_train_op, self.generator_summaries, 
+                    self.cycle_loss_mfc, self.identity_loss_mfc], 
                     feed_dict = {self.lambda_cycle_pitch:lambda_cycle_pitch, 
                         self.lambda_cycle_mfc:lambda_cycle_mfc, 
                         self.lambda_momenta:lambda_momenta, 
@@ -317,7 +311,7 @@ class VariationalCycleGAN(object):
 
         return generator_loss, discriminator_loss, generation_pitch_A, \
                 generation_mfc_A, generation_pitch_B, generation_mfc_B, \
-                momentum_A, momentum_B
+                momentum_A, momentum_B, cycle_loss_mfc, id_loss_mfc
 
 
     def test_gen(self, mfc_A, pitch_A, mfc_B, pitch_B):
