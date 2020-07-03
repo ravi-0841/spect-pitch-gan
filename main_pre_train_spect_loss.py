@@ -156,7 +156,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                     generator_learning_rate=generator_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
-            print("Cycle loss %f and identity loss %f" % (cycle_loss, id_loss))
+#            print("Cycle loss %f and identity loss %f" % (cycle_loss, id_loss))
             train_gen_loss.append(generator_loss)
             train_disc_loss.append(discriminator_loss)
 
