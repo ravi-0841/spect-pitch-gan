@@ -44,7 +44,8 @@ if __name__ == '__main__':
     pitch_B_valid = np.vstack(pitch_B_valid)
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-    model.load(filepath='/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_3500.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     spect_conv = np.empty((0,513,128))
     spect_valid = np.empty((0,513,128))
     spect_input = np.empty((0, 513, 128))
-    
+
     for i in range(mfc_A_valid.shape[0]):
                 
         pred_f0, pred_mfc = model.test(input_pitch=pitch_A_valid[i:i+1], 
@@ -132,36 +133,36 @@ if __name__ == '__main__':
     PCA analysis
     """
     
-    import sklearn
-    from sklearn.preprocessing import StandardScaler
-    
-    data_train = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/train_5.mat')
-    pitch_A_train = np.transpose(data_train['src_f0_feat'], (0,1,3,2))
-    pitch_B_train = np.transpose(data_train['tar_f0_feat'], (0,1,3,2))
-    f0_source = np.squeeze(np.vstack(pitch_A_train))
-    f0_target = np.squeeze(np.vstack(pitch_B_train))
-    
-    pca_source = sklearn.decomposition.PCA(n_components=64)
-    pca_target = sklearn.decomposition.PCA(n_components=64)
-    pca_source.fit(f0_source)
-    pca_target.fit(f0_target)
-    
-    scaler = StandardScaler()
-    f0_conv = scaler.fit_transform(f0_conv)
-    dist_source = [[np.linalg.norm(x.reshape(-1,) - y.reshape(-1,)) for x in pca_source.components_] for y in f0_conv]
-    dist_source = [np.mean(d) for d in dist_source]
-    dist_target = [[np.linalg.norm(x.reshape(-1,) - y.reshape(-1,)) for x in pca_target.components_] for y in f0_conv]
-    dist_target = [np.mean(d) for d in dist_target]
-    pylab.boxplot([dist_source, dist_target], labels=['source dist', 'target dist'])
-    pylab.grid()
-    
-    f0_conv = scaler.inverse_transform(f0_conv)
-    
-    for i in range(10):
-        q = np.random.randint(64)
-        pylab.figure(), pylab.plot(pca_source.components_[q,:].reshape(-1,), label='source')
-        pylab.plot(pca_target.components_[q,:].reshape(-1,), label='target')
-        pylab.legend(), pylab.suptitle('Component %d' % q)
+#    import sklearn
+#    from sklearn.preprocessing import StandardScaler
+#    
+#    data_train = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/train_5.mat')
+#    pitch_A_train = np.transpose(data_train['src_f0_feat'], (0,1,3,2))
+#    pitch_B_train = np.transpose(data_train['tar_f0_feat'], (0,1,3,2))
+#    f0_source = np.squeeze(np.vstack(pitch_A_train))
+#    f0_target = np.squeeze(np.vstack(pitch_B_train))
+#    
+#    pca_source = sklearn.decomposition.PCA(n_components=64)
+#    pca_target = sklearn.decomposition.PCA(n_components=64)
+#    pca_source.fit(f0_source)
+#    pca_target.fit(f0_target)
+#    
+#    scaler = StandardScaler()
+#    f0_conv = scaler.fit_transform(f0_conv)
+#    dist_source = [[np.linalg.norm(x.reshape(-1,) - y.reshape(-1,)) for x in pca_source.components_] for y in f0_conv]
+#    dist_source = [np.mean(d) for d in dist_source]
+#    dist_target = [[np.linalg.norm(x.reshape(-1,) - y.reshape(-1,)) for x in pca_target.components_] for y in f0_conv]
+#    dist_target = [np.mean(d) for d in dist_target]
+#    pylab.boxplot([dist_source, dist_target], labels=['source dist', 'target dist'])
+#    pylab.grid()
+#    
+#    f0_conv = scaler.inverse_transform(f0_conv)
+#    
+#    for i in range(10):
+#        q = np.random.randint(64)
+#        pylab.figure(), pylab.plot(pca_source.components_[q,:].reshape(-1,), label='source')
+#        pylab.plot(pca_target.components_[q,:].reshape(-1,), label='target')
+#        pylab.legend(), pylab.suptitle('Component %d' % q)
 
 
 
