@@ -23,6 +23,22 @@ frame_period = 5.0
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
+def normalize(x, nmz_type='min_max'):
+    """
+    x is the data to be normalized MxN matrix
+    nmz_type - [min_max, max, mean_var]
+    """
+    if nmz_type == 'min_max':
+        x = (x - np.min(x)) / (np.max(x) - np.min(x))
+    elif nmz_type == 'max':
+        x = x / (np.max(x) + 1e-20)
+    elif nmz_type == 'mean_var':
+        x = (x - np.mean(x)) / np.std(x)
+    else:
+        raise Exception('normalization type not recognized')
+    return x
+
+
 if __name__ == '__main__':
     data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_5.mat')
     
@@ -152,11 +168,12 @@ if __name__ == '__main__':
     for i in range(10):
         q = np.random.randint(0,448)
         pylab.figure()
-        pylab.subplot(141), pylab.imshow(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2)), pylab.title('Input Spect'), pylab.colorbar()
-        pylab.subplot(142), pylab.imshow(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2)), pylab.title('Cyclic Spect'), pylab.colorbar()
-        pylab.subplot(143), pylab.imshow(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2)), pylab.title('Conv Spect'), pylab.colorbar()
-        pylab.subplot(144), pylab.imshow(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2)), pylab.title('Target Spect'), pylab.colorbar()
+        pylab.subplot(141), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2))), pylab.title('Input Spect'), pylab.colorbar()
+        pylab.subplot(142), pylab.imshow(normalize(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2))), pylab.title('Cyclic Spect'), pylab.colorbar()
+        pylab.subplot(143), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2))), pylab.title('Conv Spect'), pylab.colorbar()
+        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2))), pylab.title('Target Spect'), pylab.colorbar()
         pylab.suptitle('Example %d' % q)
+
 
 ##########################################################################################################################
     """
