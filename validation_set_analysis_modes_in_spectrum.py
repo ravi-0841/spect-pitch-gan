@@ -45,23 +45,32 @@ if __name__ == '__main__':
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_3500.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_old/neu-ang_1000.ckpt')
-#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_old/neu-ang_1000.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
     f0_input = np.empty((0,128))
+    cyc_f0 = np.empty((0,128))
     mfc_conv = np.empty((0,23,128))
+    cyc_mfc = np.empty((0,23,128))
     spect_conv = np.empty((0,513,128))
     spect_valid = np.empty((0,513,128))
     spect_input = np.empty((0, 513, 128))
+    cyc_spect = np.empty((0, 513, 128))
 
     for i in range(mfc_A_valid.shape[0]):
 
         pred_f0, pred_mfc = model.test(input_pitch=pitch_A_valid[i:i+1], 
                                            input_mfc=mfc_A_valid[i:i+1], 
                                            direction='A2B')
+        cyc_pred_f0, cyc_pred_mfc = model.test(input_pitch=pred_f0, 
+                                               input_mfc=pred_mfc, 
+                                               direction='B2A')
+        
         f0_conv = np.concatenate((f0_conv, pred_f0.reshape(1,-1)), axis=0)
+        cyc_f0 = np.concatenate((cyc_f0, cyc_pred_f0.reshape(1,-1)), axis=0)
+        
         mfc_conv = np.concatenate((mfc_conv, pred_mfc), axis=0)
         pred_mfc = np.asarray(np.squeeze(pred_mfc), np.float64)
         pred_mfc = np.copy(pred_mfc.T, order='C')
@@ -69,6 +78,14 @@ if __name__ == '__main__':
                                                             fs=sampling_rate)
         spect_conv = np.concatenate((spect_conv, 
                                      np.expand_dims(pred_spect.T, axis=0)), axis=0)
+        
+        cyc_mfc = np.concatenate((cyc_mfc, cyc_pred_mfc), axis=0)
+        cyc_pred_mfc = np.asarray(np.squeeze(cyc_pred_mfc), np.float64)
+        cyc_pred_mfc = np.copy(cyc_pred_mfc.T, order='C')
+        cyc_pred_spect = preproc.world_decode_spectral_envelope(coded_sp=cyc_pred_mfc, 
+                                                            fs=sampling_rate)
+        cyc_spect = np.concatenate((cyc_spect, 
+                                     np.expand_dims(cyc_pred_spect.T, axis=0)), axis=0)
         
         mfc_target = np.transpose(np.squeeze(mfc_B_valid[i]))
         mfc_target = np.asarray(np.copy(mfc_target, order='C'), np.float64)
@@ -103,7 +120,8 @@ if __name__ == '__main__':
 #            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
 #            pylab.close()
     
-    del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target
+    del pred_f0, pred_mfc, mfc_target, pred_spect, spect_target, \
+        cyc_pred_f0, cyc_pred_mfc, cyc_pred_spect
     
     
         
@@ -128,6 +146,14 @@ if __name__ == '__main__':
 #        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(spect_valid_delta[q,:,:] ** 2))), pylab.title('Spect Valid')
 #        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(spect_conv_delta[q,:,:] ** 2))), pylab.title('Spect Conv')
 #        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/spect_grad_'+str(i)+'.png'), pylab.close()
+    
+    for i in range(10):
+        q = np.random.randint(0,448)
+        pylab.figure()
+        pylab.subplot(131), pylab.imshow(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2)), pylab.title('Input Spect')
+        pylab.subplot(132), pylab.imshow(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2)), pylab.title('A2B Spect')
+        pylab.subplot(133), pylab.imshow(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2)), pylab.title('A2B2A Spect')
+        pylab.suptitle('Example %d' % q)
 
 ##########################################################################################################################
     """
