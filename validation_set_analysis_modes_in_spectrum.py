@@ -76,6 +76,7 @@ if __name__ == '__main__':
         pred_mfc = np.copy(pred_mfc.T, order='C')
         pred_spect = preproc.world_decode_spectral_envelope(coded_sp=pred_mfc, 
                                                             fs=sampling_rate)
+        
         spect_conv = np.concatenate((spect_conv, 
                                      np.expand_dims(pred_spect.T, axis=0)), axis=0)
         
@@ -84,6 +85,7 @@ if __name__ == '__main__':
         cyc_pred_mfc = np.copy(cyc_pred_mfc.T, order='C')
         cyc_pred_spect = preproc.world_decode_spectral_envelope(coded_sp=cyc_pred_mfc, 
                                                             fs=sampling_rate)
+        
         cyc_spect = np.concatenate((cyc_spect, 
                                      np.expand_dims(cyc_pred_spect.T, axis=0)), axis=0)
         
@@ -150,9 +152,10 @@ if __name__ == '__main__':
     for i in range(10):
         q = np.random.randint(0,448)
         pylab.figure()
-        pylab.subplot(131), pylab.imshow(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2)), pylab.title('Input Spect')
-        pylab.subplot(132), pylab.imshow(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2)), pylab.title('A2B Spect')
-        pylab.subplot(133), pylab.imshow(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2)), pylab.title('A2B2A Spect')
+        pylab.subplot(141), pylab.imshow(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2)), pylab.title('Input Spect'), pylab.colorbar()
+        pylab.subplot(142), pylab.imshow(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2)), pylab.title('Cyclic Spect'), pylab.colorbar()
+        pylab.subplot(143), pylab.imshow(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2)), pylab.title('Conv Spect'), pylab.colorbar()
+        pylab.subplot(144), pylab.imshow(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2)), pylab.title('Target Spect'), pylab.colorbar()
         pylab.suptitle('Example %d' % q)
 
 ##########################################################################################################################

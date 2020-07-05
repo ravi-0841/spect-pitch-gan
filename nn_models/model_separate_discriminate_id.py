@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 from modules.modules_separate_discriminate_dropout import sampler, generator, discriminator
-from utils.model_utils import l1_loss
+import utils.model_utils as utils
 from utils.tf_forward_tan import lddmm 
 
 class VariationalCycleGAN(object):
@@ -150,24 +150,24 @@ class VariationalCycleGAN(object):
                 self.pitch_generation_B2A], axis=1), reuse=False, scope_name='discriminator_B')
 
         # Cycle loss
-        self.cycle_loss_pitch = (l1_loss(y=self.pitch_A_real, 
-            y_hat=self.pitch_cycle_A2A) + l1_loss(y=self.pitch_B_real, 
+        self.cycle_loss_pitch = (utils.l1_loss(y=self.pitch_A_real, 
+            y_hat=self.pitch_cycle_A2A) + utils.l1_loss(y=self.pitch_B_real, 
                 y_hat=self.pitch_cycle_B2B)) / 2.0
 
-        self.cycle_loss_mfc = (l1_loss(y=self.mfc_A_real, 
-            y_hat=self.mfc_cycle_A2A) + l1_loss(y=self.mfc_B_real, 
+        self.cycle_loss_mfc = (utils.l1_loss(y=self.mfc_A_real, 
+            y_hat=self.mfc_cycle_A2A) + utils.l1_loss(y=self.mfc_B_real, 
                 y_hat=self.mfc_cycle_B2B)) / 2.0
         
         # Identity Loss
-        self.identity_loss_mfc = (l1_loss(y=self.mfc_identity_A2B, 
-            y_hat=self.mfc_B_real) + l1_loss(y=self.mfc_identity_B2A, 
+        self.identity_loss_mfc = (utils.l1_loss(y=self.mfc_identity_A2B, 
+            y_hat=self.mfc_B_real) + utils.l1_loss(y=self.mfc_identity_B2A, 
                     y_hat=self.mfc_A_real)) / 2.0
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
-        self.generator_loss_A2B = l1_loss(y=tf.ones_like(self.discrimination_B_fake), 
+        self.generator_loss_A2B = utils.l1_loss(y=tf.ones_like(self.discrimination_B_fake), 
                 y_hat=self.discrimination_B_fake)
-        self.generator_loss_B2A = l1_loss(y=tf.ones_like(self.discrimination_A_fake), 
+        self.generator_loss_B2A = utils.l1_loss(y=tf.ones_like(self.discrimination_A_fake), 
                 y_hat=self.discrimination_A_fake)
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
@@ -219,19 +219,19 @@ class VariationalCycleGAN(object):
 
         # Compute discriminator loss for backprop
         self.discriminator_loss_input_A_real \
-            = l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
+            = utils.l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
                     y_hat=self.discrimination_input_A_real_B_fake)
         self.discriminator_loss_input_A_fake \
-            = l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
+            = utils.l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
                     y_hat=self.discrimination_input_A_fake_B_real)
         self.discriminator_loss_A = (self.discriminator_loss_input_A_real \
                                      + self.discriminator_loss_input_A_fake) / 2.0
 
         self.discriminator_loss_input_B_real \
-            = l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
+            = utils.l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
                     y_hat=self.discrimination_input_B_real_A_fake)
         self.discriminator_loss_input_B_fake \
-            = l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
+            = utils.l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
                     y_hat=self.discrimination_input_B_fake_A_real)
         self.discriminator_loss_B = (self.discriminator_loss_input_B_real \
                                      + self.discriminator_loss_input_B_fake) / 2.0
