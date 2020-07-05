@@ -45,7 +45,8 @@ if __name__ == '__main__':
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_3500.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_old/neu-ang_1000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -90,15 +91,15 @@ if __name__ == '__main__':
         
         q = np.random.uniform(0,1)
         
-        if q < 0.03:
-            pylab.figure()
-            pylab.subplot(131)
-            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
-            pylab.subplot(132)
-            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
-            pylab.subplot(133)
-            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
-            pylab.suptitle('Example %d' % i)
+#        if q < 0.03:
+#            pylab.figure()
+#            pylab.subplot(131)
+#            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
+#            pylab.subplot(132)
+#            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
+#            pylab.subplot(133)
+#            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
+#            pylab.suptitle('Example %d' % i)
 #            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
 #            pylab.close()
     
