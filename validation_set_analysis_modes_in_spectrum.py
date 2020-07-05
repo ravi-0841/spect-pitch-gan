@@ -56,7 +56,7 @@ if __name__ == '__main__':
     spect_input = np.empty((0, 513, 128))
 
     for i in range(mfc_A_valid.shape[0]):
-                
+
         pred_f0, pred_mfc = model.test(input_pitch=pitch_A_valid[i:i+1], 
                                            input_mfc=mfc_A_valid[i:i+1], 
                                            direction='A2B')
@@ -90,15 +90,15 @@ if __name__ == '__main__':
         
         q = np.random.uniform(0,1)
         
-#        if q < 0.04:
-#            pylab.figure()
-#            pylab.subplot(131)
-#            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
-#            pylab.subplot(132)
-#            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
-#            pylab.subplot(133)
-#            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
-#            pylab.suptitle('Example %d' % i)
+        if q < 0.03:
+            pylab.figure()
+            pylab.subplot(131)
+            pylab.imshow(_power_to_db(spect_source.T ** 2)), pylab.title('Source Spect')
+            pylab.subplot(132)
+            pylab.imshow(_power_to_db(spect_target.T ** 2)), pylab.title('Target Spect')
+            pylab.subplot(133)
+            pylab.imshow(_power_to_db(pred_spect.T ** 2)), pylab.title('Predicted Spect')
+            pylab.suptitle('Example %d' % i)
 #            pylab.savefig('/home/ravi/Desktop/spect_'+str(i)+'.png')
 #            pylab.close()
     
