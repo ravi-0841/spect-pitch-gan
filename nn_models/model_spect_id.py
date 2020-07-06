@@ -346,23 +346,6 @@ class VariationalCycleGAN(object):
         return generation_pitch, generation_mfc
 
 
-    def convert_to_spect(self, input_pitch, input_mfc, direction='A2B'):
-        
-        if direction == 'A2B':
-            generation_pitch, generation_mfc = self.sess.run([self.pitch_A2B_test, 
-                self.mfc_A2B_test], feed_dict = {self.pitch_A_test:input_pitch, 
-                    self.mfc_A_test:input_mfc})
-        
-        elif direction == 'B2A':
-            generation_pitch, generation_mfc = self.sess.run([self.pitch_B2A_test, 
-                self.mfc_B2A_test], feed_dict = {self.pitch_B_test:input_pitch, 
-                    self.mfc_B_test:input_mfc})
-        else:
-            raise Exception('Conversion direction must be specified.')
-
-        return generation_pitch, generation_mfc
-
-
     def save(self, directory, filename):
 
         if not os.path.exists(directory):
