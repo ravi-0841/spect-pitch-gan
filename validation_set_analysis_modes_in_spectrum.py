@@ -71,7 +71,7 @@ if __name__ == '__main__':
     mfc_conv = np.empty((0,23,128))
     cyc_mfc = np.empty((0,23,128))
     spect_conv = np.empty((0,513,128))
-    spect_valid = np.empty((0,513,128))
+    spect_output = np.empty((0,513,128))
     spect_input = np.empty((0, 513, 128))
     cyc_spect = np.empty((0, 513, 128))
 
@@ -119,7 +119,7 @@ if __name__ == '__main__':
         spect_source = preproc.world_decode_spectral_envelope(coded_sp=mfc_source, 
                                                        fs=sampling_rate)
         
-        spect_valid = np.concatenate((spect_valid, 
+        spect_output = np.concatenate((spect_output, 
                                       np.expand_dims(spect_target.T, axis=0)), axis=0)
         spect_input = np.concatenate((spect_input, 
                                       np.expand_dims(spect_source.T, axis=0)), axis=0)
@@ -150,7 +150,7 @@ if __name__ == '__main__':
     mfc_B_valid_delta = np.dot(mfc_B_valid, z)
     mfc_conv_delta = np.dot(mfc_conv, z)
         
-    spect_valid_delta = np.dot(spect_valid, z)
+    spect_output_delta = np.dot(spect_output, z)
     spect_conv_delta = np.dot(spect_conv, z)
         
 #    for i in range(10):
