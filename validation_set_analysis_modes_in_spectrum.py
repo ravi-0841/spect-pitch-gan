@@ -61,8 +61,8 @@ if __name__ == '__main__':
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_3500.ckpt')
-#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_old/neu-ang_1000.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_old/neu-ang_1000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -165,14 +165,16 @@ if __name__ == '__main__':
 #        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(spect_conv_delta[q,:,:] ** 2))), pylab.title('Spect Conv')
 #        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/spect_grad_'+str(i)+'.png'), pylab.close()
     
-    for i in range(10):
-        q = np.random.randint(0,448)
-        pylab.figure()
-        pylab.subplot(141), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2))), pylab.title('Input Spect'), pylab.colorbar()
-        pylab.subplot(142), pylab.imshow(normalize(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2))), pylab.title('Cyclic Spect'), pylab.colorbar()
-        pylab.subplot(143), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2))), pylab.title('Conv Spect'), pylab.colorbar()
-        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2))), pylab.title('Target Spect'), pylab.colorbar()
-        pylab.suptitle('Example %d' % q)
+#    for i in range(10):
+#        q = np.random.randint(0,448)
+#        pylab.figure()
+#        pylab.subplot(141), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2))), pylab.title('Input Spect'), pylab.colorbar()
+#        pylab.subplot(142), pylab.imshow(normalize(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2))), pylab.title('Cyclic Spect'), pylab.colorbar()
+#        pylab.subplot(143), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2))), pylab.title('Conv Spect'), pylab.colorbar()
+#        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2))), pylab.title('Target Spect'), pylab.colorbar()
+#        pylab.suptitle('Example %d' % q)
+#        pylab.savefig('/home/ravi/Desktop/spect_consistency_'+str(i)+'.png')
+#        pylab.close()
 
 
 ##########################################################################################################################
