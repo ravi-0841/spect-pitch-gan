@@ -165,16 +165,20 @@ if __name__ == '__main__':
 #        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(spect_conv_delta[q,:,:] ** 2))), pylab.title('Spect Conv')
 #        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/spect_grad_'+str(i)+'.png'), pylab.close()
     
-    for i in range(10):
-        q = np.random.randint(0,448)
-        pylab.figure(figsize=(15,15))
-        pylab.subplot(141), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2))), pylab.title('Input Spect'), pylab.colorbar()
-        pylab.subplot(142), pylab.imshow(normalize(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2))), pylab.title('Cyclic Spect'), pylab.colorbar()
-        pylab.subplot(143), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2))), pylab.title('Conv Spect'), pylab.colorbar()
-        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2))), pylab.title('Target Spect'), pylab.colorbar()
-        pylab.suptitle('Example %d' % q)
-        pylab.savefig('/home/ravi/Desktop/spect_consistency_'+str(i)+'.png')
-        pylab.close()
+#    for i in range(10):
+#        q = np.random.randint(0,448)
+#        pylab.figure(figsize=(15,15))
+#        pylab.subplot(141), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_input[q,:,:]) ** 2))), 
+#        pylab.title('Input Spect'), pylab.colorbar()
+#        pylab.subplot(142), pylab.imshow(normalize(_power_to_db(np.squeeze(cyc_spect[q,:,:]) ** 2))), 
+#        pylab.title('Cyclic Spect'), pylab.colorbar()
+#        pylab.subplot(143), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2))), 
+#        pylab.title('Conv Spect'), pylab.colorbar()
+#        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2))), 
+#        pylab.title('Target Spect'), pylab.colorbar()
+#        pylab.suptitle('Example %d' % q)
+#        pylab.savefig('/home/ravi/Desktop/spect_consistency_'+str(i)+'.png')
+#        pylab.close()
 
 
 ##########################################################################################################################
