@@ -218,6 +218,11 @@ if __name__ == '__main__':
 #        pylab.legend(), pylab.suptitle('Component %d' % q)
 
 
+###############################################################################################################################
+    """
+    Sparse-Dense decomposition of Mfcc matrix
+    """
+    
 
 
 
