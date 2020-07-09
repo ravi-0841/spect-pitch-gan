@@ -3,9 +3,11 @@ import os
 import numpy as np
 import librosa
 import scipy.io.wavfile as scwav
+import scipy
 import scipy.signal as scisig
 import scipy.io as scio
 import pylab
+import tensorflow as tf
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
@@ -222,6 +224,21 @@ if __name__ == '__main__':
     """
     Sparse-Dense decomposition of Mfcc matrix
     """
+    kernel_np = model.sess.run(model.generator_vars)
+    A2B_h1 = kernel_np[62]
+    for i in range(64):
+        pylab.figure(figsize=(13,13))
+        inv_filt = scipy.fftpack.idct(np.squeeze(A2B_h1[:,:-1,i]), axis=-1, n=65)
+        pylab.subplot(121)
+        pylab.imshow(np.squeeze(A2B_h1[:,:-1,i]))
+        pylab.title('MFCC Kernel %d' % i)
+        pylab.subplot(122)
+        pylab.imshow(inv_filt.T)
+        pylab.title('IDCT Kernel %d' % i)
+        pylab.savefig('/home/ravi/Desktop/mfcc_generator_kernel_1/kernel_'+str(i)+'.png')
+        pylab.close()
+        
+    
     
 
 
