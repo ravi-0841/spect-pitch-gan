@@ -15,6 +15,7 @@ import utils.preprocess as preproc
 from glob import glob
 from nn_models.model_supervised_train_generator import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
+from importlib import reload
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
@@ -36,7 +37,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     lc_lm = "lp_"+str(lambda_pitch) \
             + '_lm_'+str(lambda_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_supervised_train'
+            +"_lmo_"+str(lambda_momenta) + '_supervised_pre_train'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -44,6 +45,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
+    reload(logging)
     logging.basicConfig(filename=logger_file, \
                             level=logging.DEBUG)
 
