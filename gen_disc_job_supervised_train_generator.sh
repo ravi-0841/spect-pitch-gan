@@ -3,6 +3,7 @@
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
+#SBATCH --exclude=gpu023
 #SBATCH -t 48:00:00
 
 module load cuda/10.1
