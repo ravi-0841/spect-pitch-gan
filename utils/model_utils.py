@@ -91,6 +91,11 @@ def spectral_loss(y, y_hat, pad_right=490, fft_size=1024.0, interp_mat=None):
     spect_y = _power_to_db(tf.pow(spect_y, 2))
     spect_y_hat = _power_to_db(tf.pow(spect_y_hat, 2))
 
+    spect_y = tf.divide((spect_y - tf.reduce_min(spect_y)), 
+            (tf.reduce_max(spect_y) - tf.reduce_min(spect_y)))
+    spect_y_hat = tf.divide((spect_y_hat - tf.reduce_min(spect_y_hat)), 
+            (tf.reduce_max(spect_y_hat) - tf.reduce_min(spect_y_hat)))
+
     return tf.reduce_mean(tf.abs(spect_y - spect_y_hat))
 
 def mfcc_derivative_loss(y, y_hat, derivative_op=None):
