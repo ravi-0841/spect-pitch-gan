@@ -5,14 +5,14 @@
 #SBATCH --cpus-per-task=6
 #SBATCH -t 48:00:00
 
-module load cuda/9.0
+module load cuda/10.1
 module load singularity
 
 # this works on MARCC, work on Lustre /scratch
 cd $HOME/data/ravi/spect-pitch-gan
 
 # pull the image from singularity hub
-singularity pull --name tf.simg shub://ravi-0841/singularity-tensorflow-1.14
+singularity pull --name tf.simg shub://ravi-0841/singularity-tensorflow-spg
 
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER

@@ -47,7 +47,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     reload(logging)
     logging.basicConfig(filename=logger_file, \
-                            level=logging.DEBUG)
+                            level=logging.INFO)
 
     print("lambda_pitch - {}".format(lambda_pitch))
     print("lambda_mfc - {}".format(lambda_mfc))
