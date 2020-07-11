@@ -14,6 +14,7 @@ from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
+from scipy.linalg import sqrtm, inv
 
 
 num_mfcc = 23
@@ -23,6 +24,10 @@ frame_period = 5.0
 
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+
+def sym(w):
+    return w.dot(inv(sqrtm(w.T.dot(w))))
 
 
 def normalize(x, nmz_type='min_max'):
@@ -62,9 +67,9 @@ if __name__ == '__main__':
     pitch_B_valid = np.vstack(pitch_B_valid)
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_3500.ckpt')
-#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_old/neu-ang_1000.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_3500/neu-ang_3500.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -224,19 +229,36 @@ if __name__ == '__main__':
     """
     Sparse-Dense decomposition of Mfcc matrix
     """
-    kernel_np = model.sess.run(model.generator_vars)
-    A2B_h1 = kernel_np[62]
-    for i in range(64):
-        pylab.figure(figsize=(13,13))
-        inv_filt = scipy.fftpack.idct(np.squeeze(A2B_h1[:,:-1,i]), axis=-1, n=65)
-        pylab.subplot(121)
-        pylab.imshow(np.squeeze(A2B_h1[:,:-1,i]))
-        pylab.title('MFCC Kernel %d' % i)
-        pylab.subplot(122)
-        pylab.imshow(inv_filt.T)
-        pylab.title('IDCT Kernel %d' % i)
-        pylab.savefig('/home/ravi/Desktop/mfcc_generator_kernel_1/kernel_'+str(i)+'.png')
-        pylab.close()
+#    kernel_np = model.sess.run(model.generator_vars)
+#    A2B_h1 = kernel_np[62]
+#    for i in range(64):
+#        pylab.figure(figsize=(13,13))
+#        inv_filt = scipy.fftpack.idct(np.squeeze(A2B_h1[:,:-1,i]), axis=-1, n=65)
+#        pylab.subplot(121)
+#        pylab.imshow(np.squeeze(A2B_h1[:,:-1,i]))
+#        pylab.title('MFCC Kernel %d' % i)
+#        pylab.subplot(122)
+#        pylab.imshow(inv_filt.T)
+#        pylab.title('IDCT Kernel %d' % i)
+#        pylab.savefig('/home/ravi/Desktop/mfcc_generator_kernel_1/kernel_'+str(i)+'.png')
+#        pylab.close()
+    
+    projection_mat = np.random.randn(23, 23)
+    projection_mat = sym(projection_mat)
+    projection_mat_inv = np.linalg.inv(projection_mat)
+    mfc_proj_A = [np.dot(np.transpose(np.squeeze(x)), projection_mat) for x in mfc_A_valid]
+    mfc_inv_proj_A = [np.dot(x, projection_mat_inv) for x in mfc_proj_A]
+    
+    mfc_proj_B = [np.dot(np.transpose(np.squeeze(x)), projection_mat) for x in mfc_B_valid]
+    mfc_inv_proj_B = [np.dot(x, projection_mat_inv) for x in mfc_proj_B]
+    
+    for i in range(10):
+        q = np.random.randint(448)
+        pylab.figure()
+        pylab.subplot(131), pylab.imshow(_power_to_db(np.transpose(np.squeeze(mfc_A_valid[q])) ** 2)), pylab.title('Original')
+        pylab.subplot(132), pylab.imshow(_power_to_db(mfc_proj_A[q] ** 2)), pylab.title('Projected')
+        pylab.subplot(133), pylab.imshow(_power_to_db(mfc_inv_proj_A[q] ** 2)), pylab.title('Inverted')
+        pylab.suptitle('Slice %d' % q)
         
     
     
