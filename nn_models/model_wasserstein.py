@@ -39,7 +39,7 @@ class VariationalCycleGAN(object):
 
         self.build_model()
         self.optimizer_initializer()
-        self.clip_discriminator_weights()
+        self.clip_discriminator_weights(0.1)
 
         self.saver = tf.train.Saver()
         self.sess = tf.Session()
