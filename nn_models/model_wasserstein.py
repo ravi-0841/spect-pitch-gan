@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_separate_discriminate_dropout import sampler, generator, discriminator
+from modules.modules_wasserstein import sampler, generator, discriminator
 import utils.model_utils as utils
 from utils.tf_forward_tan import lddmm 
 
