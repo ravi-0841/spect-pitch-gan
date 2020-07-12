@@ -103,14 +103,14 @@ class VariationalCycleGAN(object):
         '''
         # Generate pitch from A to B
         self.momentum_A2B = self.sampler(input_pitch=self.pitch_A_real, 
-                input_mfc=self.mfc_A_real, reuse=False, scope_name='sampler_generator_A2B')
+                input_mfc=self.mfc_A_real, reuse=False, scope_name='sampler_A2B')
         self.pitch_generation_A2B = self.lddmm(x=self.pitch_A_real, 
                 p=self.momentum_A2B, kernel=self.kernel, reuse=False, scope_name='lddmm')
         self.mfc_generation_A2B = self.generator(input_pitch=self.pitch_generation_A2B, 
                 input_mfc=self.mfc_A_real, reuse=False, scope_name='generator_A2B')
         # Cyclic generation
         self.momentum_cycle_A2A = self.sampler(input_pitch=self.pitch_generation_A2B, 
-                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='sampler_generator_B2A')
+                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='sampler_B2A')
         self.pitch_cycle_A2A = self.lddmm(x=self.pitch_generation_A2B, 
                 p=self.momentum_cycle_A2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_cycle_A2A = self.generator(input_pitch=self.pitch_cycle_A2A, 
@@ -124,14 +124,14 @@ class VariationalCycleGAN(object):
         '''
         # Generate pitch from B to A
         self.momentum_B2A = self.sampler(input_pitch=self.pitch_B_real, 
-                input_mfc=self.mfc_B_real, reuse=True, scope_name='sampler_generator_B2A')
+                input_mfc=self.mfc_B_real, reuse=True, scope_name='sampler_B2A')
         self.pitch_generation_B2A = self.lddmm(x=self.pitch_B_real, 
                 p=self.momentum_B2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_generation_B2A = self.generator(input_pitch=self.pitch_generation_B2A, 
                 input_mfc=self.mfc_B_real, reuse=True, scope_name='generator_B2A')
         # Cyclic generation
         self.momentum_cycle_B2B = self.sampler(input_pitch=self.pitch_generation_B2A, 
-                input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='sampler_generator_A2B')
+                input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='sampler_A2B')
         self.pitch_cycle_B2B = self.lddmm(x=self.pitch_generation_B2A, 
                 p=self.momentum_cycle_B2B, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
@@ -182,13 +182,6 @@ class VariationalCycleGAN(object):
                         tf.reshape(self.momentum_cycle_B2B, [-1,1]))))
 
         self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
-
-        # Merge the two sampler-generator, the cycle loss and momenta prior
-#        self.generator_loss \
-#            = (1-self.lambda_cycle_pitch-self.lambda_momenta-self.lambda_cycle_mfc)*self.gen_disc_loss \
-#                + self.lambda_cycle_pitch * self.cycle_loss_pitch \
-#                + self.lambda_cycle_mfc * self.cycle_loss_mfc \
-#                + self.lambda_momenta * self.momenta_loss
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
         self.generator_loss \
@@ -242,18 +235,19 @@ class VariationalCycleGAN(object):
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
-        self.generator_vars = [var for var in trainable_variables if 'generator' in var.name]
+        self.generator_vars = [var for var in trainable_variables if 'generator' in var.name \
+                                                                    or 'sampler' in var.name]
 
         # Reserved for test
         self.momentum_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
-                input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_generator_A2B')
+                input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_A2B')
         self.pitch_A2B_test = self.lddmm(x=self.pitch_A_test, 
                 p=self.momentum_A2B_test, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_A2B_test = self.generator(input_pitch=self.pitch_A2B_test, 
                 input_mfc=self.mfc_A_test, reuse=True, scope_name='generator_A2B')
 
         self.momentum_B2A_test = self.sampler(input_pitch=self.pitch_B_test, 
-                input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_generator_B2A')
+                input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_B2A')
         self.pitch_B2A_test = self.lddmm(x=self.pitch_B_test, 
                 p=self.momentum_B2A_test, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_B2A_test = self.generator(input_pitch=self.pitch_B2A_test, 
