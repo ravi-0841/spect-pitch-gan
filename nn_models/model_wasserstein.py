@@ -259,7 +259,7 @@ class VariationalCycleGAN(object):
         self.clip_weights = [tf.clip_by_value(t, clip_value_min=-1*clip_range, 
             clip_value_max=clip_range) for t in tf.trainable_variables() if 'discriminator' in t.name]
 
-    def train_grad(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
+    def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
             lambda_cycle_mfc, lambda_momenta, lambda_identity_mfc, 
             generator_learning_rate, discriminator_learning_rate):
 
