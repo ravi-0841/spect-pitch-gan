@@ -23,6 +23,13 @@ if __name__=="__main__":
         train_generator_loss = list()
         train_discriminator_loss = list()
 
+        train_momenta_A2B_loss = list()
+        train_momenta_B2A_loss = list()
+        train_pitch_A2B_loss = list()
+        train_pitch_B2A_loss = list()
+        train_mfc_A2B_loss = list()
+        train_mfc_B2A_loss = list()
+
         r = open(f,'r')
         for line in r:
             try:
@@ -32,14 +39,50 @@ if __name__=="__main__":
                 if "Train Discriminator" in line:
                     n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
                     train_discriminator_loss.append(float(n[0]))
+                if "Train Momenta A2B" in line:
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
+                    train_momenta_A2B_loss.append(float(n[1]))
+                if "Train Momenta B2A" in line:
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
+                    train_momenta_B2A_loss.append(float(n[1]))
+                if "Train Pitch A2B" in line:
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
+                    train_pitch_A2B_loss.append(float(n[1]))
+                if "Train Pitch B2A" in line:
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
+                    train_pitch_B2A_loss.append(float(n[1]))
+                if "Train Mfc A2B" in line:
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
+                    train_mfc_A2B_loss.append(float(n[1]))
+                if "Train Mfc B2A" in line:
+                    n = re.findall(r"[-+]?\d*\.\d+e-\d+|[-+]?\d*\.\d+|\d+", line)
+                    train_mfc_B2A_loss.append(float(n[1]))
             except Exception as e:
                 pass
 
         r.close()
-        pylab.figure(figsize=(12,12))
-        pylab.plot(train_generator_loss, 'r', label="generator loss")
-        pylab.plot(train_discriminator_loss, 'g', label="discriminator loss")
-        pylab.grid(), pylab.legend(loc=1)
-        pylab.title(name)
-        pylab.savefig(args.dir+name+'.png')
-        pylab.close()
+        if len(train_generator_loss)>0:
+            pylab.figure(figsize=(12,12))
+            pylab.plot(train_generator_loss, 'r', label="generator loss")
+            pylab.plot(train_discriminator_loss, 'g', label="discriminator loss")
+            pylab.grid(), pylab.legend(loc=1)
+            pylab.title(name)
+            pylab.savefig(args.dir+name+'.png')
+            pylab.close()
+        elif len(train_momenta_A2B_loss)>0:
+            pylab.figure(figsize=(12,12))
+            pylab.subplot(131)
+            pylab.plot(train_momenta_A2B_loss, 'r', label="Momenta A2B loss")
+            pylab.plot(train_momenta_B2A_loss, 'g', label="Momenta B2A loss")
+            pylab.grid(), pylab.legend(loc=1)
+            pylab.subplot(132)
+            pylab.plot(train_pitch_A2B_loss, 'r', label="Pitch A2B loss")
+            pylab.plot(train_pitch_B2A_loss, 'g', label="Pitch B2A loss")
+            pylab.grid(), pylab.legend(loc=1)
+            pylab.subplot(133)
+            pylab.plot(train_mfc_A2B_loss, 'r', label="Mfc A2B loss")
+            pylab.plot(train_mfc_B2A_loss, 'g', label="Mfc B2A loss")
+            pylab.grid(), pylab.legend(loc=1)
+            pylab.suptitle(name)
+            pylab.savefig(args.dir+name+'.png')
+            pylab.close()
