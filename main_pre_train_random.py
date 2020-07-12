@@ -165,7 +165,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info("Train Generator Loss- {}".format(np.mean(train_gen_loss)))
         logging.info("Train Discriminator Loss- {}".format(np.mean(train_disc_loss)))
 
-        if epoch%100 == 0:
+        if epoch % 100 == 0:
 
             for i in range(mfc_A_valid.shape[0]):
 
