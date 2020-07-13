@@ -204,7 +204,7 @@ class VariationalCycleGAN(object):
         trainable_variables = tf.trainable_variables()
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
         self.generator_vars = [var for var in trainable_variables if 'generator' in var.name \
-                                or 'sampler' in var.name]
+                                                                    or 'sampler' in var.name]
 
         # Reserved for test
         self.momenta_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
