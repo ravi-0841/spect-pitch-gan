@@ -18,7 +18,7 @@ from utils.helper import smooth, generate_interpolation
 from importlib import reload
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir, 
         pre_train=None, lambda_pitch=0, lambda_mfc=0, lambda_momenta=0):
@@ -162,7 +162,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1))) 
 
-        if epoch%100==0:
+        if epoch%50==0:
             model.save(model_dir, model_name+str(epoch)+'.ckpt')
 
 
