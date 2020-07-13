@@ -185,3 +185,17 @@ def pixel_shuffler(inputs, shuffle_size = 2, name = None):
 
     return outputs
 
+def filter_mask(center_frequencies, size=15, num_masks=64, name=None):
+    masks = []
+    for i in range(num_masks):
+        center_frequency = center_frequencies[i]
+        bin_center = tf.cast(7 + center_frequency*498, dtype=tf.int32, name='bin_center_%d'%i)
+        y = tf.range(start=0, limit=513, dtype=tf.float32)
+        y_gauss = tf.divide(tf.exp(-1 * (y - bin_center)**2 / (2*6.49)), 0.157)
+        y_gauss = tf.matmul(tf.ones([size, 1], dtype=tf.float32), y_gauss)
+        y_gauss_dct = tf.signal.dct(y_gauss)
+        y_gauss_dct = tf.divide(y_gauss_dct[:,:23], tf.math.sqrt(1024))
+        masks.append(y_gauss_dct)
+    return masks
+        y_filter = tf.matmul(tf.ones(
+
