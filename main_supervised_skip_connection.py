@@ -13,7 +13,7 @@ import logging
 import utils.preprocess as preproc
 
 from glob import glob
-from nn_models.model_supervised_train_generator import VariationalCycleGAN
+from nn_models.model_supervised_skip_connection import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 from importlib import reload
 
@@ -25,7 +25,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     np.random.seed(random_seed)
 
-    num_epochs = 2000
+    num_epochs = 1000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     generator_learning_rate = 0.00001
@@ -37,7 +37,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     lc_lm = "lp_"+str(lambda_pitch) \
             + '_lm_'+str(lambda_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_supervised_pre_train'
+            +"_lmo_"+str(lambda_momenta) + '_supervised_pre_train_skip_connection'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -159,7 +159,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1))) 
 
-        if epoch%50==0:
+        if epoch%100==0:
             model.save(model_dir, model_name+str(epoch)+'.ckpt')
 
 
