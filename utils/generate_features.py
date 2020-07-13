@@ -24,14 +24,16 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
     """
     Utterance level features for context expansion
     """
-    utt_log_f0_src      = list()
-    utt_log_f0_tar      = list()
+#    utt_log_f0_src      = list()
+#    utt_log_f0_tar      = list()
     utt_f0_src          = list()
     utt_f0_tar          = list()
-    utt_ec_src          = list()
-    utt_ec_tar          = list()
+#    utt_ec_src          = list()
+#    utt_ec_tar          = list()
     utt_mfc_src         = list()
     utt_mfc_tar         = list()
+    utt_spect_src       = list()
+    utt_spect_tar       = list()
     
     file_id = int(wav_src.split('/')[-1][:-4])
     try:
@@ -42,39 +44,39 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         tar = np.asarray(tar_wav[1], np.float64)
 
         f0_src, t_src   = pw.harvest(src, sample_rate, frame_period=int(1000*window_len))
-        straight_src    = pw.cheaptrick(src, f0_src, t_src, sample_rate)
+        src_straight    = pw.cheaptrick(src, f0_src, t_src, sample_rate)
 
         f0_tar, t_tar   = pw.harvest(tar, sample_rate,frame_period=int(1000*window_len))
-        straight_tar    = pw.cheaptrick(tar, f0_tar, t_tar, sample_rate)
+        tar_straight    = pw.cheaptrick(tar, f0_tar, t_tar, sample_rate)
 
         f0_src = scisig.medfilt(f0_src, kernel_size=3)
         f0_tar = scisig.medfilt(f0_tar, kernel_size=3)
         f0_src = np.asarray(f0_src, np.float32)
         f0_tar = np.asarray(f0_tar, np.float32)
 
-        ec_src = np.sqrt(np.sum(np.square(straight_src), axis=1))
-        ec_tar = np.sqrt(np.sum(np.square(straight_tar), axis=1))
-        ec_src = scisig.medfilt(ec_src, kernel_size=3)
-        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
-        ec_src = np.asarray(ec_src, np.float32)
-        ec_tar = np.asarray(ec_tar, np.float32)
+#        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
+#        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
+#        ec_src = scisig.medfilt(ec_src, kernel_size=3)
+#        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
+#        ec_src = np.asarray(ec_src, np.float32)
+#        ec_tar = np.asarray(ec_tar, np.float32)
 
         f0_src = np.asarray(generate_interpolation(f0_src), np.float32)
         f0_tar = np.asarray(generate_interpolation(f0_tar), np.float32)
-        ec_src = np.asarray(generate_interpolation(ec_src), np.float32)
-        ec_tar = np.asarray(generate_interpolation(ec_tar), np.float32)
+#        ec_src = np.asarray(generate_interpolation(ec_src), np.float32)
+#        ec_tar = np.asarray(generate_interpolation(ec_tar), np.float32)
         
         f0_src = smooth(f0_src, window_len=13)
         f0_tar = smooth(f0_tar, window_len=13)
-        ec_src = smooth(ec_src, window_len=13)
-        ec_tar = smooth(ec_tar, window_len=13)
+#        ec_src = smooth(ec_src, window_len=13)
+#        ec_tar = smooth(ec_tar, window_len=13)
         
         if encode_raw_spect:
-            src_mfc = encode_raw_spectrum(straight_src, axis=1, dim_mfc=n_mfc)
-            tar_mfc = encode_raw_spectrum(straight_tar, axis=1, dim_mfc=n_mfc)
+            src_mfc = encode_raw_spectrum(src_straight, axis=1, dim_mfc=n_mfc)
+            tar_mfc = encode_raw_spectrum(tar_straight, axis=1, dim_mfc=n_mfc)
         else:
-            src_mfc = pw.code_spectral_envelope(straight_src, sample_rate, n_mfc)
-            tar_mfc = pw.code_spectral_envelope(straight_tar, sample_rate, n_mfc)
+            src_mfc = pw.code_spectral_envelope(src_straight, sample_rate, n_mfc)
+            tar_mfc = pw.code_spectral_envelope(tar_straight, sample_rate, n_mfc)
 
         src_mfcc = librosa.feature.mfcc(y=src, sr=sample_rate, \
                                         hop_length=int(sample_rate*window_len), \
@@ -93,32 +95,43 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         f0_src = f0_src.reshape(-1,1)
         f0_tar = f0_tar.reshape(-1,1)
         
-        ec_src = ec_src.reshape(-1,1)
-        ec_tar = ec_tar.reshape(-1,1)
+#        ec_src = ec_src.reshape(-1,1)
+#        ec_tar = ec_tar.reshape(-1,1)
         
-        ext_src_f0 = []
-        ext_tar_f0 = []
-        ext_src_ec = []
-        ext_tar_ec = []
-        ext_src_mfc = []
-        ext_tar_mfc = []
+        ext_src_f0 = list()
+        ext_tar_f0 = list()
+#        ext_src_ec = list()
+#        ext_tar_ec = list()
+        ext_src_mfc = list()
+        ext_tar_mfc = list()
+        ext_src_spect = list()
+        ext_tar_spect = list()
         
         for i in range(len(cords)-1, -1, -1):
             ext_src_f0.append(f0_src[cords[i,0],0])
             ext_tar_f0.append(f0_tar[cords[i,1],0])
-            ext_src_ec.append(ec_src[cords[i,0],0])
-            ext_tar_ec.append(ec_tar[cords[i,1],0])
+#            ext_src_ec.append(ec_src[cords[i,0],0])
+#            ext_tar_ec.append(ec_tar[cords[i,1],0])
             ext_src_mfc.append(src_mfc[cords[i,0],:])
             ext_tar_mfc.append(tar_mfc[cords[i,1],:])
+            ext_src_spect.append(src_straight[cords[i,0],:])
+            ext_tar_spect.append(tar_straight[cords[i,1],:])
         
         ext_src_f0 = np.reshape(np.asarray(ext_src_f0), (-1,1))
         ext_tar_f0 = np.reshape(np.asarray(ext_tar_f0), (-1,1))
-        ext_src_ec = np.reshape(np.asarray(ext_src_ec), (-1,1))
-        ext_tar_ec = np.reshape(np.asarray(ext_tar_ec), (-1,1))
-        ext_log_src_f0 = np.reshape(np.log(np.asarray(ext_src_f0)), (-1,1))
-        ext_log_tar_f0 = np.reshape(np.log(np.asarray(ext_tar_f0)), (-1,1))
+#        ext_src_ec = np.reshape(np.asarray(ext_src_ec), (-1,1))
+#        ext_tar_ec = np.reshape(np.asarray(ext_tar_ec), (-1,1))
+#        ext_log_src_f0 = np.reshape(np.log(np.asarray(ext_src_f0)), (-1,1))
+#        ext_log_tar_f0 = np.reshape(np.log(np.asarray(ext_tar_f0)), (-1,1))
         ext_src_mfc = np.asarray(ext_src_mfc)
         ext_tar_mfc = np.asarray(ext_tar_mfc)
+        ext_src_spect = np.asarray(ext_src_spect)
+        ext_tar_spect = np.asarray(ext_tar_spect)
+        
+        src_mfc = np.asarray(src_mfc, np.float32)
+        tar_mfc = np.asarray(tar_mfc, np.float32)
+        src_straight = np.asarray(src_straight, np.float32)
+        tar_straight = np.asarray(tar_straight, np.float32)
 
         if cords.shape[0]<n_feats:
             return None
@@ -130,17 +143,20 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
                 utt_f0_src.append(ext_src_f0[start:end,:])
                 utt_f0_tar.append(ext_tar_f0[start:end,:])
                 
-                utt_log_f0_src.append(ext_log_src_f0[start:end,:])
-                utt_log_f0_tar.append(ext_log_tar_f0[start:end,:])
+#                utt_log_f0_src.append(ext_log_src_f0[start:end,:])
+#                utt_log_f0_tar.append(ext_log_tar_f0[start:end,:])
                 
-                utt_ec_src.append(ext_src_ec[start:end,:])
-                utt_ec_tar.append(ext_tar_ec[start:end,:])
+#                utt_ec_src.append(ext_src_ec[start:end,:])
+#                utt_ec_tar.append(ext_tar_ec[start:end,:])
                 
                 utt_mfc_src.append(ext_src_mfc[start:end,:])
                 utt_mfc_tar.append(ext_tar_mfc[start:end,:])
+                
+                utt_spect_src.append(ext_src_spect[start:end,:])
+                utt_spect_tar.append(ext_tar_spect[start:end,:])
         
         return utt_mfc_src, utt_mfc_tar, utt_f0_src, utt_f0_tar, \
-                utt_log_f0_src, utt_log_f0_tar, utt_ec_src, utt_ec_tar, file_id
+                file_id, utt_spect_src, utt_spect_tar
 
     except Exception as ex:
         template = "An exception of type {0} occurred. Arguments:\n{1!r}"
@@ -161,19 +177,22 @@ def get_feats(FILE_LIST, sample_rate, window_len,
     FILE_LIST_src = FILE_LIST[0]
     FILE_LIST_tar = FILE_LIST[1]
 
-    f0_feat_src = []
-    f0_feat_tar = []
+    f0_feat_src = list()
+    f0_feat_tar = list()
     
-    log_f0_feat_src = []
-    log_f0_feat_tar = []
+#    log_f0_feat_src = list()
+#    log_f0_feat_tar = list()
     
-    ec_feat_src = []
-    ec_feat_tar = []
+#    ec_feat_src = list()
+#    ec_feat_tar = list()
     
-    mfc_feat_src = []
-    mfc_feat_tar = []
+    mfc_feat_src = list()
+    mfc_feat_tar = list()
+    
+    spect_feat_src = list()
+    spect_feat_tar = list()
 
-    file_list   = []
+    file_list   = list()
     
     executor = ProcessPoolExecutor(max_workers=6)
     futures = []
@@ -182,7 +201,7 @@ def get_feats(FILE_LIST, sample_rate, window_len,
         print(t)
         futures.append(executor.submit(partial(process_wavs, s, t, 
                                                num_samps=num_samps, 
-                                               encode_raw_spect=True)))
+                                               encode_raw_spect=False)))
     
     results = [future.result() for future in tqdm(futures)]
     
@@ -195,20 +214,23 @@ def get_feats(FILE_LIST, sample_rate, window_len,
             f0_feat_src.append(result[2])
             f0_feat_tar.append(result[3])
             
-            log_f0_feat_src.append(result[4])
-            log_f0_feat_tar.append(result[5])
+#            log_f0_feat_src.append(result[4])
+#            log_f0_feat_tar.append(result[5])
             
-            ec_feat_src.append(result[6])
-            ec_feat_tar.append(result[7])
+#            ec_feat_src.append(result[6])
+#            ec_feat_tar.append(result[7])
             
-            file_list.append(result[8])
+            file_list.append(result[4])
+            
+            spect_feat_src.append(result[5])
+            spect_feat_tar.append(result[6])
+            
         except TypeError:
             print(FILE_LIST_src[i] + " has less than 128 frames.")
 
     file_list = np.asarray(file_list).reshape(-1,1)
-    return file_list, (f0_feat_src, log_f0_feat_src, ec_feat_src, \
-                     mfc_feat_src, f0_feat_tar, log_f0_feat_tar, \
-                     ec_feat_tar, mfc_feat_tar)
+    return file_list, (f0_feat_src, mfc_feat_src, f0_feat_tar, mfc_feat_tar, \
+                       spect_feat_src, spect_feat_tar)
 
 
 ##----------------------------------generate CMU-ARCTIC features---------------------------------
@@ -262,12 +284,12 @@ if __name__=='__main__':
        
         FILE_LIST = [FILE_LIST_src, FILE_LIST_tar]
        
-        file_names, (src_f0_feat, src_log_f0_feat, src_ec_feat, src_mfc_feat, \
-                     tar_f0_feat, tar_log_f0_feat, tar_ec_feat, tar_mfc_feat) \
+        file_names, (src_f0_feat, src_mfc_feat, tar_f0_feat, tar_mfc_feat, \
+                     src_spect_feat, tar_spect_feat) \
                      = get_feats(FILE_LIST, sample_rate, window_len, 
                              window_stride, n_feats=128, n_mfc=23, num_samps=32)
 
-        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'_raw_encode.mat', \
+        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'.mat', \
                     { \
                          'src_mfc_feat':   np.asarray(src_mfc_feat, np.float32), \
                          'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \
@@ -275,11 +297,18 @@ if __name__=='__main__':
                          'tar_f0_feat':    np.asarray(tar_f0_feat, np.float32), \
                          'file_names':     file_names
                      })
+        
+        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'_spect.mat', \
+                    { \
+                         'src_spect_feat':   np.asarray(src_spect_feat, np.float32), \
+                         'tar_spect_feat':   np.asarray(tar_spect_feat, np.float32), \
+                         'file_names':     file_names
+                     })
 
         file_name_dict[i] = file_names
 
-        del file_names, src_mfc_feat, src_f0_feat, src_log_f0_feat, src_ec_feat, \
-               tar_mfc_feat, tar_f0_feat, tar_log_f0_feat, tar_ec_feat
+        del file_names, src_mfc_feat, src_f0_feat, tar_mfc_feat, tar_f0_feat, \
+            src_spect_feat, tar_spect_feat
 
 
 
