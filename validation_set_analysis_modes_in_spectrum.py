@@ -68,8 +68,9 @@ if __name__ == '__main__':
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_3500/neu-ang_3500.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
-#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_1200.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss_inv_norm/neu-ang_1200.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_700.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -243,22 +244,22 @@ if __name__ == '__main__':
 #        pylab.savefig('/home/ravi/Desktop/mfcc_generator_kernel_1/kernel_'+str(i)+'.png')
 #        pylab.close()
     
-    projection_mat = np.random.randn(23, 23)
-    projection_mat = sym(projection_mat)
-    projection_mat_inv = np.linalg.inv(projection_mat)
-    mfc_proj_A = [np.dot(np.transpose(np.squeeze(x)), projection_mat) for x in mfc_A_valid]
-    mfc_inv_proj_A = [np.dot(x, projection_mat_inv) for x in mfc_proj_A]
-    
-    mfc_proj_B = [np.dot(np.transpose(np.squeeze(x)), projection_mat) for x in mfc_B_valid]
-    mfc_inv_proj_B = [np.dot(x, projection_mat_inv) for x in mfc_proj_B]
-    
-    for i in range(10):
-        q = np.random.randint(448)
-        pylab.figure()
-        pylab.subplot(131), pylab.imshow(_power_to_db(np.transpose(np.squeeze(mfc_A_valid[q])) ** 2)), pylab.title('Original')
-        pylab.subplot(132), pylab.imshow(_power_to_db(mfc_proj_A[q] ** 2)), pylab.title('Projected')
-        pylab.subplot(133), pylab.imshow(_power_to_db(mfc_inv_proj_A[q] ** 2)), pylab.title('Inverted')
-        pylab.suptitle('Slice %d' % q)
+#    projection_mat = np.random.randn(23, 23)
+#    projection_mat = sym(projection_mat)
+#    projection_mat_inv = np.linalg.inv(projection_mat)
+#    mfc_proj_A = [np.dot(np.transpose(np.squeeze(x)), projection_mat) for x in mfc_A_valid]
+#    mfc_inv_proj_A = [np.dot(x, projection_mat_inv) for x in mfc_proj_A]
+#    
+#    mfc_proj_B = [np.dot(np.transpose(np.squeeze(x)), projection_mat) for x in mfc_B_valid]
+#    mfc_inv_proj_B = [np.dot(x, projection_mat_inv) for x in mfc_proj_B]
+#    
+#    for i in range(10):
+#        q = np.random.randint(448)
+#        pylab.figure()
+#        pylab.subplot(131), pylab.imshow(_power_to_db(np.transpose(np.squeeze(mfc_A_valid[q])) ** 2)), pylab.title('Original')
+#        pylab.subplot(132), pylab.imshow(_power_to_db(mfc_proj_A[q] ** 2)), pylab.title('Projected')
+#        pylab.subplot(133), pylab.imshow(_power_to_db(mfc_inv_proj_A[q] ** 2)), pylab.title('Inverted')
+#        pylab.suptitle('Slice %d' % q)
         
     
     
