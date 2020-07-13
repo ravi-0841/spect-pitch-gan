@@ -12,7 +12,8 @@ import tensorflow as tf
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
-from nn_models.model_separate_discriminate_id import VariationalCycleGAN
+#from nn_models.model_separate_discriminate_id import VariationalCycleGAN
+from nn_models.model_wasserstein import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
 from scipy.linalg import sqrtm, inv
 
@@ -70,7 +71,8 @@ if __name__ == '__main__':
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_3500/neu-ang_3500.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss_inv_norm/neu-ang_1200.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_700.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_700.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_wasserstein/neu-ang_2100.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -182,7 +184,7 @@ if __name__ == '__main__':
 #        pylab.title('Cyclic Spect'), pylab.colorbar()
 #        pylab.subplot(143), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_conv[q,:,:]) ** 2))), 
 #        pylab.title('Conv Spect'), pylab.colorbar()
-#        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_valid[q,:,:]) ** 2))), 
+#        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_output[q,:,:]) ** 2))), 
 #        pylab.title('Target Spect'), pylab.colorbar()
 #        pylab.suptitle('Example %d' % q)
 #        pylab.savefig('/home/ravi/Desktop/spect_consistency_'+str(i)+'.png')
