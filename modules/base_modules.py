@@ -185,17 +185,24 @@ def pixel_shuffler(inputs, shuffle_size = 2, name = None):
 
     return outputs
 
-def filter_mask(center_frequencies, size=15, num_masks=64, name=None):
+def filter_mask(center_frequencies, filter_size=15, num_masks=64, 
+        name_prefix='filter_mask'):
+
     masks = []
+    y = tf.range(start=0, limit=513, dtype=tf.float32, name=name_prefix+'_range')
+    y = tf.reshape(y, [1, 513], name=name_prefix+'_range_reshape')
     for i in range(num_masks):
-        center_frequency = center_frequencies[i]
-        bin_center = tf.cast(7 + center_frequency*498, dtype=tf.int32, name='bin_center_%d'%i)
-        y = tf.range(start=0, limit=513, dtype=tf.float32)
-        y_gauss = tf.divide(tf.exp(-1 * (y - bin_center)**2 / (2*6.49)), 0.157)
-        y_gauss = tf.matmul(tf.ones([size, 1], dtype=tf.float32), y_gauss)
-        y_gauss_dct = tf.signal.dct(y_gauss)
-        y_gauss_dct = tf.divide(y_gauss_dct[:,:23], tf.math.sqrt(1024))
+        center_frequency = center_frequencies[0, i]
+        bin_center = tf.cast(7 + center_frequency*498, dtype=tf.int32, 
+                name=name_prefix+'_bin_center_%d'%i)
+        y_gauss = tf.divide(tf.exp(-1 * (y - bin_center)**2 / (2*6.49)), 0.157, 
+                name=name_prefix+'_pdf_%d'%i)
+        y_gauss = tf.matmul(tf.ones([filter_size, 1], dtype=tf.float32), y_gauss, 
+                name=name_prefix+'_repmat_%d'%i)
+        y_gauss_dct = tf.signal.dct(y_gauss, name=name_prefix+'_dct_%d'%i)
+        y_gauss_dct = tf.divide(y_gauss_dct[:,:23], tf.math.sqrt(1024), 
+                name=name_prefix+'_normalize_%d'%i)
         masks.append(y_gauss_dct)
+
     return masks
-        y_filter = tf.matmul(tf.ones(
 
