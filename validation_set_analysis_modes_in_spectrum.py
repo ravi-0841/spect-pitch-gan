@@ -162,19 +162,28 @@ if __name__ == '__main__':
         
     spect_output_delta = np.dot(spect_output, z)
     spect_conv_delta = np.dot(spect_conv, z)
-        
+    
+    '''
+    MFCC Delta Features
+    '''
 #    for i in range(10):
 #        q = np.random.randint(448)
 #        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(mfc_B_valid_delta[q,:,:] ** 2)))
 #        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(mfc_conv_delta[q,:,:] ** 2)))
 #        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/mfcc_grad_'+str(i)+'.png'), pylab.close()
-        
+
+    '''
+    Spect Delta Features
+    '''
 #    for i in range(10):
 #        q = np.random.randint(448)
 #        pylab.figure(), pylab.subplot(121), pylab.imshow(_power_to_db(np.squeeze(spect_valid_delta[q,:,:] ** 2))), pylab.title('Spect Valid')
 #        pylab.subplot(122), pylab.imshow(_power_to_db(np.squeeze(spect_conv_delta[q,:,:] ** 2))), pylab.title('Spect Conv')
 #        pylab.suptitle('slice %d' % q), pylab.savefig('/home/ravi/Desktop/spect_grad_'+str(i)+'.png'), pylab.close()
     
+    '''
+    Spect Features
+    '''
 #    for i in range(10):
 #        q = np.random.randint(0,448)
 #        pylab.figure(figsize=(15,15))
@@ -186,6 +195,24 @@ if __name__ == '__main__':
 #        pylab.title('Conv Spect'), pylab.colorbar()
 #        pylab.subplot(144), pylab.imshow(normalize(_power_to_db(np.squeeze(spect_output[q,:,:]) ** 2))), 
 #        pylab.title('Target Spect'), pylab.colorbar()
+#        pylab.suptitle('Example %d' % q)
+#        pylab.savefig('/home/ravi/Desktop/spect_consistency_'+str(i)+'.png')
+#        pylab.close()
+
+    '''
+    MFCC Features
+    '''
+#    for i in range(10):
+#        q = np.random.randint(0,448)
+#        pylab.figure(figsize=(15,15))
+#        pylab.subplot(411), pylab.imshow(normalize(_power_to_db(np.squeeze(mfc_A_valid[q,:,:]) ** 2))), 
+#        pylab.title('Input MFC')
+#        pylab.subplot(412), pylab.imshow(normalize(_power_to_db(np.squeeze(cyc_mfc[q,:,:]) ** 2))), 
+#        pylab.title('Cyclic MFC')
+#        pylab.subplot(413), pylab.imshow(normalize(_power_to_db(np.squeeze(mfc_conv[q,:,:]) ** 2))), 
+#        pylab.title('Conv MFC')
+#        pylab.subplot(414), pylab.imshow(normalize(_power_to_db(np.squeeze(mfc_B_valid[q,:,:]) ** 2))), 
+#        pylab.title('Target MFC')
 #        pylab.suptitle('Example %d' % q)
 #        pylab.savefig('/home/ravi/Desktop/spect_consistency_'+str(i)+'.png')
 #        pylab.close()
