@@ -185,8 +185,8 @@ def pixel_shuffler(inputs, shuffle_size = 2, name = None):
 
     return outputs
 
-def filter_mask(center_frequencies, filter_size=15, num_masks=64, 
-        name_prefix='filter_mask'):
+def create_filter_mask(center_frequencies, filter_size=15, num_masks=64, 
+        name_prefix='create_mask'):
 
     masks = []
     y = tf.range(start=0, limit=513, dtype=tf.float32, name=name_prefix+'_range')
@@ -206,3 +206,5 @@ def filter_mask(center_frequencies, filter_size=15, num_masks=64,
 
     return masks
 
+def apply_filter_mask(input, filter_mask, name_prefix='apply_mask'):
+    return None
