@@ -72,7 +72,7 @@ if __name__ == '__main__':
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss_inv_norm/neu-ang_1200.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_700.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_wasserstein/neu-ang_2100.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_wasserstein/neu-ang_1700.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
