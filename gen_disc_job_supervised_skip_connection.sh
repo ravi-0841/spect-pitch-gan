@@ -6,7 +6,7 @@
 #SBATCH --exclude=gpu023
 #SBATCH -t 48:00:00
 
-module load cuda/9.0
+module load cuda/10.1
 module load singularity
 
 # this works on MARCC, work on Lustre /scratch
