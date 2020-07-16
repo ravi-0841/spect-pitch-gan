@@ -45,9 +45,15 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
 
         f0_src, t_src   = pw.harvest(src, sample_rate, frame_period=int(1000*window_len))
         src_straight    = pw.cheaptrick(src, f0_src, t_src, sample_rate)
+        src_stft        = np.transpose(librosa.core.stft(src, n_fft=512, 
+                                            hop_length=int(window_len*sample_rate), 
+                                            win_length=int(0.025*sample_rate)))
 
         f0_tar, t_tar   = pw.harvest(tar, sample_rate,frame_period=int(1000*window_len))
         tar_straight    = pw.cheaptrick(tar, f0_tar, t_tar, sample_rate)
+        tar_stft        = np.transpose(librosa.core.stft(tar, n_fft=512, 
+                                            hop_length=int(window_len*sample_rate), 
+                                            win_length=int(0.025*sample_rate)))
 
         f0_src = scisig.medfilt(f0_src, kernel_size=3)
         f0_tar = scisig.medfilt(f0_tar, kernel_size=3)
@@ -114,8 +120,8 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
 #            ext_tar_ec.append(ec_tar[cords[i,1],0])
             ext_src_mfc.append(src_mfc[cords[i,0],:])
             ext_tar_mfc.append(tar_mfc[cords[i,1],:])
-            ext_src_spect.append(src_straight[cords[i,0],:])
-            ext_tar_spect.append(tar_straight[cords[i,1],:])
+            ext_src_spect.append(src_stft[cords[i,0],:])
+            ext_tar_spect.append(tar_stft[cords[i,1],:])
         
         ext_src_f0 = np.reshape(np.asarray(ext_src_f0), (-1,1))
         ext_tar_f0 = np.reshape(np.asarray(ext_tar_f0), (-1,1))
@@ -130,8 +136,8 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         
         src_mfc = np.asarray(src_mfc, np.float32)
         tar_mfc = np.asarray(tar_mfc, np.float32)
-        src_straight = np.asarray(src_straight, np.float32)
-        tar_straight = np.asarray(tar_straight, np.float32)
+        src_stft = np.asarray(src_stft, np.float32)
+        tar_stft = np.asarray(tar_stft, np.float32)
 
         if cords.shape[0]<n_feats:
             return None
@@ -287,7 +293,7 @@ if __name__=='__main__':
         file_names, (src_f0_feat, src_mfc_feat, tar_f0_feat, tar_mfc_feat, \
                      src_spect_feat, tar_spect_feat) \
                      = get_feats(FILE_LIST, sample_rate, window_len, 
-                             window_stride, n_feats=128, n_mfc=23, num_samps=32)
+                             window_stride, n_feats=128, n_mfc=23, num_samps=16)
 
         scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'.mat', \
                     { \
@@ -295,15 +301,17 @@ if __name__=='__main__':
                          'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \
                          'src_f0_feat':    np.asarray(src_f0_feat, np.float32), \
                          'tar_f0_feat':    np.asarray(tar_f0_feat, np.float32), \
-                         'file_names':     file_names
-                     })
-        
-        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'_spect.mat', \
-                    { \
                          'src_spect_feat':   np.asarray(src_spect_feat, np.float32), \
                          'tar_spect_feat':   np.asarray(tar_spect_feat, np.float32), \
                          'file_names':     file_names
                      })
+        
+#        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'_spect.mat', \
+#                    { \
+#                         'src_spect_feat':   np.asarray(src_spect_feat, np.float32), \
+#                         'tar_spect_feat':   np.asarray(tar_spect_feat, np.float32), \
+#                         'file_names':     file_names
+#                     })
 
         file_name_dict[i] = file_names
 
