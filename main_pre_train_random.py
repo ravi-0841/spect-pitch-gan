@@ -51,8 +51,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.basicConfig(filename=logger_file, \
                             level=logging.DEBUG)
 
-    projection_matrix = scio.loadmat('./data/ortho_projection.mat')
-    projection_matrix = projection_matrix['projection']
+    projection_matrix = scio.loadmat('./data/projection_matrices.mat')
+    projection_source = projection_matrix['project_source']
+    projection_target = projection_matrix['project_target']
 
     print("lambda_cycle pitch - {}".format(lambda_cycle_pitch))
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
@@ -82,13 +83,13 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
     pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
-    mfc_A_train = np.dot(data_train['src_mfc_feat'], projection_matrix)
-    mfc_B_train = np.dot(data_train['tar_mfc_feat'], projection_matrix)
+    mfc_A_train = np.dot(data_train['src_mfc_feat'], project_source)
+    mfc_B_train = np.dot(data_train['tar_mfc_feat'], project_target)
     
     pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
     pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
-    mfc_A_valid = np.dot(data_valid['src_mfc_feat'], projection_matrix)
-    mfc_B_valid = np.dot(data_valid['tar_mfc_feat'], projection_matrix)
+    mfc_A_valid = np.dot(data_valid['src_mfc_feat'], project_source)
+    mfc_B_valid = np.dot(data_valid['tar_mfc_feat'], project_target)
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
@@ -231,7 +232,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
                         code_sp = preproc.world_encode_spectral_envelope(sp, \
                                     sampling_rate, dim=num_mcep)
-                        code_sp = np.dot(code_sp, projection_matrix)
+                        code_sp = np.dot(code_sp, project_source)
 
                         f0 = scisig.medfilt(f0, kernel_size=3)
                         z_idx = np.where(f0<10.0)[0]
@@ -250,7 +251,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         f0_conv[z_idx] = 0.0
                         sp_conv = np.squeeze(np.transpose(sp_conv, (0,2,1)))
                         sp_conv = np.asarray(sp_conv.copy(order='C'), np.float64)
-                        sp_conv = np.dot(sp_conv, projection_matrix.T)
+                        sp_conv = np.dot(sp_conv, project_target.T)
                         sp_conv = preproc.world_decode_spectral_envelope(sp_conv, 
                                         fs=sampling_rate)
                         sp_conv = sp_conv.copy(order='C')

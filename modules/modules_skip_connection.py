@@ -63,7 +63,7 @@ def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
                 shuffle_size=2, name_prefix='upsample1d_block2_')
         
         # Dropout for stochasticity
-        u2 = tf.nn.dropout(u2, keep_prob=1.0)
+        u2 = tf.nn.dropout(u2, keep_prob=0.5)
 
         # Output
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
@@ -143,7 +143,7 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
         u2 = tf.add(u2, h1_glu, name='add_downsample_2')
         
         # Dropout for stochasticity
-        u2 = tf.nn.dropout(u2, keep_prob=1.0)
+        u2 = tf.nn.dropout(u2, keep_prob=0.5)
 
         # Output
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
