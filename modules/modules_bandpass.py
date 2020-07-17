@@ -96,7 +96,7 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
         h1_mfc = conv2d_layer(inputs=input_mfc_transposed, filters=64, 
                 kernel_size=[15, 23], strides=[1, 23], activation=None, 
                 name='h1_mfc_conv')
-        h1_mfc_gates = conv1d_layer(inputs=input_mfc_transposed, filters=64, 
+        h1_mfc_gates = conv2d_layer(inputs=input_mfc_transposed, filters=64, 
                 kernel_size=[15, 23], strides=[1, 23], activation=None, 
                 name='h1_mfc_conv_gates')
         h1_mfc_glu = gated_linear_layer(inputs=h1_mfc, gates=h1_mfc_gates, 
@@ -172,10 +172,10 @@ def discriminator(input_mfc, input_pitch,
             assert scope.reuse is False
 
         h1_mfc = conv2d_layer(inputs=input_mfc_transposed, filters=64, 
-                kernel_size=[15, 23], strides=[1, 23], activation=None, 
+                kernel_size=[15, 46], strides=[1, 46], activation=None, 
                 name='h1_mfc_conv')
-        h1_mfc_gates = conv1d_layer(inputs=input_mfc_transposed, filters=64, 
-                kernel_size=[15, 23], strides=[1, 23], activation=None, 
+        h1_mfc_gates = conv2d_layer(inputs=input_mfc_transposed, filters=64, 
+                kernel_size=[15, 46], strides=[1, 46], activation=None, 
                 name='h1_mfc_conv_gates')
         h1_mfc_glu = gated_linear_layer(inputs=h1_mfc, gates=h1_mfc_gates, 
                 name='h1_mfc_glu')

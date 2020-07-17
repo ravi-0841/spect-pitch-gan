@@ -8,14 +8,14 @@ from utils.tf_forward_tan import lddmm
 
 class VariationalCycleGAN(object):
 
-    def __init__(self, dim_pitch=1, dim_mfc=23, n_frames=128, 
-            discriminator=discriminator, generator=generator,
-            sampler=sampler, lddmm=lddmm, mode='train', 
-            log_dir='./log', pre_train=None):
+    def __init__(self, dim_pitch=1, dim_mfc=23, bandpass_filters=64, 
+                 n_frames=128, discriminator=discriminator, 
+                 generator=generator,sampler=sampler, lddmm=lddmm, 
+                 mode='train', log_dir='./log', pre_train=None):
         
         self.n_frames = n_frames
         self.pitch_shape = [None, dim_pitch, None] #[batch_size, num_features, num_frames]
-        self.mfc_shape = [None, dim_mfc, None, 64] #[batch_size, num_features, num_frames, #filters]
+        self.mfc_shape = [None, dim_mfc, None, bandpass_filters] #[batch_size, num_features, num_frames, #filters]
 
         self.center_diff_mat = np.zeros((n_frames, n_frames), np.float32)
         for i in range(self.n_frames-1):
