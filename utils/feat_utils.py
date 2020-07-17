@@ -4,6 +4,8 @@ import itertools
 import sys
 import scipy.signal as scisig
 import scipy.fftpack as scfft
+import scipy
+import scipy.stats as scistat
 
 from sklearn.externals import joblib
 from sklearn.preprocessing import StandardScaler
@@ -394,7 +396,38 @@ def decode_raw_spectrum(linear_mfcc, axis=1, n_fft=1024):
     return np.exp(spectrum)
 
 
+def create_bandpass_filters(num_filters=64, nfft=1024, sample_rate=16000):
+    bin_freq = sample_rate / nfft
+    number_bins_100 = int(100 / bin_freq) + 1
+    center_bins = np.asarray(np.linspace(number_bins_100, 
+                                         nfft//2 + 1, num_filters), np.int32)
+    sigma = np.sqrt(6.5)
+    filters = list()
+    y = np.arange(0, nfft//2+1)
+    for i in range(num_filters):
+        mu = int(center_bins[i])
+        gaussian = np.reshape(scistat.norm.pdf(y, mu, sigma), (1,-1))
+        gaussian_dct = scfft.dct(gaussian, axis=-1)[:,:23]
+        filters.append(gaussian_dct.reshape(1,-1))
+    return np.asarray(filters)
 
+
+def convolve_mfcc_bandpass(mfcc_feats, filters):
+    """
+    Mfcc features: 1x23xT
+    filters: array containing filters Nx1x23
+    """
+    mfcc_feats = np.transpose(np.squeeze(mfcc_feats))
+    convolved_feats = list()
+    for i in range(len(filters)):
+        filt = filters[i].reshape(-1,)
+        convolved_feats.append(np.asarray([scisig.convolve(x, filt, mode='same') \
+                                           for x in mfcc_feats]))
+    convolved_feats = [x.T for x in convolved_feats]
+    convolved_feats = np.stack(convolved_feats, axis=2)
+    convolved_feats = np.expand_dims(convolved_feats, axis=-1)
+    convolved_feats = np.transpose(convolved_feats, [3,0,1,2])
+    return convolved_feats
 
 
 

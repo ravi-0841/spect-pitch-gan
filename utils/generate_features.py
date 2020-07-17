@@ -5,8 +5,6 @@ import numpy as np
 import librosa
 import scipy.io as scio
 import scipy.signal as scisig
-import scipy.stats as scistat
-import scipy
 import pyworld as pw
 from tqdm import tqdm
 from concurrent.futures import ProcessPoolExecutor
@@ -17,35 +15,6 @@ warnings.filterwarnings('ignore')
 
 from feat_utils import smooth, \
     smooth_contour, generate_interpolation, encode_raw_spectrum
-
-
-def _create_bandpass_filters(num_filters=64, nfft=1024, sample_rate=16000):
-    bin_freq = sample_rate / nfft
-    number_bins_100 = int(100 / bin_freq) + 1
-    center_bins = np.asarray(np.linspace(number_bins_100, 
-                                         nfft//2 + 1, num_filters), np.int32)
-    sigma = np.sqrt(6.5)
-    filters = list()
-    y = np.arange(0, nfft//2+1)
-    for i in range(num_filters):
-        mu = int(center_bins[i])
-        gaussian = np.reshape(scistat.norm.pdf(y, mu, sigma), (1,-1))
-        gaussian_dct = scipy.fftpack.dct(gaussian, axis=-1)[:,:23]
-        filters.append(gaussian_dct.reshape(1,-1))
-    return filters
-
-
-def _convolve_mfcc_bandpass(mfcc_feats, filters):
-    """
-    Mfcc features: Nx23
-    filters: array containing filters
-    """
-    convolved_feats = list()
-    for i in range(len(filters)):
-        filt = filters[i].reshape(-1,)
-        convolved_feats.append(np.asarray([scisig.convolve(x, filt, mode='same') \
-                                           for x in mfcc_feats]))
-    return convolved_feats
 
 
 def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128, 
