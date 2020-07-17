@@ -65,7 +65,7 @@ class VariationalCycleGAN(object):
                 name='mfc_A_real')
         self.mfc_B_real = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_B_real')
-        
+
         # Placeholders for fake generated samples
         self.pitch_A_fake = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_fake')
