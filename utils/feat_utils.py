@@ -7,7 +7,7 @@ import scipy.fftpack as scfft
 import scipy
 import scipy.stats as scistat
 
-from sklearn.externals import joblib
+import joblib
 from sklearn.preprocessing import StandardScaler
 from scipy import interpolate
 from scipy.signal import butter, filtfilt
