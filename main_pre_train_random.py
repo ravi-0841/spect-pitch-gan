@@ -52,8 +52,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
                             level=logging.DEBUG)
 
     projection_matrix = scio.loadmat('./data/projection_matrices.mat')
-    projection_source = projection_matrix['project_source']
-    projection_target = projection_matrix['project_target']
+    project_source = projection_matrix['project_source']
+    project_target = projection_matrix['project_target']
 
     print("lambda_cycle pitch - {}".format(lambda_cycle_pitch))
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
