@@ -396,7 +396,8 @@ def decode_raw_spectrum(linear_mfcc, axis=1, n_fft=1024):
     return np.exp(spectrum)
 
 
-def create_bandpass_filters(num_filters=64, nfft=1024, sample_rate=16000):
+def create_bandpass_filters(num_filters=64, nfft=1024, dct_dim=23, 
+        sample_rate=16000):
     bin_freq = sample_rate / nfft
     number_bins_100 = int(100 / bin_freq) + 1
     center_bins = np.asarray(np.linspace(number_bins_100, 
@@ -407,7 +408,7 @@ def create_bandpass_filters(num_filters=64, nfft=1024, sample_rate=16000):
     for i in range(num_filters):
         mu = int(center_bins[i])
         gaussian = np.reshape(scistat.norm.pdf(y, mu, sigma), (1,-1))
-        gaussian_dct = scfft.dct(gaussian, axis=-1)[:,:23]
+        gaussian_dct = scfft.dct(gaussian, axis=-1)[:,:dct_dim]
         filters.append(gaussian_dct.reshape(1,-1))
     return np.asarray(filters)
 
