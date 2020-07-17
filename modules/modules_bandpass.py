@@ -148,6 +148,7 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
                 kernel_size=15, strides=1, \
                 activation=None, name='o1_conv')
+        o1 = tf.expand_dims(o1, axis=-1, name='expand_o1')
 
         o2 = conv2d_layer(inputs=o1, filters=64, 
                 kernel_size=[15,23], strides=[1,1], 
@@ -155,7 +156,7 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
 
         # Output
 
-        o2 = tf.transpose(o1, perm=[0, 2, 1, 3], name='output_transpose')
+        o2 = tf.transpose(o2, perm=[0, 2, 1, 3], name='output_transpose')
         
         return o2
     

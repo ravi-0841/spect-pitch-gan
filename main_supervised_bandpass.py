@@ -124,10 +124,10 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
             end = (i + 1) * mini_batch_size
             
             mfc_A_feed = mfc_A[start:end]
-            mfc_A_feed = feats_preproc.convolve_mfc_bandpass(mfc_A_feed, bandpass_filters)
+            mfc_A_feed = feats_preproc.convolve_mfcc_bandpass(mfc_A_feed, bandpass_filters)
 
             mfc_B_feed = mfc_B[start:end]
-            mfc_B_feed = feats_preproc.convolve_mfc_bandpass(mfc_B_feed, bandpass_filters)
+            mfc_B_feed = feats_preproc.convolve_mfcc_bandpass(mfc_B_feed, bandpass_filters)
 
             mom_loss_A2B, mom_loss_B2A, pitch_loss_A2B, \
             pitch_loss_B2A, mfc_loss_A2B, mfc_loss_B2A, \
