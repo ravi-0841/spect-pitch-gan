@@ -27,7 +27,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     np.random.seed(random_seed)
 
-    num_epochs = 2000
+    num_epochs = 1000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
@@ -214,7 +214,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         sys.stdout.flush()
 
-        if epoch % 100 == 0:
+        if epoch % 50 == 0:
             
             cur_model_name = model_name+"_"+str(epoch)+".ckpt"
             model.save(directory=model_dir, filename=cur_model_name)
@@ -338,7 +338,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt', 
+          pre_train='./model/neu-ang/lp_0.0001_lm_0.0001_lmo_0.01_supervised_pre_train/cmu-arctic1000.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_momenta=lambda_momenta, lambda_identity_mfc=lambda_identity_mfc,  
           generator_learning_rate=generator_learning_rate, 
