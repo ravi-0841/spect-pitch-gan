@@ -3,7 +3,7 @@ import tensorflow as tf
 import numpy as np
 
 from modules.modules_bandpass import sampler, generator, discriminator
-import utils.model_utils as utils
+from utils.model_utils import l1_loss
 from utils.tf_forward_tan import lddmm 
 
 class VariationalCycleGAN(object):
@@ -15,7 +15,7 @@ class VariationalCycleGAN(object):
         
         self.n_frames = n_frames
         self.pitch_shape = [None, dim_pitch, None] #[batch_size, num_features, num_frames]
-        self.mfc_shape = [None, dim_mfc, None, 64] #[batch_size, num_features, num_frames, filters]
+        self.mfc_shape = [None, dim_mfc, None]
 
         self.center_diff_mat = np.zeros((n_frames, n_frames), np.float32)
         for i in range(self.n_frames-1):
@@ -33,7 +33,7 @@ class VariationalCycleGAN(object):
 
         self.sampler = sampler
         self.generator = generator
-        self.discriminator = discriminator
+        self.discriminator = discriminatorforward_tan
         self.lddmm = lddmm
         self.mode = mode
 
@@ -65,7 +65,7 @@ class VariationalCycleGAN(object):
                 name='mfc_A_real')
         self.mfc_B_real = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_B_real')
-
+        
         # Placeholders for fake generated samples
         self.pitch_A_fake = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_fake')
@@ -95,8 +95,6 @@ class VariationalCycleGAN(object):
                 name='lambda_cycle_mfc')
         self.lambda_momenta = tf.placeholder(tf.float32, None, 
                 name='lambda_momenta')
-        self.lambda_identity_mfc = tf.placeholder(tf.float32, None, 
-                name='lambda_identity_mfc')
 
         '''
         Generator A
@@ -115,8 +113,6 @@ class VariationalCycleGAN(object):
                 p=self.momentum_cycle_A2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_cycle_A2A = self.generator(input_pitch=self.pitch_cycle_A2A, 
                 input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='generator_B2A')
-        self.mfc_identity_A2B = self.generator(input_pitch=self.pitch_B_real, 
-                input_mfc=self.mfc_B_real, reuse=True, scope_name='generator_A2B')
 
 
         '''
@@ -136,8 +132,6 @@ class VariationalCycleGAN(object):
                 p=self.momentum_cycle_B2B, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
                 input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='generator_A2B')
-        self.mfc_identity_B2A = self.generator(input_pitch=self.pitch_A_real, 
-                input_mfc=self.mfc_A_real, reuse=True, scope_name='generator_B2A')
 
 
         # Generator Discriminator Loss
@@ -150,24 +144,20 @@ class VariationalCycleGAN(object):
                 self.pitch_generation_B2A], axis=1), reuse=False, scope_name='discriminator_B')
 
         # Cycle loss
-        self.cycle_loss_pitch = (utils.l1_loss(y=self.pitch_A_real, 
-            y_hat=self.pitch_cycle_A2A) + utils.l1_loss(y=self.pitch_B_real, 
+        self.cycle_loss_pitch = (l1_loss(y=self.pitch_A_real, 
+            y_hat=self.pitch_cycle_A2A) + l1_loss(y=self.pitch_B_real, 
                 y_hat=self.pitch_cycle_B2B)) / 2.0
 
-        self.cycle_loss_mfc = (utils.l1_loss(y=self.mfc_A_real, 
-            y_hat=self.mfc_cycle_A2A) + utils.l1_loss(y=self.mfc_B_real, 
+        self.cycle_loss_mfc = (l1_loss(y=self.mfc_A_real, 
+            y_hat=self.mfc_cycle_A2A) + l1_loss(y=self.mfc_B_real, 
                 y_hat=self.mfc_cycle_B2B)) / 2.0
-        
-        # Identity Loss
-        self.identity_loss_mfc = (utils.l1_loss(y=self.mfc_identity_A2B, 
-            y_hat=self.mfc_B_real) + utils.l1_loss(y=self.mfc_identity_B2A, 
-                    y_hat=self.mfc_A_real)) / 2.0
+
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
-        self.generator_loss_A2B = utils.l1_loss(y=tf.ones_like(self.discrimination_B_fake), 
+        self.generator_loss_A2B = l1_loss(y=tf.ones_like(self.discrimination_B_fake), 
                 y_hat=self.discrimination_B_fake)
-        self.generator_loss_B2A = utils.l1_loss(y=tf.ones_like(self.discrimination_A_fake), 
+        self.generator_loss_B2A = l1_loss(y=tf.ones_like(self.discrimination_A_fake), 
                 y_hat=self.discrimination_A_fake)
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
@@ -187,8 +177,7 @@ class VariationalCycleGAN(object):
         self.generator_loss \
             = self.gen_disc_loss + self.lambda_cycle_pitch * self.cycle_loss_pitch \
                 + self.lambda_cycle_mfc * self.cycle_loss_mfc \
-                + self.lambda_momenta * self.momenta_loss \
-                + self.lambda_identity_mfc * self.identity_loss_mfc
+                + self.lambda_momenta * self.momenta_loss
 
         # Compute the discriminator probability for pair of inputs
         self.discrimination_input_A_real_B_fake \
@@ -212,19 +201,19 @@ class VariationalCycleGAN(object):
 
         # Compute discriminator loss for backprop
         self.discriminator_loss_input_A_real \
-            = utils.l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
+            = l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
                     y_hat=self.discrimination_input_A_real_B_fake)
         self.discriminator_loss_input_A_fake \
-            = utils.l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
+            = l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
                     y_hat=self.discrimination_input_A_fake_B_real)
         self.discriminator_loss_A = (self.discriminator_loss_input_A_real \
                                      + self.discriminator_loss_input_A_fake) / 2.0
 
         self.discriminator_loss_input_B_real \
-            = utils.l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
+            = l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
                     y_hat=self.discrimination_input_B_real_A_fake)
         self.discriminator_loss_input_B_fake \
-            = utils.l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
+            = l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
                     y_hat=self.discrimination_input_B_fake_A_real)
         self.discriminator_loss_B = (self.discriminator_loss_input_B_real \
                                      + self.discriminator_loss_input_B_fake) / 2.0
@@ -261,18 +250,18 @@ class VariationalCycleGAN(object):
         self.discriminator_learning_rate = tf.placeholder(tf.float32, None, 
                 name='discriminator_learning_rate')
 
-        self.discriminator_train_op \
+        self.discriminator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.discriminator_learning_rate, \
                 beta1=0.5).minimize(self.discriminator_loss, var_list=self.discriminator_vars)
 
-        self.generator_train_op \
+        self.generator_optimizer \
             = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, \
                 beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
 
 
     def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
-            lambda_cycle_mfc, lambda_momenta, lambda_identity_mfc, 
-            generator_learning_rate, discriminator_learning_rate):
+            lambda_cycle_mfc, lambda_momenta, generator_learning_rate, 
+            discriminator_learning_rate):
 
         momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
                 generation_pitch_A, generation_mfc_A, generator_loss, \
@@ -280,12 +269,10 @@ class VariationalCycleGAN(object):
                 = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.gen_disc_loss, 
-                    self.generator_train_op, self.generator_summaries], 
+                    self.generator_optimizer, self.generator_summaries], 
                     feed_dict = {self.lambda_cycle_pitch:lambda_cycle_pitch, 
                         self.lambda_cycle_mfc:lambda_cycle_mfc, 
-                        self.lambda_momenta:lambda_momenta, 
-                        self.lambda_identity_mfc:lambda_identity_mfc, 
-                        self.pitch_A_real:pitch_A, 
+                        self.lambda_momenta:lambda_momenta, self.pitch_A_real:pitch_A, 
                         self.pitch_B_real:pitch_B, self.mfc_A_real:mfc_A, 
                         self.mfc_B_real:mfc_B, 
                         self.generator_learning_rate:generator_learning_rate})
@@ -293,7 +280,7 @@ class VariationalCycleGAN(object):
         self.writer.add_summary(generator_summaries, self.train_step)
 
         discriminator_loss, _, discriminator_summaries \
-            = self.sess.run([self.discriminator_loss, self.discriminator_train_op, 
+            = self.sess.run([self.discriminator_loss, self.discriminator_optimizer, 
                 self.discriminator_summaries], 
                     feed_dict = {self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
                         self.mfc_A_real:mfc_A, self.mfc_B_real:mfc_B, 
@@ -310,6 +297,20 @@ class VariationalCycleGAN(object):
                 momentum_A, momentum_B
 
 
+    def compute_gradients(self, pitch_A, mfc_A, pitch_B, mfc_B, 
+                                lambda_cycle_pitch, lambda_cycle_mfc, 
+                                lambda_momenta):
+        
+        generator_gradient, discriminator_gradient \
+            = self.sess.run([self.generator_grads, self.discriminator_grads], 
+                            feed_dict={self.lambda_cycle_pitch:lambda_cycle_pitch, 
+                        self.lambda_cycle_mfc:lambda_cycle_mfc, 
+                        self.lambda_momenta:lambda_momenta, self.pitch_A_real:pitch_A, 
+                        self.pitch_B_real:pitch_B, self.mfc_A_real:mfc_A, 
+                        self.mfc_B_real:mfc_B})
+        return generator_gradient, discriminator_gradient
+    
+    
     def test_gen(self, mfc_A, pitch_A, mfc_B, pitch_B):
         gen_mom_B, gen_pitch_B, gen_mfc_B, = self.sess.run([self.momentum_A2B_test, \
                                     self.pitch_A2B_test, self.mfc_A2B_test], \
@@ -323,7 +324,6 @@ class VariationalCycleGAN(object):
                                         self.mfc_B_test:mfc_B})
         
         return gen_mom_A, gen_pitch_A, gen_mfc_A, gen_mom_B, gen_pitch_B, gen_mfc_B
-
 
     def test(self, input_pitch, input_mfc, direction):
 

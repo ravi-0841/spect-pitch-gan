@@ -2,6 +2,7 @@ import os
 import numpy as np
 import argparse
 import time
+import librosa
 import sys
 import scipy.io.wavfile as scwav
 import scipy.io as scio
@@ -9,10 +10,12 @@ import scipy.signal as scisig
 import pylab
 import logging
 
-from glob import glob
-from nn_models.model_spect_id import VariationalCycleGAN
-from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
+import utils.feat_utils as feats_preproc
+
+from glob import glob
+from nn_models.model_bandpass import VariationalCycleGAN
+from utils.helper import smooth, generate_interpolation
 from importlib import reload
 
 
@@ -38,10 +41,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
             +"_lmo_"+str(lambda_momenta) + '_li_' \
-            + str(lambda_identity_mfc) \
-            + '_glr_'+str(generator_learning_rate) \
-            +'_dlr_'+str(discriminator_learning_rate) \
-            +'_pre_trained_spect_loss'
+            + str(lambda_identity_mfc) + '_pre_trained_bandpass'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -50,14 +50,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
         os.remove(logger_file)
 
     reload(logging)
-    logging.basicConfig(filename=logger_file, level=logging.INFO)
+    logging.basicConfig(filename=logger_file, \
+                            level=logging.DEBUG)
 
     print("lambda_cycle pitch - {}".format(lambda_cycle_pitch))
     print("lambda_cycle mfc - {}".format(lambda_cycle_mfc))
-    print("lambda_identity_mfc - {}".format(lambda_identity_mfc))
     print("lambda_momenta - {}".format(lambda_momenta))
-    print("generator_lr - {}".format(generator_learning_rate))
-    print("discriminator_lr - {}".format(discriminator_learning_rate))
     print("cycle_loss - L1")
 
     logging.info("lambda_cycle_pitch - {}".format(lambda_cycle_pitch))
@@ -120,9 +118,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
                                                                    (time_elapsed % 60 // 1)))
     
     #use pre_train arg to provide trained model
-    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, 
-            n_frames=n_frames, pre_train=pre_train, log_file_name=lc_lm)
+    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, n_frames=n_frames, 
+                                pre_train=pre_train, log_file_name=lc_lm)
     
+    # create the bandpass filters
+    bandpass_filters = feats_preproc.create_bandpass_filters(num_filters=64)
+
     for epoch in range(1,num_epochs+1):
 
         print('Epoch: %d' % epoch)
@@ -137,26 +138,31 @@ def train(train_dir, model_dir, model_name, random_seed, \
         
         n_samples = mfc_A.shape[0]
         
-        train_gen_loss = list()
-        train_disc_loss = list()
+        train_gen_loss = []
+        train_disc_loss = []
 
         for i in range(n_samples // mini_batch_size):
 
             start = i * mini_batch_size
             end = (i + 1) * mini_batch_size
 
+            mfc_A_feed = mfc_A[start:end]
+            mfc_A_feed = feats_preproc.convolve_mfcc_bandpass(mfc_A_feed, bandpass_filters)
+
+            mfc_B_feed = mfc_B[start:end]
+            mfc_B_feed = feats_preproc.convolve_mfcc_bandpass(mfc_B_feed, bandpass_filters)
+
             generator_loss, discriminator_loss, \
             gen_pitch_A, gen_mfc_A, gen_pitch_B, \
-            gen_mfc_B, mom_A, mom_B, cycle_loss, id_loss \
-                = model.train(mfc_A=mfc_A[start:end], 
-                    mfc_B=mfc_B[start:end], pitch_A=pitch_A[start:end], 
+            gen_mfc_B, mom_A, mom_B \
+                = model.train_grad(mfc_A=mfc_A_feed, 
+                    mfc_B=mfc_B_feed, pitch_A=pitch_A[start:end], 
                     pitch_B=pitch_B[start:end], lambda_cycle_pitch=lambda_cycle_pitch, 
                     lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta,
                     lambda_identity_mfc=lambda_identity_mfc, 
                     generator_learning_rate=generator_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
-#            print("Cycle loss %f and identity loss %f" % (cycle_loss, id_loss))
             train_gen_loss.append(generator_loss)
             train_disc_loss.append(discriminator_loss)
 
@@ -167,42 +173,6 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info("Train Generator Loss- {}".format(np.mean(train_gen_loss)))
         logging.info("Train Discriminator Loss- {}".format(np.mean(train_disc_loss)))
 
-        if epoch%100 == 0:
-
-            for i in range(mfc_A_valid.shape[0]):
-
-                gen_mom_A, gen_pitch_A, gen_mfc_A, gen_mom_B, \
-                        gen_pitch_B, gen_mfc_B = model.test_gen(mfc_A=mfc_A_valid[i:i+1], 
-                                mfc_B=mfc_B_valid[i:i+1], 
-                                pitch_A=pitch_A_valid[i:i+1], 
-                                pitch_B=pitch_B_valid[i:i+1])
-
-                pylab.figure(figsize=(13,13))
-                pylab.subplot(221)
-                pylab.plot(pitch_A_valid[i].reshape(-1,), label='Input A')
-                pylab.plot(gen_pitch_B.reshape(-1,), label='Generated B')
-                pylab.plot(gen_mom_B.reshape(-1,), label='Generated momenta')
-                pylab.legend(loc=2)
-                pylab.subplot(222)
-                pylab.plot(mfc_A_valid[i,0,:].reshape(-1,), label='Input Mfc A')
-                pylab.plot(gen_mfc_B[0,0,:].reshape(-1,), label='Generated Mfc B')
-                pylab.legend(loc=2)
-
-                pylab.subplot(223)
-                pylab.plot(pitch_B_valid[i].reshape(-1,), label='Input B')
-                pylab.plot(gen_pitch_A.reshape(-1,), label='Generated A')
-                pylab.plot(gen_mom_A.reshape(-1,), label='Generated momenta')
-                pylab.legend(loc=2)
-                pylab.subplot(224)
-                pylab.plot(mfc_B_valid[i,0,:].reshape(-1,), label='Input Mfc B')
-                pylab.plot(gen_mfc_A[0,0,:].reshape(-1,), label='Generated Mfc A')
-                pylab.legend(loc=2)
-
-                pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
-                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
-                        +str(epoch)+'_'+str(i+1)+'.png')
-                pylab.close()
-        
         end_time_epoch = time.time()
         time_elapsed_epoch = end_time_epoch - start_time_epoch
 
@@ -212,60 +182,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
-        sys.stdout.flush()
-
         if epoch % 50 == 0:
             
             cur_model_name = model_name+"_"+str(epoch)+".ckpt"
-            model.save(directory=model_dir, filename=cur_model_name)
-
-            if validation_dir is not None:
-                print('Generating Validation Data B from A...')
-#                counter = 1
-                for file in sorted(os.listdir(validation_dir)):
-                    try:
-                        filepath = os.path.join(validation_dir, file)
-                        wav = scwav.read(filepath)
-                        wav = wav[1].astype(np.float64)
-                        wav = preproc.wav_padding(wav = wav, sr = sampling_rate, \
-                                frame_period = frame_period, multiple = 4)
-                        f0, sp, ap = preproc.world_decompose(wav = wav, \
-                                        fs = sampling_rate, frame_period = frame_period)
-
-                        code_sp = preproc.world_encode_spectral_envelope(sp, \
-                                    sampling_rate, dim=num_mcep)
-                        f0 = scisig.medfilt(f0, kernel_size=3)
-                        z_idx = np.where(f0<10.0)[0]
-
-                        f0 = generate_interpolation(f0)
-                        f0 = smooth(f0, window_len=13)
-                        f0 = np.reshape(f0, (1,1,-1))
-                        code_sp = np.reshape(code_sp, (1,-1,num_mcep))
-                        code_sp = np.transpose(code_sp, (0,2,1))
-
-                        f0_conv, sp_conv = model.test(input_pitch=f0, \
-                                                    input_mfc=code_sp, \
-                                                    direction='A2B')
-
-                        f0_conv = np.asarray(np.reshape(f0_conv,(-1,)), np.float64)
-                        f0_conv[z_idx] = 0.0
-                        sp_conv = np.squeeze(np.transpose(sp_conv, (0,2,1)))
-                        sp_conv = np.asarray(sp_conv.copy(order='C'), np.float64)
-                        sp_conv = preproc.world_decode_spectral_envelope(sp_conv, 
-                                        fs=sampling_rate)
-                        sp_conv = sp_conv.copy(order='C')
-                        f0_conv = f0_conv.copy(order='C')
-                        ap_conv = ap.copy(order='C')
-                        
-                        wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
-                                decoded_sp=sp_conv/np.max(sp_conv), ap=ap_conv, 
-                                fs=sampling_rate, frame_period=frame_period)
-                        scwav.write(os.path.join(validation_output_dir, 
-                            os.path.basename(file)), sampling_rate, 
-                            np.asarray(wav_transformed, np.float32))
-                    except Exception as ex:
-                        print(ex)
-                        logging.info(ex)
 
 
 if __name__ == '__main__':
@@ -306,9 +225,9 @@ if __name__ == '__main__':
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
             default=0.00001)
     parser.add_argument('--lambda_cycle_mfc', type=float, help="hyperparam for cycle loss mfc", 
-            default=0.01)
+            default=1.0)
     parser.add_argument('--lambda_identity_mfc', type=float, help="hyperparam for identity loss mfc", 
-            default=0.005)
+            default=0.5)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
             default=1e-6)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
