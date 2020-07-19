@@ -37,7 +37,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     lc_lm = "lp_"+str(lambda_pitch) \
             + '_lm_'+str(lambda_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_supervised_pre_train_random_projection'
+            +"_lmo_"+str(lambda_momenta) + '_supervised_pre_train_random_projection_disjoint'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -50,8 +50,8 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
                             level=logging.INFO)
 
     projection_matrix = scio.loadmat('./data/projection_matrices.mat')
-    projection_source = projection_matrix['project_source']
-    projection_target = projection_matrix['project_target']
+    project_source = projection_matrix['project_source']
+    project_target = projection_matrix['project_target']
 
     print("lambda_pitch - {}".format(lambda_pitch))
     print("lambda_mfc - {}".format(lambda_mfc))
@@ -76,8 +76,8 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
     pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
-    mfc_A_train = np.dot(data_train['src_mfc_feat'], projection_source)
-    mfc_B_train = np.dot(data_train['tar_mfc_feat'], projection_target)
+    mfc_A_train = np.dot(data_train['src_mfc_feat'], project_source)
+    mfc_B_train = np.dot(data_train['tar_mfc_feat'], project_target)
     momenta_A2B_train = np.expand_dims(data_train['momenta_f0_A2B'], axis=-1)
     momenta_B2A_train = np.expand_dims(data_train['momenta_f0_B2A'], axis=-1)
 

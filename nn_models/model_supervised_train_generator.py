@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_separate_discriminate_dropout import sampler, generator, discriminator
+from modules.modules_separate_discriminate import sampler, generator, discriminator
 from utils.model_utils import l1_loss
 from utils.tf_forward_tan import lddmm 
 

@@ -3,7 +3,7 @@ from modules.base_modules_default_init import *
 
 
 def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
-                       scope_name='sampler_generator'):
+                       scope_name='sampler'):
 
     # Inputs have shape [batch_size, num_features, time]
     inputs = tf.concat([input_mfc, input_pitch], axis=1, \
@@ -64,12 +64,7 @@ def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
                 kernel_size=15, strides=1, \
                 activation=None, name='o1_conv')
 
-#        o2 = conv1d_layer(inputs=o1, filters=1, \
-#                kernel_size=15, strides=1, \
-#                activation=None, name='o2_conv')
-
         o2 = tf.transpose(o1, perm=[0, 2, 1], name='output_transpose')
-#        o3 = tf.reduce_mean(o2, axis=1, keepdims=True)
         return o2
 
 
@@ -135,13 +130,7 @@ def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
                 kernel_size=15, strides=1, \
                 activation=None, name='o1_conv')
 
-#        o2 = conv1d_layer(inputs=o1, filters=1, \
-#                kernel_size=15, strides=1, \
-#                activation=None, name='o2_conv')
-
         o2 = tf.transpose(o1, perm=[0, 2, 1], name='output_transpose')
-#        o3 = tf.reduce_mean(o2, axis=1, keepdims=True)
-        
         return o2
     
 
