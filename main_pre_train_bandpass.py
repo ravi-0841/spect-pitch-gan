@@ -19,7 +19,7 @@ from utils.helper import smooth, generate_interpolation
 from importlib import reload
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, \
             validation_dir, output_dir, \
@@ -155,7 +155,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             generator_loss, discriminator_loss, \
             gen_pitch_A, gen_mfc_A, gen_pitch_B, \
             gen_mfc_B, mom_A, mom_B \
-                = model.train_grad(mfc_A=mfc_A_feed, 
+                = model.train(mfc_A=mfc_A_feed, 
                     mfc_B=mfc_B_feed, pitch_A=pitch_A[start:end], 
                     pitch_B=pitch_B[start:end], lambda_cycle_pitch=lambda_cycle_pitch, 
                     lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta,
@@ -183,8 +183,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
         if epoch % 50 == 0:
+            model.save(model_dir, model_name+str(epoch)+'.ckpt')
             
-            cur_model_name = model_name+"_"+str(epoch)+".ckpt"
 
 
 if __name__ == '__main__':
@@ -257,7 +257,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_pre_train/cmu-arctic1000.ckpt', 
+          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_pre_train_bandpass/cmu-arctic100.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_momenta=lambda_momenta, lambda_identity_mfc=lambda_identity_mfc,  
           generator_learning_rate=generator_learning_rate, 

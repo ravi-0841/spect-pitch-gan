@@ -209,7 +209,6 @@ class VariationalCycleGAN(object):
                     input_pitch=tf.concat([self.pitch_B_fake, self.pitch_A_real], axis=1), 
                     reuse=True, scope_name='discriminator_B')
 
-
         # Compute discriminator loss for backprop
         self.discriminator_loss_input_A_real \
             = utils.l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
