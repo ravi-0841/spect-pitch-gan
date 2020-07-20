@@ -431,7 +431,15 @@ def convolve_mfcc_bandpass(mfcc_feats, filters):
     return convolved_feats
 
 
-
+def normalize_wav(x, nmz_type='min_max'):
+    if nmz_type=='min_max':
+        return (x - np.min(x)) / (np.max(x) - np.min(x))
+    elif nmz_type=='mean_var':
+        return (x - np.mean(x)) / np.std(x)
+    elif nmz_type=='max':
+        return x / np.max(x)
+    else:
+        raise ValueError('nmz_type should be either min_max, max or mean_var') 
 
 
 

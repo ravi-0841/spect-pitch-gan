@@ -13,8 +13,8 @@ from functools import partial
 import warnings
 warnings.filterwarnings('ignore')
 
-from feat_utils import smooth, \
-    smooth_contour, generate_interpolation, encode_raw_spectrum
+from feat_utils import smooth, smooth_contour, \
+    generate_interpolation, normalize_wav, encode_raw_spectrum
 
 
 def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128, 
@@ -42,6 +42,9 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
 
         tar_wav = scwav.read(wav_tar)
         tar = np.asarray(tar_wav[1], np.float64)
+        
+        src = normalize_wav(src)
+        tar = normalize_wav(tar)
 
         f0_src, t_src   = pw.harvest(src, sample_rate, frame_period=int(1000*window_len))
         src_straight    = pw.cheaptrick(src, f0_src, t_src, sample_rate)
@@ -293,7 +296,7 @@ if __name__=='__main__':
         file_names, (src_f0_feat, src_mfc_feat, tar_f0_feat, tar_mfc_feat, \
                      src_spect_feat, tar_spect_feat) \
                      = get_feats(FILE_LIST, sample_rate, window_len, 
-                             window_stride, n_feats=128, n_mfc=23, num_samps=16)
+                             window_stride, n_feats=128, n_mfc=23, num_samps=8)
 
         scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'.mat', \
                     { \
