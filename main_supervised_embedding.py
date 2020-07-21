@@ -13,7 +13,7 @@ import logging
 import utils.preprocess as preproc
 
 from glob import glob
-from nn_models.model_embedding import VariationalCycleGAN
+from nn_models.model_supervised_embedding import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 from importlib import reload
 
