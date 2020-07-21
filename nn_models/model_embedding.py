@@ -2,13 +2,13 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_separate_discriminate_dropout import sampler, generator, discriminator
+from modules.modules_embedding import sampler, generator, discriminator
 from utils.model_utils import l1_loss
 from utils.tf_forward_tan import lddmm 
 
 class VariationalCycleGAN(object):
 
-    def __init__(self, dim_pitch=1, dim_mfc=23, n_frames=128, 
+    def __init__(self, dim_pitch=1, dim_mfc=1, n_frames=128, 
             discriminator=discriminator, generator=generator,
             sampler=sampler, lddmm=lddmm, mode='train', 
             log_file_name='no_name_passed', pre_train=None):
