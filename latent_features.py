@@ -61,7 +61,8 @@ def classifier_model(input_mfc, reuse=False, scope_name='classifier'):
         o2 = tf.layers.dense(inputs=o1, units=1, \
                              activation=tf.nn.sigmoid)
 
-        return o1, o2
+        return o1, tf.reduce_mean(tf.squeeze(o2, axis=-1), axis=-1, 
+                                  keep_dims=True)
 
 
 class CNN_classifier():
@@ -101,16 +102,13 @@ class CNN_classifier():
         self.latent_embedding, self.prediction \
             = self.classifier(input_mfc=self.features, reuse=False, 
                               scope_name='classifier')
-        self.prediction = tf.squeeze(self.prediction, axis=-1)
         
-        self.classifier_loss = l1_loss(y=tf.reduce_mean(self.prediction, 
-                                        axis=-1, keep_dims=True), 
-                                    y_hat=self.labels)
+        self.classifier_loss = l1_loss(y=self.prediction, y_hat=self.labels)
     
         variables = tf.trainable_variables()
         self.classifier_vars = [var for var in variables if 'classifier' in var.name]
 
-        self.generate_embedding, _ \
+        self.generate_embedding, self.generate_prediction \
             = self.classifier(input_mfc=self.features_embed, reuse=True)
 
         
@@ -142,6 +140,12 @@ class CNN_classifier():
         embeddings = self.sess.run(self.generate_embedding, 
                                    feed_dict={self.features_embed:input_mfcs})
         return embeddings
+    
+    def get_predictions(self, input_mfcs):
+        
+        predictions = self.sess.run(self.generate_prediction, 
+                                   feed_dict={self.features_embed:input_mfcs})
+        return predictions
 
             
     def save(self, directory, filename):
@@ -167,10 +171,10 @@ if __name__ == '__main__':
 
     mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
     labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
-                             np.zeros((mfc_B.shape[0],1))), axis=0)
+                             np.ones((mfc_B.shape[0],1))), axis=0)
     
     mini_batch_size = 256
-    learning_rate = 1e-05
+    learning_rate = 1e-03
     num_epochs = 100
     
     model = CNN_classifier(dim_mfc=23, pre_train=None)
