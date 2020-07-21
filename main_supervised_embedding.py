@@ -98,7 +98,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         start_time_epoch = time.time()
 
         mfc_A, pitch_A, momenta_A2B, mfc_B, pitch_B, momenta_B2A \
-                = preproc.sample_data_momenta(mfc_A=mfc_A_train, mfc_B=mfc_B_train, 
+                = preproc.sample_data_momenta_embed(mfc_A=mfc_A_train, mfc_B=mfc_B_train, 
                         pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                         momenta_A2B=momenta_A2B_train, 
                         momenta_B2A=momenta_B2A_train)
