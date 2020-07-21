@@ -72,8 +72,8 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
     pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
-    mfc_A_train = data_train['src_mfc_feat']
-    mfc_B_train = data_train['tar_mfc_feat']
+    mfc_A_train = np.expand_dims(data_train['src_mfc_feat'], axis=-1)
+    mfc_B_train = np.expand_dims(data_train['tar_mfc_feat'], axis=-1)
     momenta_A2B_train = np.expand_dims(data_train['momenta_f0_A2B'], axis=-1)
     momenta_B2A_train = np.expand_dims(data_train['momenta_f0_B2A'], axis=-1)
 
