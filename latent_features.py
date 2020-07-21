@@ -11,6 +11,14 @@ import modules.base_modules as base_mods
 from utils.model_utils import l1_loss
 
 
+def shuffle_feats_label(features, label):
+    
+    assert features.shape[0]==label.shape[0]
+    shuffle_ids = np.arange(0, features.shape[0])
+    np.random.shuffle(shuffle_ids)
+    return features[shuffle_ids], label[shuffle_ids]
+
+
 def classifier_model(input_mfc, reuse=False, scope_name='classifier'):
     
     # expects input_mfc of shape [#batch #dim_mfc, #timesteps]
@@ -93,9 +101,11 @@ class CNN_classifier():
         self.latent_embedding, self.prediction \
             = self.classifier(input_mfc=self.features, reuse=False, 
                               scope_name='classifier')
+        self.prediction = tf.squeeze(self.prediction, axis=-1)
         
         self.classifier_loss = l1_loss(y=tf.reduce_mean(self.prediction, 
-                                        axis=1), y_hat=self.labels)
+                                        axis=-1, keep_dims=True), 
+                                    y_hat=self.labels)
     
         variables = tf.trainable_variables()
         self.classifier_vars = [var for var in variables if 'classifier' in var.name]
@@ -120,7 +130,7 @@ class CNN_classifier():
                                             self.latent_embedding, 
                                             self.prediction, 
                                             self.classifier_optimizer], 
-                                            feed_dict={self.features:self.input_mfcs, 
+                                            feed_dict={self.features:input_mfcs, 
                                                        self.labels:labels, 
                                                        self.learning_rate:learning_rate})
     
@@ -148,21 +158,20 @@ class CNN_classifier():
 
 if __name__ == '__main__':
     
+    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    
     data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest.mat')
     
     mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
     mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
-    
+
+    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
     labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
                              np.zeros((mfc_B.shape[0],1))), axis=0)
     
-    r,c = mfc_A.shape[1], mfc_A.shape[2]
-    mfc_feats = np.concatenate((mfc_A.reshape(-1, r*c), 
-                                mfc_B.reshape(-1, r*c)), axis=0)
-    
-    mini_batch_size = 1
+    mini_batch_size = 256
     learning_rate = 1e-05
-    num_epochs = 1000
+    num_epochs = 100
     
     model = CNN_classifier(dim_mfc=23, pre_train=None)
     
@@ -173,6 +182,8 @@ if __name__ == '__main__':
 
         start_time_epoch = time.time()
         n_samples = mfc_feats.shape[0]
+        
+        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
         
         train_loss = list()
 
@@ -188,6 +199,15 @@ if __name__ == '__main__':
             train_loss.append(loss)
         
         loss_log.append(np.mean(train_loss))
+        print('Loss in epoch %d- %f' % (epoch, np.mean(train_loss)))
+        
+        model.save(directory='./model', filename='embedding_net.ckpt')
+        
+        end_time_epoch = time.time()
+        time_elapsed_epoch = end_time_epoch - start_time_epoch
+
+        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
+                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
 
 
