@@ -7,7 +7,7 @@ import time
 
 import utils.preprocess as preproc
 
-import modules.base_modules as base_mods
+import modules.base_modules as basic_blocks
 from utils.model_utils import l1_loss
 
 
@@ -33,32 +33,32 @@ def classifier_model(input_mfc, reuse=False, scope_name='classifier'):
         else:
             assert scope.reuse is False
         
-        h1_conv = base_mods.conv1d_layer(inputs=input_mfc_transposed, filters=64, 
+        h1_conv = basic_blocks.conv1d_layer(inputs=input_mfc_transposed, filters=64, 
                                kernel_size=15, strides=1, activation=None, 
                                name='h1_conv')
-        h1_gates = base_mods.conv1d_layer(inputs=input_mfc_transposed, filters=64, 
+        h1_gates = basic_blocks.conv1d_layer(inputs=input_mfc_transposed, filters=64, 
                                 kernel_size=15, strides=1, activation=None, 
                                 name='h1_gates')
-        h1_glu = base_mods.gated_linear_layer(inputs=h1_conv, gates=h1_gates, 
+        h1_glu = basic_blocks.gated_linear_layer(inputs=h1_conv, gates=h1_gates, 
                                     name='h1_glu')
         
-        d1 = base_mods.downsample1d_block(inputs=h1_glu, filters=128, 
+        d1 = basic_blocks.downsample1d_block(inputs=h1_glu, filters=128, 
                                 kernel_size=5, strides=2, 
                                 name_prefix='downsample_1_')
 
-        r1 = base_mods.residual1d_block(inputs=d1, filters=256, \
-                kernel_size=3, strides=1, \
+        r1 = basic_blocks.residual1d_block(inputs=d1, filters=256, 
+                kernel_size=3, strides=1, 
                 name_prefix='residual1d_block1_')
 
-        u1 = base_mods.upsample1d_block(inputs=r1, filters=256, \
-                kernel_size=5, strides=1, \
-                shuffle_size=2, name_prefix='upsample1d_block1_')
+        u1 = basic_blocks.upsample1d_block(inputs=r1, filters=256, 
+                kernel_size=5, strides=1, shuffle_size=2, 
+                name_prefix='upsample1d_block1_')
         
-        o1 = base_mods.conv1d_layer(inputs=u1, filters=1, 
+        o1 = basic_blocks.conv1d_layer(inputs=u1, filters=1, 
                                     kernel_size=15, strides=1, 
                                     activation=None, name='latent_feats_')
         
-        o2 = tf.layers.dense(inputs=o1, units=1, \
+        o2 = tf.layers.dense(inputs=o1, units=1, 
                              activation=tf.nn.sigmoid)
 
         return o1, tf.reduce_mean(tf.squeeze(o2, axis=-1), axis=-1, 
