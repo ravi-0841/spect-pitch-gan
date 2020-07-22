@@ -51,9 +51,9 @@ def vae_encoder(input_mfc, reuse=False, scope_name='encoder'):
         classifier_branch = tf.layers.dense(inputs=o2, units=1, 
                 activation=tf.nn.sigmoid, name='classifier_output')
 
-        mean, var = o1[:,:,0], tf.math.exp(o1[:,:,1], name='var_exponentiation')
+        mean, log_var = o1[:,:,0:1], o1[:,:,1:2]
 
-        return tf.transpose(mean, [0,2,1]), tf.transpose(var, [0,2,1]), 
+        return tf.transpose(mean, [0,2,1]), tf.transpose(log_var, [0,2,1]), 
                 tf.reduce_mean(tf.squeeze(classifier_branch, axis=-1), axis=-1, 
                                     keep_dims=True, name='classifer_average')
 
@@ -137,33 +137,49 @@ class VAE(object):
 
         # hyperparams
         self.lambda_ae = tf.placeholder(tf.float32, None, name='lambda_ae')
+        self.lambda_kl = tf.placeholder(tf.float32, None, name='lambda_KL')
 
 
-        # generate embedding
-        self.embedding_mean, self.embedding_var, self.prediction \
+        # generate embedding and get reconstruction from AE
+        self.embedding_mean, self.embedding_log_var, self.prediction \
                 = self.encoder(input_mfc=self.input_mfc, reuse=False, scope_name='encoder')
-
-        self.embedding = self.embedding_mean + tf.multiply(self.embedding_var, 
+        self.embedding_std = tf.math.exp(0.5 * self.embedding_log_var, name='compute_std')
+        self.embedding = self.embedding_mean + tf.multiply(self.embedding_std, 
                 tf.random.normal(self.embedding_mean.shape, name='embedding_generate'))
 
         self.reconstruction = self.decoder(input_noise=self.embedding, reuse=False, 
                 scope_name='decoder')
 
-        self.enc_dec_loss = l1_loss(y=self.label, y_hat=self.prediction) \
+        # Compute the AE and classification loss before reshaping
+        self.ae_classification_loss = l1_loss(y=self.label, y_hat=self.prediction) \
                 + self.lambda_ae * l1_loss(y=self.input_mfc, y_hat=self.reconstruction)
-
         
+        # squeeze the mean and var to compute KL loss
+        self.embedding_mean = tf.squeeze(self.embedding_mean)
+        self.embedding_log_var = tf.squeeze(self.embedding_log_var)
+        self.embedding_std = tf.squeeze(self.embedding_std)
+        
+        # Compute the KL divergence loss, not really sure if its correct """seems like an appx"""
+        self.kl_loss = -0.5 * tf.reduce_sum(1 + self.embedding_log_var - tf.pow(self.embedding_mean, 
+            2) - tf.math.exp(self.embedding_log_var), axis=1)
+
+        # Compute full VAE loss + classification loss
+        self.vae_class_loss = self.ae_classification_loss + self.lambda_kl*self.kl_loss
+        
+        # get variables for optimization
         variables = tf.trainable_variables()
         self.trainable_vars = [var for var in variables if 'encoder' in var.name \
                                                         or 'decoder' in var.name]
 
         # generating embedding
-        self.test_embedding_mean, self.test_embedding_var, self.test_prediction \
+        self.test_embedding_mean, self.test_embedding_log_var, self.test_prediction \
                 = self.encoder(input_mfc=self.test_mfc, reuse=True)
+        self.test_embedding_std = tf.math.exp(0.5 * self.test_embedding_log_var, 
+                name='compute_test_log_var')
 
         self.test_gen_embedding = self.test_embedding_mean \
                 + tf.multiply(tf.random.normal(self.test_embedding_mean.shape, 
-                    name='test_embedding_generate'), tf.test_embedding_var)
+                    name='test_embedding_generate'), tf.test_embedding_std)
 
         self.test_gen_mfc = self.decoder(input_noise=self.test_embedding, reuse=True)
 
@@ -173,13 +189,13 @@ class VAE(object):
         self.learning_rate = tf.placeholder(tf.float32, None, name='learning_rate')
 
         self.optimizer = tf.train.AdamOptimizer(learning_rate=self.learning_rate, 
-                beta1=0.5).minimize(self.enc_dec_loss, var_list=self.trainable_vars)
+                beta1=0.5).minimize(self.vae_class_loss, var_list=self.trainable_vars)
 
 
     def train(self, mfc_features, labels, lambda_ae, learning_rate):
 
         embeddings, loss, prediction, _ = self.sess.run([self.embedding, 
-            self.enc_dec_loss, self.prediction, self.optimizer], 
+            self.vae_class_loss, self.prediction, self.optimizer], 
             feed_dict={self.input_mfc:mfc_features, 
                 self.label:labels, self.lambda_ae:lambda_ae, 
                 self.learning_rate:learning_rate)
