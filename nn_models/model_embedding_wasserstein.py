@@ -286,7 +286,7 @@ class VariationalCycleGAN(object):
                         self.discriminator_learning_rate:discriminator_learning_rate, 
                         self.pitch_A_fake:generation_pitch_A, self.pitch_B_fake:generation_pitch_B, 
                         self.mfc_A_fake:generation_mfc_A, self.mfc_B_fake:generation_mfc_B})
-        self.sess.run(self.clip_weights)
+#        self.sess.run(self.clip_weights)
 
         self.writer.add_summary(discriminator_summaries, self.train_step)
 
