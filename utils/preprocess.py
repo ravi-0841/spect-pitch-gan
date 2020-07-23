@@ -312,6 +312,31 @@ def sample_data_momenta(mfc_A, pitch_A, mfc_B, pitch_B, momenta_A2B, momenta_B2A
     return mfc_data_A, pitch_data_A, momenta_data_A2B, mfc_data_B, pitch_data_B, momenta_data_B2A
 
 
+def sample_data_embed(mfc_A, pitch_A, mfc_B, pitch_B):
+    mfc_data_A = list()
+    mfc_data_B = list()
+    pitch_data_A = list()
+    pitch_data_B = list()
+
+    for i in range(mfc_A.shape[0]):
+        q = np.random.randint(0, mfc_A.shape[1])
+        mfc_data_A.append(np.squeeze(mfc_A[i,q,:,:]))
+        mfc_data_B.append(np.squeeze(mfc_B[i,q,:,:]))
+        pitch_data_A.append(np.squeeze(pitch_A[i,q,:,:]))
+        pitch_data_B.append(np.squeeze(pitch_B[i,q,:,:]))
+    
+    mfc_data_A = np.transpose(np.expand_dims(np.asarray(mfc_data_A), axis=-1), 
+            axes=(0,2,1))
+    mfc_data_B = np.transpose(np.expand_dims(np.asarray(mfc_data_B), axis=-1), 
+            axes=(0,2,1))
+    pitch_data_A = np.transpose(np.expand_dims(np.asarray(pitch_data_A), axis=-1), 
+            axes=(0,2,1))
+    pitch_data_B = np.transpose(np.expand_dims(np.asarray(pitch_data_B), axis=-1), 
+            axes=(0,2,1))
+
+    return mfc_data_A, pitch_data_A, mfc_data_B, pitch_data_B
+
+
 def sample_data_momenta_embed(mfc_A, pitch_A, mfc_B, pitch_B, momenta_A2B, momenta_B2A):                                                                
     mfc_data_A = list()                                                                                                                   
     mfc_data_B = list()                                                                                                                   
