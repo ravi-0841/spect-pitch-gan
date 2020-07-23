@@ -4,6 +4,7 @@ import os
 import scipy.io as scio
 import time
 import sys
+import pylab
 
 
 import modules.base_modules_default_init as basic_blocks
@@ -316,6 +317,37 @@ if __name__ == '__main__':
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
         sys.stdout.flush()        
+
+
+def analysis():
+    model = VAE(dim_mfc=23)
+    model.load('/home/ravi/Desktop/spect-pitch-gan/model/VAE_net.ckpt')
+    data = scio.loadmat('./data/neu-ang/valid_5.mat')
+    mfc_A = data['src_mfc_feat']
+    mfc_B = data['tar_mfc_feat']
+    mfc_A = np.vstack(mfc_A)
+    mfc_B = np.vstack(mfc_B)
+    pre_A = model.get_prediction(mfc_features=np.transpose(mfc_A, [0,2,1]))
+    pre_B = model.get_prediction(mfc_features=np.transpose(mfc_B, [0,2,1]))
+    mfc_test = mfc_A[0:1]
+    mfc_A = np.transpose(mfc_A, [0,2,1])
+    mfc_B = np.transpose(mfc_B, [0,2,1])
+    mfc_test = mfc_A[0:1]
+    mfc_test_embed = model.get_embedding(mfc_features=mfc_test)
+    mfc_test_recon = model.get_mfcc(embeddings=mfc_test_embed)
+    from mfcc_spect_analysis_VCGAN import _power_to_db
+    pylab.subplot(211), pylab.imshow(np.squeeze(_power_to_db(mfc_test ** 2)))
+    pylab.subplot(212), pylab.imshow(np.squeeze(_power_to_db(mfc_test_recon ** 2)))
+
+
+
+
+
+
+
+
+
+
 
 
 
