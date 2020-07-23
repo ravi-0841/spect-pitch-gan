@@ -9,14 +9,7 @@ import utils.preprocess as preproc
 
 import modules.base_modules as basic_blocks
 from utils.model_utils import l1_loss
-
-
-def shuffle_feats_label(features, label):
-    
-    assert features.shape[0]==label.shape[0]
-    shuffle_ids = np.arange(0, features.shape[0])
-    np.random.shuffle(shuffle_ids)
-    return features[shuffle_ids], label[shuffle_ids]
+from utils.feat_utils import shuffle_feats_label
 
 
 def classifier_model(input_mfc, reuse=False, scope_name='classifier'):

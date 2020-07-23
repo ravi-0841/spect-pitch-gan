@@ -442,7 +442,12 @@ def normalize_wav(x, nmz_type='min_max'):
         raise ValueError('nmz_type should be either min_max, max or mean_var') 
 
 
-
+def shuffle_feats_label(features, label):
+    
+    assert features.shape[0]==label.shape[0]
+    shuffle_ids = np.arange(0, features.shape[0])
+    np.random.shuffle(shuffle_ids)
+    return features[shuffle_ids], label[shuffle_ids]
 
 
 
