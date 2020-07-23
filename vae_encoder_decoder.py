@@ -3,6 +3,7 @@ import numpy as np
 import os
 import scipy.io as scio
 import time
+import sys
 
 
 import modules.base_modules_default_init as basic_blocks
@@ -257,7 +258,7 @@ if __name__ == '__main__':
     mini_batch_size = 256
     learning_rate = 1e-03
     num_epochs = 100
-    lambda_ae = 0.5
+    lambda_ae = 0.7
     lambda_kl = 0.01
     
     model = VAE(dim_mfc=23, pre_train=None)
@@ -300,7 +301,7 @@ if __name__ == '__main__':
         print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
         print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
         print('KLD Loss in epoch %d- %f' % (epoch, np.mean(train_kl_loss)))
-        
+
         model.save(directory='./model', filename='VAE_net.ckpt')
         
         end_time_epoch = time.time()
@@ -309,6 +310,7 @@ if __name__ == '__main__':
         print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
+        sys.stdout.flush()        
 
 
 
