@@ -16,12 +16,6 @@ class VariationalCycleGAN(object):
         self.n_frames = n_frames
         self.pitch_shape = [None, dim_pitch, None] #[batch_size, num_features, num_frames]
         self.mfc_shape = [None, dim_mfc, None]
-
-        self.center_diff_mat = np.zeros((n_frames, n_frames), np.float32)
-        for i in range(self.n_frames-1):
-            self.center_diff_mat[i,i+1] = 0.5
-        for i in range(1, self.n_frames):
-            self.center_diff_mat[i,i-1] = -0.5
             
         self.first_order_diff_mat = np.eye(self.n_frames, dtype=np.float32)
         for i in range(1, self.n_frames):
