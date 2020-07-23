@@ -236,6 +236,11 @@ class VAE(object):
         return prediction
 
 
+    def load(self, filename):
+        
+        self.saver.restore(self.sess, filename)
+    
+
     def save(self, directory, filename):
 
         if not os.path.exists(directory):
