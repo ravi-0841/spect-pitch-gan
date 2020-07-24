@@ -262,9 +262,9 @@ if __name__ == '__main__':
                              np.ones((mfc_B.shape[0],1))), axis=0)
     
     mini_batch_size = 128
-    learning_rate = 1e-04
-    num_epochs = 500
-    lambda_ae = 0.7
+    learning_rate = 1e-05
+    num_epochs = 1000
+    lambda_ae = 0.2
     lambda_kl = 0.01
     
     model = VAE(dim_mfc=23, pre_train=None)
