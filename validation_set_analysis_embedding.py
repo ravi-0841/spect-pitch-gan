@@ -12,7 +12,7 @@ import tensorflow as tf
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
-from nn_models.model_embedding import VariationalCycleGAN
+from nn_models.model_embedding_wasserstein import VariationalCycleGAN
 #from nn_models.model_wasserstein import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
 from scipy.linalg import sqrtm, inv
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     pitch_B_valid = np.vstack(pitch_B_valid)
     
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding/neu-ang_1000.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein/neu-ang_400.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
