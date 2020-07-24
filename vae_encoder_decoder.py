@@ -265,7 +265,7 @@ if __name__ == '__main__':
     learning_rate = 1e-05
     num_epochs = 1000
     lambda_ae = 0.2
-    lambda_kl = 0.01
+    lambda_kl = 0.001
     
     model = VAE(dim_mfc=23, pre_train=None)
     
