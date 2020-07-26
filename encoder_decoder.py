@@ -235,10 +235,10 @@ if __name__ == '__main__':
     labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
                              np.ones((mfc_B.shape[0],1))), axis=0)
     
-    mini_batch_size = 128
+    mini_batch_size = 512
     learning_rate = 1e-05
     num_epochs = 100
-    lambda_ae = 0.1
+    lambda_ae = 0.5
     
     model = AE(dim_mfc=23, pre_train=None)
     
@@ -275,7 +275,7 @@ if __name__ == '__main__':
         print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
         print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
 
-#        model.save(directory='./model', filename='VAE_net.ckpt')
+        model.save(directory='./model', filename='AE_net.ckpt')
         
         end_time_epoch = time.time()
         time_elapsed_epoch = end_time_epoch - start_time_epoch
