@@ -64,7 +64,7 @@ def encoder(input_mfc, reuse=False, scope_name='encoder'):
 def decoder(input_embed, reuse=False, final_filters=23, scope_name='decoder'):
     
     # expects the noise to be of shape [#batch, dim_noise, timesteps]
-    input_embed_transposed = tf.transpose(input_noise, [0,2,1], 'input_noise_transpose')
+    input_embed_transposed = tf.transpose(input_embed, [0,2,1], 'input_embed_transpose')
 
     with tf.variable_scope(scope_name) as scope:
         if reuse:
