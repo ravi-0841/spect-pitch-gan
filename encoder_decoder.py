@@ -153,8 +153,7 @@ class AE(object):
         self.classification_loss = l1_loss(y=self.label, y_hat=self.prediction)
 
         # Compute full loss
-        self.ae_class_loss = self.classification_loss \
-            + self.lambda_ae*self.ae_loss
+        self.ae_class_loss = self.classification_loss + self.lambda_ae*self.ae_loss
         
         # get variables for optimization
         variables = tf.trainable_variables()
@@ -179,7 +178,7 @@ class AE(object):
 
     def train(self, mfc_features, labels, lambda_ae, learning_rate):
 
-        embeddings, class_loss, ae_loss, kl_loss, predictions, _ = self.sess.run([self.embedding, 
+        embeddings, class_loss, ae_loss, predictions, _ = self.sess.run([self.embedding, 
             self.classification_loss, self.ae_loss, self.prediction, self.optimizer], 
             feed_dict={self.input_mfc:mfc_features, 
                 self.label:labels, self.lambda_ae:lambda_ae, 
@@ -263,7 +262,7 @@ if __name__ == '__main__':
             start = i * mini_batch_size
             end = (i + 1) * mini_batch_size
 
-            c_loss, a_loss, k_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
+            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
                                                labels=labels[start:end], 
                                                learning_rate=learning_rate, 
                                                lambda_ae=lambda_ae)
