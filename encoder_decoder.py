@@ -164,7 +164,7 @@ class AE(object):
         self.test_gen_embedding, self.test_prediction \
             = self.encoder(input_mfc=self.test_mfc, reuse=True)
 
-        self.test_gen_mfc = self.decoder(input_embed=self.test_gen_embedding, 
+        self.test_gen_mfc = self.decoder(input_embed=self.test_embedding, 
                                          reuse=True)
 
 
@@ -224,71 +224,75 @@ class AE(object):
         self.saver.save(self.sess, os.path.join(directory, filename))
 
 
-if __name__ == '__main__':
+#if __name__ == '__main__':
+#
+#    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest.mat')
+#    
+#    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
+#    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
+#
+#    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
+#    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
+#                             np.ones((mfc_B.shape[0],1))), axis=0)
+#    
+#    mini_batch_size = 512
+#    learning_rate = 1e-03
+#    num_epochs = 100
+#    lambda_ae = 0.75
+#    
+#    model = AE(dim_mfc=23, pre_train=None)
+#    
+#    classifier_loss = list()
+#    ae_loss = list()
+#    
+#    for epoch in range(1,num_epochs+1):
+#
+#        print('Epoch: %d' % epoch)
+#
+#        start_time_epoch = time.time()
+#        n_samples = mfc_feats.shape[0]
+#        
+#        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
+#        
+#        train_class_loss = list()
+#        train_ae_loss = list()
+#
+#        for i in range(n_samples // mini_batch_size):
+#
+#            start = i * mini_batch_size
+#            end = (i + 1) * mini_batch_size
+#
+#            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
+#                                               labels=labels[start:end], 
+#                                               learning_rate=learning_rate, 
+#                                               lambda_ae=lambda_ae)
+#            
+#            train_class_loss.append(c_loss)
+#            train_ae_loss.append(a_loss)
+#        
+#        classifier_loss.append(np.mean(train_class_loss))
+#        ae_loss.append(np.mean(train_ae_loss))
+#        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
+#        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
+#
+#        model.save(directory='./model', filename='AE_net.ckpt')
+#        
+#        end_time_epoch = time.time()
+#        time_elapsed_epoch = end_time_epoch - start_time_epoch
+#
+#        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
+#                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
+#
+#        sys.stdout.flush()        
 
-    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest.mat')
+
+if __name__=='__main__':
     
-    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
-    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
-
-    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
-    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
-                             np.ones((mfc_B.shape[0],1))), axis=0)
+    from mfcc_spect_analysis_VCGAN import _power_to_db
+    import pyworld as pw
     
-    mini_batch_size = 512
-    learning_rate = 1e-05
-    num_epochs = 100
-    lambda_ae = 0.5
-    
-    model = AE(dim_mfc=23, pre_train=None)
-    
-    classifier_loss = list()
-    ae_loss = list()
-    
-    for epoch in range(1,num_epochs+1):
-
-        print('Epoch: %d' % epoch)
-
-        start_time_epoch = time.time()
-        n_samples = mfc_feats.shape[0]
-        
-        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
-        
-        train_class_loss = list()
-        train_ae_loss = list()
-
-        for i in range(n_samples // mini_batch_size):
-
-            start = i * mini_batch_size
-            end = (i + 1) * mini_batch_size
-
-            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
-                                               labels=labels[start:end], 
-                                               learning_rate=learning_rate, 
-                                               lambda_ae=lambda_ae)
-            
-            train_class_loss.append(c_loss)
-            train_ae_loss.append(a_loss)
-        
-        classifier_loss.append(np.mean(train_class_loss))
-        ae_loss.append(np.mean(train_ae_loss))
-        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
-        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
-
-        model.save(directory='./model', filename='AE_net.ckpt')
-        
-        end_time_epoch = time.time()
-        time_elapsed_epoch = end_time_epoch - start_time_epoch
-
-        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
-                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
-
-        sys.stdout.flush()        
-
-
-def analysis():
     model = AE(dim_mfc=23)
-    model.load('/home/ravi/Desktop/spect-pitch-gan/model/VAE_net.ckpt')
+    model.load('/home/ravi/Desktop/spect-pitch-gan/model/AE_net.ckpt')
     data = scio.loadmat('./data/neu-ang/valid_5.mat')
     mfc_A = data['src_mfc_feat']
     mfc_B = data['tar_mfc_feat']
@@ -296,15 +300,24 @@ def analysis():
     mfc_B = np.vstack(mfc_B)
     pre_A = model.get_prediction(mfc_features=np.transpose(mfc_A, [0,2,1]))
     pre_B = model.get_prediction(mfc_features=np.transpose(mfc_B, [0,2,1]))
-    mfc_test = mfc_A[0:1]
     mfc_A = np.transpose(mfc_A, [0,2,1])
     mfc_B = np.transpose(mfc_B, [0,2,1])
-    mfc_test = mfc_A[0:1]
+    q = np.random.randint(0, mfc_A.shape[0] - 1)
+    mfc_test = mfc_A[q:q+1]
     mfc_test_embed = model.get_embedding(mfc_features=mfc_test)
     mfc_test_recon = model.get_mfcc(embeddings=mfc_test_embed)
-    from mfcc_spect_analysis_VCGAN import _power_to_db
-    pylab.subplot(211), pylab.imshow(np.squeeze(_power_to_db(mfc_test ** 2)))
-    pylab.subplot(212), pylab.imshow(np.squeeze(_power_to_db(mfc_test_recon ** 2)))
+    
+    mfc_rec = np.squeeze(mfc_test_recon)
+    mfc_rec = np.copy(np.asarray(mfc_rec.T, np.float64), order='C')
+    spect_rec = pw.decode_spectral_envelope(mfc_rec, 16000, 1024)
+    mfc_test = np.squeeze(np.asarray(mfc_test, np.float64))
+    mfc_test = np.copy(mfc_test.T, order='C')
+    spect_test = pw.decode_spectral_envelope(mfc_test, 16000, 1024)
+    pylab.subplot(121), pylab.imshow(np.squeeze(_power_to_db(spect_test.T ** 2)))
+    pylab.title('Original')
+    pylab.subplot(122), pylab.imshow(np.squeeze(_power_to_db(spect_rec.T ** 2)))
+    pylab.title('Reconstructed')
+    pylab.suptitle('Slice %d' % q)
 
 
 
