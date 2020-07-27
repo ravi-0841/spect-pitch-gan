@@ -64,6 +64,12 @@ def cross_entropy_loss(logits, labels):
 
     return tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits = logits, labels = labels))
 
+def mcd_loss(y, y_hat):
+    y = tf.squeeze(y)
+    y_hat = tf.squeeze(y_hat)
+    mcd_loss = tf.reduce_mean(tf.pow(tf.reduce_sum(tf.pow(y - y_hat, 2), axis=0), 0.5))
+    return mcd_loss
+
 def spectral_loss(y, y_hat, pad_right=490, fft_size=1024.0, interp_mat=None):
     if interp_mat is None:
         interp_mat = _interp_mat_mel2hz()
