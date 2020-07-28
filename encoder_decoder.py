@@ -330,7 +330,7 @@ if __name__=='__main__':
     mfc_recon = np.copy(mfc_recon.T, order='C')
     spect_recon = pw.decode_spectral_envelope(np.asarray(mfc_recon, np.float64), 16000, 1024)
     speech_recon = pw.synthesize(f0, spect_recon[:len(f0)], ap, 16000, frame_period=5)
-    scwav.write('/home/ravi/Desktop/test_AE_3.wav', 16000, speech_recon)
+#    scwav.write('/home/ravi/Desktop/test_AE_3_l1.wav', 16000, speech_recon)
 
 
 
