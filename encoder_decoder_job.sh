@@ -18,4 +18,4 @@ singularity pull --name tf_1_12.simg shub://ravi-0841/singularity-tensorflow-1.1
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf_1_12.simg python3 encoder_decoder.py 
+singularity exec --nv ./tf_1_12.simg python3 encoder_skip_decoder.py 
