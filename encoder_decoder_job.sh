@@ -4,7 +4,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
 #SBATCH --exclude=gpu023
-#SBATCH -t 48:00:00
+#SBATCH -t 20:00:00
 
 module load cuda/10.1
 module load singularity
