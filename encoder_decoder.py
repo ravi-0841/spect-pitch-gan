@@ -320,7 +320,7 @@ if __name__=='__main__':
     pylab.title('Reconstructed')
     pylab.suptitle('Slice %d' % q)
     
-    d = scwav.read('/home/ravi/Downloads/Emo-Conv/neutral-angry/all_above_0.5/angry/127.wav')
+    d = scwav.read('/home/ravi/Downloads/Emo-Conv/neutral-angry/all_above_0.5/angry/251.wav')
     d = np.asarray(d[1], np.float64)
     f0, sp, ap = pw.wav2world(d, 16000, frame_period=5)
     mfc = pw.code_spectral_envelope(sp, 16000, 23)
@@ -330,6 +330,8 @@ if __name__=='__main__':
     mfc_recon = np.copy(mfc_recon.T, order='C')
     spect_recon = pw.decode_spectral_envelope(np.asarray(mfc_recon, np.float64), 16000, 1024)
     speech_recon = pw.synthesize(f0, spect_recon[:len(f0)], ap, 16000, frame_period=5)
+    speech_recon = (speech_recon - np.min(speech_recon)) / (np.max(speech_recon) - np.min(speech_recon))
+    speech_recon = np.asarray(speech_recon - np.mean(speech_recon), np.float64)
     scwav.write('/home/ravi/Desktop/test_AE_5_l1.wav', 16000, speech_recon)
 
 
