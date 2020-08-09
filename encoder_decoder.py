@@ -275,7 +275,7 @@ if __name__ == '__main__':
         print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
         print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
 
-        model.save(directory='./model', filename='AE_net.ckpt')
+        model.save(directory='./model', filename='AE_net_lr_1e-04.ckpt')
         
         end_time_epoch = time.time()
         time_elapsed_epoch = end_time_epoch - start_time_epoch
