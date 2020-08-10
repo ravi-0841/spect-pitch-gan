@@ -136,11 +136,11 @@ class VariationalCycleGAN(object):
         Initialize the spect discriminators
         '''
         # Discriminator initialized to keep parameters in memory
-        self.spect_discrimination_B_fake = self.spect_discriminator(input_mfc=tf.concat([self.mfc_A_real, 
-            self.mfc_generation_A2B], axis=1), reuse=False, scope_name='spect_discriminator_A')
+        self.spect_discrimination_B_fake = self.spect_discriminator(input_mfc=self.mfc_generation_A2B, 
+                reuse=False, scope_name='spect_discriminator_A')
 
-        self.spect_discrimination_A_fake = self.spect_discriminator(input_mfc=tf.concat([self.mfc_B_real, 
-            self.mfc_generation_B2A], axis=1), reuse=False, scope_name='spect_discriminator_B')
+        self.spect_discrimination_A_fake = self.spect_discriminator(input_mfc=self.mfc_generation_B2A, 
+                reuse=False, scope_name='spect_discriminator_B')
 
 
         '''
@@ -168,45 +168,82 @@ class VariationalCycleGAN(object):
 
         
         # Compute the discriminator probability for pair of inputs
-        self.discrimination_input_A_real_B_fake \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, self.mfc_B_fake], axis=1), 
+        self.joint_discrimination_input_A_real_B_fake \
+            = self.joint_discriminator(input_mfc=tf.concat([self.mfc_A_real, self.mfc_B_fake], axis=1), 
                     input_pitch=tf.concat([self.pitch_A_real, self.pitch_B_fake], axis=1), 
-                    reuse=True, scope_name='discriminator_A')
-        self.discrimination_input_A_fake_B_real \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_A_fake, self.mfc_B_real], axis=1), 
+                    reuse=True, scope_name='joint_discriminator_A')
+        self.joint_discrimination_input_A_fake_B_real \
+            = self.joint_discriminator(input_mfc=tf.concat([self.mfc_A_fake, self.mfc_B_real], axis=1), 
                     input_pitch=tf.concat([self.pitch_A_fake, self.pitch_B_real], axis=1), 
-                    reuse=True, scope_name='discriminator_A')
+                    reuse=True, scope_name='joint_discriminator_A')
 
-        self.discrimination_input_B_real_A_fake \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, self.mfc_A_fake], axis=1), 
+        self.joint_discrimination_input_B_real_A_fake \
+            = self.joint_discriminator(input_mfc=tf.concat([self.mfc_B_real, self.mfc_A_fake], axis=1), 
                     input_pitch=tf.concat([self.pitch_B_real, self.pitch_A_fake], axis=1), 
-                    reuse=True, scope_name='discriminator_B')
-        self.discrimination_input_B_fake_A_real \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_B_fake, self.mfc_A_real], axis=1), 
+                    reuse=True, scope_name='joint_discriminator_B')
+        self.joint_discrimination_input_B_fake_A_real \
+            = self.joint_discriminator(input_mfc=tf.concat([self.mfc_B_fake, self.mfc_A_real], axis=1), 
                     input_pitch=tf.concat([self.pitch_B_fake, self.pitch_A_real], axis=1), 
-                    reuse=True, scope_name='discriminator_B')
+                    reuse=True, scope_name='joint_discriminator_B')
         
         # Compute discriminator loss for backprop
-        self.discriminator_loss_input_A_real \
-            = l1_loss(y=tf.zeros_like(self.discrimination_input_A_real_B_fake), 
-                    y_hat=self.discrimination_input_A_real_B_fake)
-        self.discriminator_loss_input_A_fake \
-            = l1_loss(y=tf.ones_like(self.discrimination_input_A_fake_B_real), 
-                    y_hat=self.discrimination_input_A_fake_B_real)
-        self.discriminator_loss_A = (self.discriminator_loss_input_A_real \
-                                     + self.discriminator_loss_input_A_fake) / 2.0
+        self.joint_discriminator_loss_input_A_real \
+            = l1_loss(y=tf.zeros_like(self.joint_discrimination_input_A_real_B_fake), 
+                    y_hat=self.joint_discrimination_input_A_real_B_fake)
+        self.joint_discriminator_loss_input_A_fake \
+            = l1_loss(y=tf.ones_like(self.joint_discrimination_input_A_fake_B_real), 
+                    y_hat=self.joint_discrimination_input_A_fake_B_real)
+        self.joint_discriminator_loss_A = (self.joint_discriminator_loss_input_A_real \
+                                     + self.joint_discriminator_loss_input_A_fake) / 2.0
 
-        self.discriminator_loss_input_B_real \
-            = l1_loss(y=tf.zeros_like(self.discrimination_input_B_real_A_fake), 
-                    y_hat=self.discrimination_input_B_real_A_fake)
-        self.discriminator_loss_input_B_fake \
-            = l1_loss(y=tf.ones_like(self.discrimination_input_B_fake_A_real), 
-                    y_hat=self.discrimination_input_B_fake_A_real)
-        self.discriminator_loss_B = (self.discriminator_loss_input_B_real \
-                                     + self.discriminator_loss_input_B_fake) / 2.0
+        self.joint_discriminator_loss_input_B_real \
+            = l1_loss(y=tf.zeros_like(self.joint_discrimination_input_B_real_A_fake), 
+                    y_hat=self.joint_discrimination_input_B_real_A_fake)
+        self.joint_discriminator_loss_input_B_fake \
+            = l1_loss(y=tf.ones_like(self.joint_discrimination_input_B_fake_A_real), 
+                    y_hat=self.joint_discrimination_input_B_fake_A_real)
+        self.joint_discriminator_loss_B = (self.joint_discriminator_loss_input_B_real \
+                                     + self.joint_discriminator_loss_input_B_fake) / 2.0
 
         # Merge the two discriminators into one
-        self.discriminator_loss = (self.discriminator_loss_A + self.discriminator_loss_B) / 2.0
+        self.joint_discriminator_loss = (self.joint_discriminator_loss_A + self.joint_discriminator_loss_B) / 2.0
+
+
+        # Compute the discriminator probability for mfcc 
+        self.spect_discrimination_input_B_fake \
+            = self.spect_discriminator(input_mfc=self.mfc_B_fake, reuse=True, scope_name='spect_discriminator_A')
+        self.spect_discrimination_input_B_real \
+            = self.spect_discriminator(input_mfc=self.mfc_B_real, reuse=True, scope_name='spect_discriminator_A')
+
+        self.spect_discrimination_input_A_fake \
+            = self.spect_discriminator(input_mfc=self.mfc_A_fake, reuse=True, scope_name='spect_discriminator_B')
+        self.spect_discrimination_input_A_real \
+            = self.spect_discriminator(input_mfc=self.mfc_A_real, reuse=True, scope_name='spect_discriminator_B')
+        
+        # Compute discriminator loss for backprop
+        self.spect_discriminator_loss_input_B_fake \
+            = l1_loss(y=tf.zeros_like(self.spect_discrimination_input_B_fake), 
+                    y_hat=self.spect_discrimination_input_B_fake)
+        self.spect_discriminator_loss_input_B_real \
+            = l1_loss(y=tf.ones_like(self.spect_discrimination_input_B_real), 
+                    y_hat=self.spect_discrimination_input_B_real)
+        self.spect_discriminator_loss_A = (self.spect_discriminator_loss_input_B_real \
+                                     + self.spect_discriminator_loss_input_B_fake) / 2.0
+
+        self.spect_discriminator_loss_input_A_fake \
+            = l1_loss(y=tf.zeros_like(self.spect_discrimination_input_A_fake), 
+                    y_hat=self.joint_discrimination_input_A_fake)
+        self.spect_discriminator_loss_input_A_real \
+            = l1_loss(y=tf.ones_like(self.spect_discrimination_input_A_real), 
+                    y_hat=self.spect_discrimination_input_A_real)
+        self.spect_discriminator_loss_B = (self.spect_discriminator_loss_input_A_real \
+                                     + self.spect_discriminator_loss_input_A_fake) / 2.0
+
+        # Merge the two discriminators into one
+        self.spect_discriminator_loss = (self.spect_discriminator_loss_A + self.spect_discriminator_loss_B) / 2.0
+
+        # Final merging of joint and spect discriminators
+        self.discriminator_loss = self.joint_discriminator_loss + self.spect_discriminator_loss
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
@@ -239,22 +276,11 @@ class VariationalCycleGAN(object):
 
         self.discriminator_optimizer \
                 = tf.train.AdamOptimizer(learning_rate=self.discriminator_learning_rate, 
-                        beta1=0.5)
-        self.discriminator_grads \
-                = self.discriminator_optimizer.compute_gradients(self.discriminator_loss, 
-                        var_list=self.discriminator_vars)
-        self.discriminator_train_op \
-                = self.discriminator_optimizer.apply_gradients(self.discriminator_grads)
+                        beta1=0.5).minimize(self.discriminator_loss, var_list=self.discriminator_vars)
 
         self.generator_optimizer \
                 = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, 
-                        beta1=0.5)
-        self.generator_grads \
-                = self.generator_optimizer.compute_gradients(self.generator_loss, 
-                        var_list=self.generator_vars)
-        self.generator_train_op \
-                = self.generator_optimizer.apply_gradients(self.generator_grads)
-
+                        beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
 
 
     def train(self, pitch_A, mfc_A, momenta_A2B, pitch_B, mfc_B, 
@@ -269,7 +295,7 @@ class VariationalCycleGAN(object):
                     self.mfc_generation_A2B, self.momenta_loss_A2B, self.pitch_loss_A2B, 
                     self.mfc_loss_A2B, self.momenta_generation_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.momenta_loss_B2A, self.pitch_loss_B2A, 
-                    self.mfc_loss_B2A, self.generator_train_op], 
+                    self.mfc_loss_B2A, self.generator_optimizer], 
                     feed_dict = {self.lambda_pitch:lambda_pitch, 
                         self.lambda_mfc:lambda_mfc, self.lambda_momenta:lambda_momenta, 
                         self.pitch_A_real:pitch_A, self.mfc_A_real:mfc_A, 
