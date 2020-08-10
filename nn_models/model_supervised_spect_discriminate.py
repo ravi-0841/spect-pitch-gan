@@ -232,7 +232,7 @@ class VariationalCycleGAN(object):
 
         self.spect_discriminator_loss_input_A_fake \
             = l1_loss(y=tf.zeros_like(self.spect_discrimination_input_A_fake), 
-                    y_hat=self.joint_discrimination_input_A_fake)
+                    y_hat=self.spect_discrimination_input_A_fake)
         self.spect_discriminator_loss_input_A_real \
             = l1_loss(y=tf.ones_like(self.spect_discrimination_input_A_real), 
                     y_hat=self.spect_discrimination_input_A_real)
