@@ -121,16 +121,26 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_B_real, reuse=False, scope_name='generator_B2A')
 
         '''
-        Initialize the discriminators
+        Initialize the joint discriminators
         '''
         # Discriminator initialized to keep parameters in memory
-        self.discrimination_B_fake = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, 
+        self.joint_discrimination_B_fake = self.joint_discriminator(input_mfc=tf.concat([self.mfc_A_real, 
             self.mfc_generation_A2B], axis=1), input_pitch=tf.concat([self.pitch_A_real, 
-                self.pitch_generation_A2B], axis=1), reuse=False, scope_name='discriminator_A')
+                self.pitch_generation_A2B], axis=1), reuse=False, scope_name='joint_discriminator_A')
 
-        self.discrimination_A_fake = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, 
+        self.joint_discrimination_A_fake = self.joint_discriminator(input_mfc=tf.concat([self.mfc_B_real, 
             self.mfc_generation_B2A], axis=1), input_pitch=tf.concat([self.pitch_B_real, 
-                self.pitch_generation_B2A], axis=1), reuse=False, scope_name='discriminator_B')
+                self.pitch_generation_B2A], axis=1), reuse=False, scope_name='joint_discriminator_B')
+
+        '''
+        Initialize the spect discriminators
+        '''
+        # Discriminator initialized to keep parameters in memory
+        self.spect_discrimination_B_fake = self.spect_discriminator(input_mfc=tf.concat([self.mfc_A_real, 
+            self.mfc_generation_A2B], axis=1), reuse=False, scope_name='spect_discriminator_A')
+
+        self.spect_discrimination_A_fake = self.spect_discriminator(input_mfc=tf.concat([self.mfc_B_real, 
+            self.mfc_generation_B2A], axis=1), reuse=False, scope_name='spect_discriminator_B')
 
 
         '''
