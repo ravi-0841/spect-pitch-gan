@@ -58,7 +58,7 @@ def encoder(input_mfc, reuse=False, scope_name='encoder'):
                 activation=tf.nn.sigmoid, name='classifier')
 
         return tf.transpose(o1, [0,2,1]), tf.reduce_mean(tf.squeeze(classifier_branch, 
-                           axis=-1), axis=-1, keep_dims=True, name='classifer_average')
+                           axis=-1), axis=-1, keepdims=True, name='classifer_average')
 
 
 def decoder(input_embed, reuse=False, final_filters=23, scope_name='decoder'):
