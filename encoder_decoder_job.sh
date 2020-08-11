@@ -13,9 +13,9 @@ module load singularity
 cd $HOME/data/ravi/spect-pitch-gan
 
 # pull the image from singularity hub
-singularity pull --name tf_1_12.simg shub://ravi-0841/singularity-tensorflow-1.14
+# singularity pull --name tf_1_12.simg shub://ravi-0841/singularity-tensorflow-1.14
 
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf_1_12.simg python3 encoder_decoder_spect.py 
+singularity exec --nv ./tf.simg python3 encoder_decoder_spect.py 
