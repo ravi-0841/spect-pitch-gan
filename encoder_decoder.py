@@ -153,7 +153,10 @@ class AE(object):
         self.classification_loss = l1_loss(y=self.label, y_hat=self.prediction)
 
         # Compute full loss
-        self.ae_class_loss = self.classification_loss + self.lambda_ae*self.ae_loss
+#        self.ae_class_loss = self.classification_loss + self.lambda_ae*self.ae_loss
+
+        # Only AE loss
+        self.ae_class_loss = self.ae_loss
         
         # get variables for optimization
         variables = tf.trainable_variables()
@@ -236,7 +239,7 @@ if __name__ == '__main__':
                              np.ones((mfc_B.shape[0],1))), axis=0)
     
     mini_batch_size = 512
-    learning_rate = 1e-04
+    learning_rate = 1e-03
     num_epochs = 1000
     lambda_ae = 1.5
     
@@ -275,7 +278,7 @@ if __name__ == '__main__':
         print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
         print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
 
-        model.save(directory='./model', filename='AE_net_lr_1e-04.ckpt')
+        model.save(directory='./model', filename='only_AE.ckpt')
         
         end_time_epoch = time.time()
         time_elapsed_epoch = end_time_epoch - start_time_epoch
