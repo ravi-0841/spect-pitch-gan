@@ -317,7 +317,7 @@ if __name__=='__main__':
     mfc_A = np.transpose(mfc_A, [0,2,1])
     mfc_B = np.transpose(mfc_B, [0,2,1])
     q = np.random.randint(0, mfc_A.shape[0] - 1)
-    mfc_test = mfc_A[q:q+1]
+    mfc_test = mfc_B[q:q+1]
     mfc_test_embed = model.get_embedding(mfc_features=mfc_test)
     mfc_test_recon = model.get_mfcc(embeddings=mfc_test_embed)
     
@@ -374,6 +374,32 @@ if __name__=='__main__':
     energy_correlation_B = [c[0,1] for c in energy_correlation_B]
     pylab.figure()
     pylab.boxplot([energy_correlation_A, energy_correlation_B], labels=['A', 'B'])
+    
+    # Plotting spectrum recovery for A and B
+    wav_A = scwav.read('/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/neutral/1574.wav')
+    wav_A = np.asarray(wav_A[1], np.float64)
+    _,sp_A,_ = pw.wav2world(wav_A, 16000, frame_period=5)
+    wav_B = scwav.read('/home/ravi/Desktop/test_AE_neutral_1574.wav')
+    wav_B = np.asarray(wav_B[1], np.float64)
+    _,sp_B,_ = pw.wav2world(wav_B, 16000, frame_period=5)
+    pylab.subplot(121), pylab.imshow(np.squeeze(_power_to_db(sp_A.T ** 2)))
+    pylab.title('Original')
+    pylab.subplot(122), pylab.imshow(np.squeeze(_power_to_db(sp_B.T ** 2)))
+    pylab.title('Reconstructed'), pylab.suptitle('Emotion A')
+    
+    wav_A = scwav.read('/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/angry/1574.wav')
+    wav_A = np.asarray(wav_A[1], np.float64)
+    _,sp_A,_ = pw.wav2world(wav_A, 16000, frame_period=5)
+    wav_B = scwav.read('/home/ravi/Desktop/test_AE_angry_1574.wav')
+    wav_B = np.asarray(wav_B[1], np.float64)
+    _,sp_B,_ = pw.wav2world(wav_B, 16000, frame_period=5)
+    pylab.figure()
+    pylab.subplot(121), pylab.imshow(np.squeeze(_power_to_db(sp_A.T ** 2)))
+    pylab.title('Original')
+    pylab.subplot(122), pylab.imshow(np.squeeze(_power_to_db(sp_B.T ** 2)))
+    pylab.title('Reconstructed'), pylab.suptitle('Emotion B')
+    
+    
 
 
 
