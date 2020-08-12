@@ -252,11 +252,11 @@ if __name__ == '__main__':
                              np.ones((mfc_B.shape[0],1))), axis=0)
     
     mini_batch_size = 1
-    learning_rate = 1e-03
+    learning_rate = 1e-05
     num_epochs = 1000
     lambda_ae = 1.0
     
-    model = AE(dim_mfc=23, pre_train=None)
+    model = AE(dim_mfc=23, pre_train='./model/AE_net.ckpt')
     
     classifier_loss = list()
     ae_loss = list()
