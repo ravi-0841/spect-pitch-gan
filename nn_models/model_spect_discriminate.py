@@ -108,6 +108,14 @@ class VariationalCycleGAN(object):
         self.mfc_generation_A2B = self.generator(input_pitch=self.pitch_generation_A2B, 
                 input_mfc=self.mfc_A_real, reuse=False, scope_name='generator_A2B')
         # Cyclic generation
+        self.momentum_cycle_A2A = self.sampler(input_pitch=self.pitch_generation_A2B, 
+                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='sampler_B2A')
+        self.pitch_cycle_A2A = self.lddmm(x=self.pitch_generation_A2B, 
+                p=self.momentum_cycle_A2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
+        self.mfc_cycle_A2A = self.generator(input_pitch=self.pitch_cycle_A2A, 
+                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='generator_B2A')
+        self.mfc_identity_A2B = self.generator(input_pitch=self.pitch_B_real, 
+                input_mfc=self.mfc_B_real, reuse=True, scope_name='generator_A2B')
 
 
         '''
@@ -120,6 +128,15 @@ class VariationalCycleGAN(object):
                 p=self.momenta_generation_B2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
         self.mfc_generation_B2A = self.generator(input_pitch=self.pitch_generation_B2A, 
                 input_mfc=self.mfc_B_real, reuse=False, scope_name='generator_B2A')
+        # Cyclic generation
+        self.momentum_cycle_B2B = self.sampler(input_pitch=self.pitch_generation_B2A, 
+                input_mfc=self.mfc_generation_B2A, reuse=False, scope_name='sampler_A2B')
+        self.pitch_cycle_B2B = self.lddmm(x=self.pitch_generation_B2A, 
+                p=self.momentum_cycle_B2B, kernel=self.kernel, reuse=True, scope_name='lddmm')
+        self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
+                input_mfc=self.mfc_generation_B2A, reuse=False, scope_name='generator_A2B')
+        self.mfc_identity_B2A = self.generator(input_pitch=self.pitch_A_real, 
+                input_mfc=self.mfc_A_real, reuse=True, scope_name='generator_B2A')
 
         '''
         Initialize the joint discriminators
@@ -147,25 +164,6 @@ class VariationalCycleGAN(object):
         '''
         Computing loss for generators
         '''
-        self.momenta_loss_A2B = l1_loss(self.momenta_A2B_real, self.momenta_generation_A2B)
-        self.momenta_loss_B2A = l1_loss(self.momenta_B2A_real, self.momenta_generation_B2A)
-
-        self.pitch_loss_A2B = l1_loss(self.pitch_B_real, self.pitch_generation_A2B)
-        self.pitch_loss_B2A = l1_loss(self.pitch_A_real, self.pitch_generation_B2A)
-
-        self.mfc_loss_A2B = l1_loss(self.mfc_B_real, self.mfc_generation_A2B)
-        self.mfc_loss_B2A = l1_loss(self.mfc_A_real, self.mfc_generation_B2A)
-
-        # Merge the loss for generators A2B
-        self.loss_A2B \
-            = self.lambda_pitch*self.pitch_loss_A2B + self.lambda_mfc*self.mfc_loss_A2B \
-                + self.lambda_momenta * self.momenta_loss_A2B
-
-        self.loss_B2A \
-            = self.lambda_pitch*self.pitch_loss_B2A + self.lambda_mfc*self.mfc_loss_B2A \
-                + self.lambda_momenta * self.momenta_loss_B2A
-
-        self.generator_loss = self.loss_A2B + self.loss_B2A
 
         
         # Compute the discriminator probability for pair of inputs
