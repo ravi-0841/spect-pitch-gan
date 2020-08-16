@@ -75,12 +75,6 @@ class VariationalCycleGAN(object):
         self.mfc_B_fake = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_B_fake')
 
-        # Placeholders for momenta variables
-        self.momenta_A2B_real = tf.placeholder(tf.float32, shape=self.pitch_shape, 
-                name='momenta_A2B_real')
-        self.momenta_B2A_real = tf.placeholder(tf.float32, shape=self.pitch_shape, 
-                name='momenta_B2A_real')
-
         # Placeholder for test samples
         self.pitch_A_test = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_test')
@@ -331,9 +325,9 @@ class VariationalCycleGAN(object):
                         beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
 
 
-    def train(self, pitch_A, mfc_A, momenta_A2B, pitch_B, mfc_B, 
-            momenta_B2A, lambda_cycle_pitch, lambda_cycle_mfc, lambda_momenta,
-            lambda_identity_mfc, generator_learning_rate, discriminator_learning_rate):
+    def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, lambda_cycle_mfc, 
+              lambda_momenta, lambda_identity_mfc, generator_learning_rate, 
+              discriminator_learning_rate):
 
         generated_momenta_B, generated_pitch_B, generated_mfc_B, \
                 generated_momenta_A, generated_pitch_A, generated_mfc_A, \
@@ -347,8 +341,6 @@ class VariationalCycleGAN(object):
                         self.lambda_momenta:lambda_momenta, 
                         self.lambda_identity_mfc:lambda_identity_mfc, 
                         self.pitch_A_real:pitch_A, self.mfc_A_real:mfc_A, 
-                        self.momenta_A2B_real:momenta_A2B, 
-                        self.momenta_B2A_real:momenta_B2A, 
                         self.pitch_B_real:pitch_B, self.mfc_B_real:mfc_B, 
                         self.generator_learning_rate:generator_learning_rate})
     
