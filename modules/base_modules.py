@@ -146,33 +146,33 @@ def upsample1d_block(
     filters, 
     kernel_size, 
     strides,
-    shuffle_size = 2,
-    name_prefix = 'upsample1d_block_'):
+    shuffle_size=2,
+    name_prefix='upsample1d_block_'):
     
-    h1 = conv1d_layer(inputs = inputs, filters = filters, \
-                kernel_size = kernel_size, strides = strides, \
-                activation = None, name = name_prefix + 'h1_conv')
-    h1_shuffle = pixel_shuffler(inputs = h1, \
-                shuffle_size = shuffle_size, \
-                name = name_prefix + 'h1_shuffle')
-    h1_norm = instance_norm_layer(inputs = h1_shuffle, \
-                activation_fn = None, name = name_prefix + 'h1_norm')
+    h1 = conv1d_layer(inputs=inputs, filters=filters, \
+                kernel_size=kernel_size, strides=strides, \
+                activation=None, name=name_prefix + 'h1_conv')
+    h1_shuffle = pixel_shuffler(inputs=h1, \
+                shuffle_size=shuffle_size, \
+                name=name_prefix + 'h1_shuffle')
+    h1_norm = instance_norm_layer(inputs=h1_shuffle, \
+                activation_fn=None, name=name_prefix + 'h1_norm')
 
-    h1_gates = conv1d_layer(inputs = inputs, filters = filters, \
-                kernel_size = kernel_size, strides = strides, \
-                activation = None, name = name_prefix + 'h1_gates')
-    h1_shuffle_gates = pixel_shuffler(inputs = h1_gates, \
-                shuffle_size = shuffle_size, \
-                name = name_prefix + 'h1_shuffle_gates')
-    h1_norm_gates = instance_norm_layer(inputs = h1_shuffle_gates, \
-                activation_fn = None, name = name_prefix + 'h1_norm_gates')
+    h1_gates = conv1d_layer(inputs=inputs, filters=filters, \
+                kernel_size=kernel_size, strides=strides, \
+                activation=None, name=name_prefix + 'h1_gates')
+    h1_shuffle_gates = pixel_shuffler(inputs=h1_gates, \
+                shuffle_size=shuffle_size, \
+                name=name_prefix + 'h1_shuffle_gates')
+    h1_norm_gates = instance_norm_layer(inputs=h1_shuffle_gates, \
+                activation_fn=None, name=name_prefix + 'h1_norm_gates')
 
-    h1_glu = gated_linear_layer(inputs = h1_norm, \
-                gates = h1_norm_gates, name = name_prefix + 'h1_glu')
+    h1_glu = gated_linear_layer(inputs=h1_norm, \
+                gates=h1_norm_gates, name=name_prefix + 'h1_glu')
 
     return h1_glu
 
-def pixel_shuffler(inputs, shuffle_size = 2, name = None):
+def pixel_shuffler(inputs, shuffle_size=2, name=None):
 
     n = tf.shape(inputs)[0]
     w = tf.shape(inputs)[1]
@@ -184,6 +184,12 @@ def pixel_shuffler(inputs, shuffle_size = 2, name = None):
     outputs = tf.reshape(tensor = inputs, shape = [n, ow, oc], name = name)
 
     return outputs
+
+def adaptive_normalization(inputs, gamma_statistics, beta_statistics, name=None):
+    """
+    Adaptive normalization gamma*input + beta
+    """
+    return None
 
 def create_filter_mask(center_frequencies, filter_size=15, num_masks=64, 
         name_prefix='create_mask'):
