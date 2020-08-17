@@ -12,8 +12,9 @@ import tensorflow as tf
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
-from nn_models.model_separate_discriminate_id import VariationalCycleGAN
+#from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 #from nn_models.model_wasserstein import VariationalCycleGAN
+from nn_models.model_spect_discriminate import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
 from scipy.linalg import sqrtm, inv
 
@@ -70,10 +71,11 @@ if __name__ == '__main__':
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_3500/neu-ang_3500.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss_inv_norm/neu-ang_1200.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_700.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_wasserstein/neu-ang_1700.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_spect_discriminate/neu-ang_900.ckpt')
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
