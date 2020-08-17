@@ -237,145 +237,145 @@ class AE(object):
         self.saver.save(self.sess, os.path.join(directory, filename))
 
 
-if __name__ == '__main__':
-
-    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest')
-    
-    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
-    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
-
-    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
-    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
-                             np.ones((mfc_B.shape[0],1))), axis=0)
-    
-    mini_batch_size = 512
-    learning_rate = 1e-03
-    num_epochs = 1000
-    lambda_ae = 1.5
-    
-    model = AE(dim_mfc=23, pre_train="./model/AE_cmu.ckpt")
-    
-    classifier_loss = list()
-    ae_loss = list()
-    
-    for epoch in range(1,num_epochs+1):
-
-        print('Epoch: %d' % epoch)
-
-        start_time_epoch = time.time()
-        n_samples = mfc_feats.shape[0]
-        
-        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
-        
-        train_class_loss = list()
-        train_ae_loss = list()
-
-        for i in range(n_samples // mini_batch_size):
-
-            start = i * mini_batch_size
-            end = (i + 1) * mini_batch_size
-
-            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
-                                               labels=labels[start:end], 
-                                               learning_rate=learning_rate, 
-                                               lambda_ae=lambda_ae)
-            
-            train_class_loss.append(c_loss)
-            train_ae_loss.append(a_loss)
-        
-        classifier_loss.append(np.mean(train_class_loss))
-        ae_loss.append(np.mean(train_ae_loss))
-        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
-        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
-
-        model.save(directory='./model', filename='AE_cmu_pre_trained.ckpt')
-        
-        end_time_epoch = time.time()
-        time_elapsed_epoch = end_time_epoch - start_time_epoch
-
-        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
-                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
-
-        sys.stdout.flush()        
-
-
-#if __name__=='__main__':
+#if __name__ == '__main__':
+#
+#    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest')
 #    
-#    from mfcc_spect_analysis_VCGAN import _power_to_db
-#    import pyworld as pw
-#    import scipy.io.wavfile as scwav
+#    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
+#    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
+#
+#    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
+#    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
+#                             np.ones((mfc_B.shape[0],1))), axis=0)
 #    
-#    model = AE(dim_mfc=23)
-#    model.load('/home/ravi/Desktop/spect-pitch-gan/model/AE_net.ckpt')
-#    data = scio.loadmat('./data/neu-ang/valid_mod_dtw_harvest.mat')
-#    mfc_A = data['src_mfc_feat']
-#    mfc_B = data['tar_mfc_feat']
-#    mfc_A = np.vstack(mfc_A)
-#    mfc_B = np.vstack(mfc_B)
-#    pre_A = model.get_prediction(mfc_features=np.transpose(mfc_A, [0,2,1]))
-#    pre_B = model.get_prediction(mfc_features=np.transpose(mfc_B, [0,2,1]))
-#    mfc_A = np.transpose(mfc_A, [0,2,1])
-#    mfc_B = np.transpose(mfc_B, [0,2,1])
-#    q = np.random.randint(0, mfc_A.shape[0] - 1)
-#    mfc_test = mfc_B[q:q+1]
-#    mfc_test_embed = model.get_embedding(mfc_features=mfc_test)
-#    mfc_test_recon = model.get_mfcc(embeddings=mfc_test_embed)
+#    mini_batch_size = 512
+#    learning_rate = 1e-03
+#    num_epochs = 1000
+#    lambda_ae = 1.5
 #    
-#    mfc_rec = np.squeeze(mfc_test_recon)
-#    mfc_rec = np.copy(np.asarray(mfc_rec.T, np.float64), order='C')
-#    spect_rec = pw.decode_spectral_envelope(mfc_rec, 16000, 1024)
-#    mfc_test = np.squeeze(np.asarray(mfc_test, np.float64))
-#    mfc_test = np.copy(mfc_test.T, order='C')
-#    spect_test = pw.decode_spectral_envelope(mfc_test, 16000, 1024)
-#    pylab.subplot(121), pylab.imshow(np.squeeze(_power_to_db(spect_test.T ** 2)))
-#    pylab.title('Original')
-#    pylab.subplot(122), pylab.imshow(np.squeeze(_power_to_db(spect_rec.T ** 2)))
-#    pylab.title('Reconstructed')
-#    pylab.suptitle('Slice %d' % q)
+#    model = AE(dim_mfc=23, pre_train="./model/AE_cmu.ckpt")
 #    
-#    filename = '/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/angry/1139.wav'
-#    d = scwav.read(filename)
-#    d = np.asarray(d[1], np.float64)
-#    f0, sp, ap = pw.wav2world(d, 16000, frame_period=5)
-#    mfc = pw.code_spectral_envelope(sp, 16000, 23)
-#    embed = model.get_embedding(mfc_features=np.expand_dims(mfc.T, axis=0))
-#    mfc_recon = model.get_mfcc(embeddings=embed)
-#    mfc_recon = np.squeeze(mfc_recon)
-#    mfc_recon = np.copy(mfc_recon.T, order='C')
-#    spect_recon = pw.decode_spectral_envelope(np.asarray(mfc_recon, np.float64), 16000, 1024)
-#    speech_recon = pw.synthesize(f0, spect_recon[:len(f0)], ap, 16000, frame_period=5)
-#    speech_recon = (speech_recon - np.min(speech_recon)) / (np.max(speech_recon) - np.min(speech_recon))
-#    speech_recon = np.asarray(speech_recon - np.mean(speech_recon), np.float32)
-#    scwav.write('/home/ravi/Desktop/test_AE_angry_'+os.path.basename(filename), 
-#                16000, speech_recon)
+#    classifier_loss = list()
+#    ae_loss = list()
+#    
+#    for epoch in range(1,num_epochs+1):
+#
+#        print('Epoch: %d' % epoch)
+#
+#        start_time_epoch = time.time()
+#        n_samples = mfc_feats.shape[0]
+#        
+#        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
+#        
+#        train_class_loss = list()
+#        train_ae_loss = list()
+#
+#        for i in range(n_samples // mini_batch_size):
+#
+#            start = i * mini_batch_size
+#            end = (i + 1) * mini_batch_size
+#
+#            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
+#                                               labels=labels[start:end], 
+#                                               learning_rate=learning_rate, 
+#                                               lambda_ae=lambda_ae)
+#            
+#            train_class_loss.append(c_loss)
+#            train_ae_loss.append(a_loss)
+#        
+#        classifier_loss.append(np.mean(train_class_loss))
+#        ae_loss.append(np.mean(train_ae_loss))
+#        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
+#        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
+#
+#        model.save(directory='./model', filename='AE_cmu_pre_trained.ckpt')
+#        
+#        end_time_epoch = time.time()
+#        time_elapsed_epoch = end_time_epoch - start_time_epoch
+#
+#        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
+#                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
+#
+#        sys.stdout.flush()        
+
+
+if __name__=='__main__':
+    
+    from mfcc_spect_analysis_VCGAN import _power_to_db
+    import pyworld as pw
+    import scipy.io.wavfile as scwav
+    
+    model = AE(dim_mfc=23)
+    model.load('./model/AE_cmu_pre_trained.ckpt')
+    data = scio.loadmat('./data/neu-ang/valid_mod_dtw_harvest.mat')
+    mfc_A = data['src_mfc_feat']
+    mfc_B = data['tar_mfc_feat']
+    mfc_A = np.vstack(mfc_A)
+    mfc_B = np.vstack(mfc_B)
+    pre_A = model.get_prediction(mfc_features=np.transpose(mfc_A, [0,2,1]))
+    pre_B = model.get_prediction(mfc_features=np.transpose(mfc_B, [0,2,1]))
+    mfc_A = np.transpose(mfc_A, [0,2,1])
+    mfc_B = np.transpose(mfc_B, [0,2,1])
+    q = np.random.randint(0, mfc_A.shape[0] - 1)
+    mfc_test = mfc_B[q:q+1]
+    mfc_test_embed = model.get_embedding(mfc_features=mfc_test)
+    mfc_test_recon = model.get_mfcc(embeddings=mfc_test_embed)
+    
+    mfc_rec = np.squeeze(mfc_test_recon)
+    mfc_rec = np.copy(np.asarray(mfc_rec.T, np.float64), order='C')
+    spect_rec = pw.decode_spectral_envelope(mfc_rec, 16000, 1024)
+    mfc_test = np.squeeze(np.asarray(mfc_test, np.float64))
+    mfc_test = np.copy(mfc_test.T, order='C')
+    spect_test = pw.decode_spectral_envelope(mfc_test, 16000, 1024)
+    pylab.subplot(121), pylab.imshow(np.squeeze(_power_to_db(spect_test.T ** 2)))
+    pylab.title('Original')
+    pylab.subplot(122), pylab.imshow(np.squeeze(_power_to_db(spect_rec.T ** 2)))
+    pylab.title('Reconstructed')
+    pylab.suptitle('Slice %d' % q)
+    
+    filename = '/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/angry/1574.wav'
+    d = scwav.read(filename)
+    d = np.asarray(d[1], np.float64)
+    f0, sp, ap = pw.wav2world(d, 16000, frame_period=5)
+    mfc = pw.code_spectral_envelope(sp, 16000, 23)
+    embed = model.get_embedding(mfc_features=np.expand_dims(mfc.T, axis=0))
+    mfc_recon = model.get_mfcc(embeddings=embed)
+    mfc_recon = np.squeeze(mfc_recon)
+    mfc_recon = np.copy(mfc_recon.T, order='C')
+    spect_recon = pw.decode_spectral_envelope(np.asarray(mfc_recon, np.float64), 16000, 1024)
+    speech_recon = pw.synthesize(f0, spect_recon[:len(f0)], ap, 16000, frame_period=5)
+    speech_recon = (speech_recon - np.min(speech_recon)) / (np.max(speech_recon) - np.min(speech_recon))
+    speech_recon = np.asarray(speech_recon - np.mean(speech_recon), np.float32)
+    scwav.write('/home/ravi/Desktop/test_cmu_pt_AE_angry_'+os.path.basename(filename), 
+                16000, speech_recon)
     
     
     # Analyzing the correlation for energy profile
-#    mfc_A_embed = model.get_embedding(mfc_features=mfc_A)
-#    mfc_B_embed = model.get_embedding(mfc_features=mfc_B)
-#    mfc_A_recon = model.get_mfcc(embeddings=mfc_A_embed)
-#    mfc_B_recon = model.get_mfcc(embeddings=mfc_B_embed)
-#        
-#    np.argmax(np.squeeze(mfc_A[1]).shape)
-#    spect_A = [mfc_to_spect(np.squeeze(m)) for m in mfc_A]
-#    spect_B = [mfc_to_spect(np.squeeze(m)) for m in mfc_B]
-#    spect_A_recon = [mfc_to_spect(np.squeeze(m)) for m in mfc_A_recon]
-#    spect_B_recon = [mfc_to_spect(np.squeeze(m)) for m in mfc_B_recon]
-#    energy_A = [np.sum(s**2, axis=1, keepdims=True) for s in spect_A]
-#    energy_B = [np.sum(s**2, axis=1, keepdims=True) for s in spect_B]
-#    energy_A_recon = [np.sum(s**2, axis=1, keepdims=True) for s in spect_A_recon]
-#    energy_B_recon = [np.sum(s**2, axis=1, keepdims=True) for s in spect_B_recon]
-#    np.corrcoef(energy_A[0].reshape(-1,), energy_B[0].reshape(-1,))
-#    energy_correlation_A = [np.corrcoef(a.reshape(-1,), b.reshape(-1,)) \
-#                            for (a,b) in zip(energy_A, energy_A_recon)]
-#    energy_correlation_B = [np.corrcoef(a.reshape(-1,), b.reshape(-1,)) \
-#                            for (a,b) in zip(energy_B, energy_B_recon)]
-#    energy_correlation_A = [c[0,1] for c in energy_correlation_A]
-#    energy_correlation_B = [c[0,1] for c in energy_correlation_B]
-#    pylab.figure()
-#    pylab.boxplot([energy_correlation_A, energy_correlation_B], labels=['A', 'B'])
-#    
-#    # Plotting spectrum recovery for A and B
+    mfc_A_embed = model.get_embedding(mfc_features=mfc_A)
+    mfc_B_embed = model.get_embedding(mfc_features=mfc_B)
+    mfc_A_recon = model.get_mfcc(embeddings=mfc_A_embed)
+    mfc_B_recon = model.get_mfcc(embeddings=mfc_B_embed)
+        
+    np.argmax(np.squeeze(mfc_A[1]).shape)
+    spect_A = [mfc_to_spect(np.squeeze(m)) for m in mfc_A]
+    spect_B = [mfc_to_spect(np.squeeze(m)) for m in mfc_B]
+    spect_A_recon = [mfc_to_spect(np.squeeze(m)) for m in mfc_A_recon]
+    spect_B_recon = [mfc_to_spect(np.squeeze(m)) for m in mfc_B_recon]
+    energy_A = [np.sum(s**2, axis=1, keepdims=True) for s in spect_A]
+    energy_B = [np.sum(s**2, axis=1, keepdims=True) for s in spect_B]
+    energy_A_recon = [np.sum(s**2, axis=1, keepdims=True) for s in spect_A_recon]
+    energy_B_recon = [np.sum(s**2, axis=1, keepdims=True) for s in spect_B_recon]
+    np.corrcoef(energy_A[0].reshape(-1,), energy_B[0].reshape(-1,))
+    energy_correlation_A = [np.corrcoef(a.reshape(-1,), b.reshape(-1,)) \
+                            for (a,b) in zip(energy_A, energy_A_recon)]
+    energy_correlation_B = [np.corrcoef(a.reshape(-1,), b.reshape(-1,)) \
+                            for (a,b) in zip(energy_B, energy_B_recon)]
+    energy_correlation_A = [c[0,1] for c in energy_correlation_A]
+    energy_correlation_B = [c[0,1] for c in energy_correlation_B]
+    pylab.figure()
+    pylab.boxplot([energy_correlation_A, energy_correlation_B], labels=['A', 'B'])
+    
+    # Plotting spectrum recovery for A and B
 #    wav_A = scwav.read('/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/neutral/1574.wav')
 #    wav_A = np.asarray(wav_A[1], np.float64)
 #    _,sp_A,_ = pw.wav2world(wav_A, 16000, frame_period=5)
