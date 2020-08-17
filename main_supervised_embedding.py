@@ -16,6 +16,7 @@ from glob import glob
 from nn_models.model_supervised_embedding import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 from importlib import reload
+from encoder_decoder import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -68,12 +69,12 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'cmu_arctic_projection.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'cmu-arctic.mat'))
 
     pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
     pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
-    mfc_A_train = np.expand_dims(data_train['src_mfc_feat'], axis=-1)
-    mfc_B_train = np.expand_dims(data_train['tar_mfc_feat'], axis=-1)
+    mfc_A_train = data_train['src_mfc_feat']
+    mfc_B_train = data_train['tar_mfc_feat']
     momenta_A2B_train = np.expand_dims(data_train['momenta_f0_A2B'], axis=-1)
     momenta_B2A_train = np.expand_dims(data_train['momenta_f0_B2A'], axis=-1)
 
@@ -86,7 +87,11 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
                                                                    (time_elapsed % 3600 // 60), \
                                                                    (time_elapsed % 60 // 1)))
     
-    #use pre_train arg to provide trained model
+    # using pre_trained encoder model
+    encoder_decoder = AE(dim_mfc=23)
+    encoder_decoder.load('./model/AE_cmu_pre_trained.ckpt')
+
+    # use pre_train arg to provide trained model
     model = VariationalCycleGAN(dim_pitch=1, dim_mfc=1, \
                 n_frames=n_frames, pre_train=pre_train)
     
@@ -98,10 +103,12 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         start_time_epoch = time.time()
 
         mfc_A, pitch_A, momenta_A2B, mfc_B, pitch_B, momenta_B2A \
-                = preproc.sample_data_momenta_embed(mfc_A=mfc_A_train, mfc_B=mfc_B_train, 
+                = preproc.sample_data_momenta(mfc_A=mfc_A_train, mfc_B=mfc_B_train, 
                         pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                         momenta_A2B=momenta_A2B_train, 
                         momenta_B2A=momenta_B2A_train)
+        mfc_A = encoder_decoder.get_embedding(mfc_features=mfc_A)
+        mfc_B = encoder_decoder.get_embedding(mfc_features=mfc_B)
         
         n_samples = mfc_A.shape[0]
         
@@ -159,7 +166,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1))) 
 
-        if epoch%50==0:
+        if epoch%25==0:
             model.save(model_dir, model_name+str(epoch)+'.ckpt')
 
 

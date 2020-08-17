@@ -11,7 +11,7 @@ class VariationalCycleGAN(object):
     def __init__(self, dim_pitch=1, dim_mfc=1, n_frames=128, 
             discriminator=discriminator, generator=generator,
             sampler=sampler, lddmm=lddmm, mode='train', 
-            log_dir='./log', pre_train=None):
+            log_dir='./super_no_name_passed', pre_train=None):
         
         self.n_frames = n_frames
         self.pitch_shape = [None, dim_pitch, None] #[batch_size, num_features, num_frames]
