@@ -4,7 +4,7 @@ import numpy as np
 
 from modules.modules_spect_mmd import sampler, \
         generator, joint_discriminator, spect_kernel
-from utils.model_utils import l1_loss
+from utils.model_utils import l1_loss, eva_kernel
 from utils.tf_forward_tan import lddmm 
 
 class VariationalCycleGAN(object):
@@ -136,12 +136,22 @@ class VariationalCycleGAN(object):
         Initialize the spect kernel
         '''
         # Kernel initialized to keep parameters in memory
-        self.spect_kernel_AA = self.spect_kernel(input_mfc1=self.mfc_A_real, 
-                input_mfc2=self.mfc_generation_B2A, reuse=False, scope_name='spect_kernel')
-        self.spect_kernel_BB = self.spect_kernel(input_mfc1=self.mfc_B_real, 
-                input_mfc2=self.mfc_generation_A2B, reuse=True, scope_name='spect_kernel')
-        self.spect_kernel_AB = self.spect_kernel(input_mfc1=self.mfc_A_real, 
-                input_mfc2=self.mfc_B_real, reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_A_real = self.spect_kernel(input_mfc=self.mfc_A_real, 
+                reuse=False, scope_name='spect_kernel')
+        self.spect_kernel_A_fake = self.spect_kernel(input_mfc=self.mfc_generation_B2A, 
+                reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_B_real = self.spect_kernel(input_mfc=self.mfc_B_real, 
+                reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_B_fake = self.spect_kernel(input_mfc=self.mfc_generation_A2B, 
+                reuse=True, scope_name='spect_kernel')
+
+        self.kernel_AA = eval_kernel(kernel1=self.spect_kernel_A_real, 
+                kernel2=self.spect_kernel_A_fake)
+        self.kernel_BB = eval_kernel(kernel1=self.spect_kernel_B_real, 
+                kernel2=self.spect_kernel_B_fake)
+        self.kernel_AB = eval_kernel(kernel1=self.spect_kernel_A_real, 
+                kernel2=self.spect_kernel_B_real)
+
 
         '''
         Computing loss for generators
@@ -209,18 +219,24 @@ class VariationalCycleGAN(object):
 
 
         # Evaluate the kernel for mfcc 
-        self.spect_kernel_A_real_A_fake \
-            = self.spect_kernel(input_mfc1=self.mfc_A_real, input_mfc2=self.mfc_A_fake, 
-                    reuse=True, scope_name='spect_kernel')
-        self.spect_kernel_B_real_B_fake \
-            = self.spect_kernel(input_mfc1=self.mfc_B_real, input_mfc2=self.mfc_B_fake, 
-                    reuse=True, scope_name='spect_kernel')
-        self.spect_kernel_A_real_B_real \
-            = self.spect_kernel(input_mfc1=self.mfc_A_real, imput_mfc2=self.mfc_B_real, 
-                    reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_disc_A_real = self.spect_kernel(input_mfc=self.mfc_A_real, 
+                reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_disc_A_fake = self.spect_kernel(input_mfc=self.mfc_A_fake, 
+                reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_disc_B_real = self.spect_kernel(input_mfc=self.mfc_B_real, 
+                reuse=True, scope_name='spect_kernel')
+        self.spect_kernel_disc_B_fake = self.spect_kernel(input_mfc=self.mfc_B_fake, 
+                reuse=True, scope_name='spect_kernel')
+
+        self.spect_kernel_A_real_B_real = eval_kernel(kernel1=self.spect_kernel_disc_A_real, 
+                kernel2=self.spect_kernel_disc_B_real)
+        self.spect_kernel_A_real_A_fake = eval_kernel(kernel1=self.spect_kernel_disc_A_real, 
+                kernel2=self.spect_kernel_disc_A_fake)
+        self.spect_kernel_B_real_B_fake = eval_kernel(kernel1=self.spect_kernel_disc_B_real, 
+                kernel2=self.spect_kernel_disc_B_fake)
 
         # Merge the two discriminators into one
-        self.spect_kernel_loss = 2*self.spect_kernel_A_real_B_fake \
+        self.spect_kernel_loss = 2*self.spect_kernel_A_real_B_real \
                                 - self.spect_kernel_A_real_A_fake \
                                 - self.spect_kernel_B_real_B_fake 
 
