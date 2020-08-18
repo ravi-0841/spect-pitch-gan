@@ -13,7 +13,7 @@ import logging
 import utils.preprocess as preproc
 
 from glob import glob
-from nn_models.model_supervised_spect_discriminate import VariationalCycleGAN
+from nn_models.model_supervised_spect_mmd import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 from importlib import reload
 
