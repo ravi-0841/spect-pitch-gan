@@ -4,14 +4,14 @@ import numpy as np
 
 from modules.modules_spect_mmd import sampler, \
         generator, joint_discriminator, spect_kernel
-from utils.model_utils import l1_loss, eva_kernel
+from utils.model_utils import l1_loss, eval_kernel
 from utils.tf_forward_tan import lddmm 
 
 class VariationalCycleGAN(object):
 
     def __init__(self, dim_pitch=1, dim_mfc=23, n_frames=128, 
             joint_discriminator=joint_discriminator, 
-            spect_discriminator=spect_discriminator,  
+            spect_kernel=spect_kernel,  
             generator=generator, sampler=sampler, 
             lddmm=lddmm, mode='train', 
             log_dir='./log', pre_train=None):

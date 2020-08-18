@@ -203,14 +203,14 @@ def spect_kernel(input_mfc, reuse=False,
         else:
             assert scope.reuse is False
 
-        h1_mfc = conv1d_layer(inputs=input_mfc, filters=64, 
+        h1 = conv1d_layer(inputs=input_mfc, filters=64, 
                 kernel_size=3, strides=1, 
-                activation=None, name='h1_mfc_conv')
-        h1_mfc_gates = conv1d_layer(inputs=input_mfc, filters=64, 
+                activation=None, name='h1_conv')
+        h1_gates = conv1d_layer(inputs=input_mfc, filters=64, 
                 kernel_size=3, strides=1, 
-                activation=None, name='h1_mfc_conv_gates')
-        h1_mfc_glu = gated_linear_layer(inputs=h1_mfc, 
-                gates=h1_mfc_gates, name='h1_mfc_glu')
+                activation=None, name='h1_conv_gates')
+        h1_glu = gated_linear_layer(inputs=h1, 
+                gates=h1_gates, name='h1_glu')
 
         # Downsample
         d1 = downsample1d_block(inputs=h1_glu, filters=128, \
