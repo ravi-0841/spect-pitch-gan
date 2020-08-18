@@ -151,7 +151,8 @@ class VariationalCycleGAN(object):
                 kernel2=self.spect_kernel_B_fake)
         self.kernel_AB = eval_kernel(kernel1=self.spect_kernel_A_real, 
                 kernel2=self.spect_kernel_B_real)
-
+        self.kernel_BA = eval_kernel(kernel1=self.spect_kernel_A_fake, 
+                kernel2=self.spect_kernel_B_fake)
 
         '''
         Computing loss for generators
@@ -234,9 +235,12 @@ class VariationalCycleGAN(object):
                 kernel2=self.spect_kernel_disc_A_fake)
         self.spect_kernel_B_real_B_fake = eval_kernel(kernel1=self.spect_kernel_disc_B_real, 
                 kernel2=self.spect_kernel_disc_B_fake)
+        self.spect_kernel_A_fake_B_fake = eval_kernel(kernel1=self.spect_kernel_disc_A_fake, 
+                kernel2=self.spect_kernel_disc_B_fake)
 
         # Merge the two discriminators into one
-        self.spect_kernel_loss = 2*self.spect_kernel_A_real_B_real \
+        self.spect_kernel_loss = self.spect_kernel_A_real_B_real \
+                                + self.spect_kernel_A_fake_B_fake\
                                 - self.spect_kernel_A_real_A_fake \
                                 - self.spect_kernel_B_real_B_fake 
 
