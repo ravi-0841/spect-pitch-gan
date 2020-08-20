@@ -14,7 +14,7 @@ class VariationalCycleGAN(object):
             spect_kernel=spect_kernel,  
             generator=generator, sampler=sampler, 
             lddmm=lddmm, mode='train', 
-            log_dir='./log', pre_train=None):
+            log_file_name='no_name_passed', pre_train=None):
         
         self.n_frames = n_frames
         self.pitch_shape = [None, dim_pitch, None] #[batch_size, num_features, num_frames]
