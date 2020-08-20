@@ -136,7 +136,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         start_time_epoch = time.time()
 
         mfc_A, pitch_A, \
-            mfc_B, pitch_B = preproc.sample_data_embed(mfc_A=mfc_A_train, \
+            mfc_B, pitch_B = preproc.sample_data(mfc_A=mfc_A_train, \
                             mfc_B=mfc_B_train, pitch_A=pitch_A_train, \
                             pitch_B=pitch_B_train)
         mfc_A = encoder_decoder.get_embedding(mfc_features=mfc_A)
