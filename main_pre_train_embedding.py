@@ -15,6 +15,7 @@ from nn_models.model_embedding_wasserstein import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
+from encoder_decoder import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -74,18 +75,18 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'train_projection_5.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'valid_projection_5.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'train_5.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'valid_5.mat'))
 
     pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
     pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
-    mfc_A_train = np.expand_dims(data_train['src_mfc_feat'], axis=-1)
-    mfc_B_train = np.expand_dims(data_train['tar_mfc_feat'], axis=-1)
+    mfc_A_train = data_train['src_mfc_feat']
+    mfc_B_train = data_train['tar_mfc_feat']
     
     pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
     pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
-    mfc_A_valid = np.expand_dims(data_valid['src_mfc_feat'], axis=-1)
-    mfc_B_valid = np.expand_dims(data_valid['tar_mfc_feat'], axis=-1)
+    mfc_A_valid = data_valid['src_mfc_feat']
+    mfc_B_valid = data_valid['tar_mfc_feat']
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
@@ -97,7 +98,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     mfc_B_train = mfc_B_train[indices_train]
 
     mfc_A_valid, pitch_A_valid, \
-        mfc_B_valid, pitch_B_valid = preproc.sample_data_embed(mfc_A=mfc_A_valid, \
+        mfc_B_valid, pitch_B_valid = preproc.sample_data(mfc_A=mfc_A_valid, \
                                     mfc_B=mfc_B_valid, pitch_A=pitch_A_valid, \
                                     pitch_B=pitch_B_valid)
 
@@ -115,6 +116,14 @@ def train(train_dir, model_dir, model_name, random_seed, \
                                                                    (time_elapsed % 3600 // 60), \
                                                                    (time_elapsed % 60 // 1)))
     
+    # using pre_trained encoder model
+    encoder_decoder = AE(dim_mfc=23)
+    encoder_decoder.load('./model/AE_cmu_pre_trained.ckpt')
+
+    # modify validation mfc features
+    mfc_A_valid = encoder_decoder.get_embedding(mfc_features=mfc_A_valid)
+    mfc_B_valid = encoder_decoder.get_embedding(mfc_features=mfc_B_valid)
+
     #use pre_train arg to provide trained model
     model = VariationalCycleGAN(dim_pitch=1, dim_mfc=num_mcep, n_frames=n_frames, 
                                 pre_train=pre_train, log_file_name=lc_lm)
@@ -130,6 +139,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
             mfc_B, pitch_B = preproc.sample_data_embed(mfc_A=mfc_A_train, \
                             mfc_B=mfc_B_train, pitch_A=pitch_A_train, \
                             pitch_B=pitch_B_train)
+        mfc_A = encoder_decoder.get_embedding(mfc_features=mfc_A)
+        mfc_B = encoder_decoder.get_embedding(mfc_features=mfc_B)
         
         n_samples = mfc_A.shape[0]
         
@@ -207,7 +218,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
-        if epoch % 100 == 0:
+        if epoch % 50 == 0:
             
             cur_model_name = model_name+"_"+str(epoch)+".ckpt"
             model.save(directory=model_dir, filename=cur_model_name)
@@ -283,7 +294,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_embedding/cmu-arctic950.ckpt', 
+          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_embedding/cmu-arctic975.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_momenta=lambda_momenta, lambda_identity_mfc=lambda_identity_mfc,  
           generator_learning_rate=generator_learning_rate, 
