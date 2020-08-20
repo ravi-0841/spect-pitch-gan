@@ -43,8 +43,8 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         tar_wav = scwav.read(wav_tar)
         tar = np.asarray(tar_wav[1], np.float64)
         
-        src = normalize_wav(src)
-        tar = normalize_wav(tar)
+#        src = normalize_wav(src)
+#        tar = normalize_wav(tar)
 
         f0_src, t_src   = pw.harvest(src, sample_rate, frame_period=int(1000*window_len))
         src_straight    = pw.cheaptrick(src, f0_src, t_src, sample_rate)
