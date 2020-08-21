@@ -75,12 +75,6 @@ class VariationalCycleGAN(object):
         self.mfc_B_fake = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_B_fake')
 
-        # Placeholders for momenta variables
-        self.momenta_A2B_real = tf.placeholder(tf.float32, shape=self.pitch_shape, 
-                name='momenta_A2B_real')
-        self.momenta_B2A_real = tf.placeholder(tf.float32, shape=self.pitch_shape, 
-                name='momenta_B2A_real')
-
         # Placeholder for test samples
         self.pitch_A_test = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_test')
@@ -357,7 +351,7 @@ class VariationalCycleGAN(object):
                     self.discriminator_summaries], feed_dict={self.pitch_A_real:pitch_A, 
                         self.pitch_B_real:pitch_B, self.mfc_A_real:mfc_A, 
                         self.mfc_B_real:mfc_B, self.discriminator_learning_rate:discriminator_learning_rate, 
-                        self.pitch_A_fake:generated_pitch_A, pitch_B_fake:generated_pitch_B, 
+                        self.pitch_A_fake:generated_pitch_A, self.pitch_B_fake:generated_pitch_B, 
                         self.mfc_A_fake:generated_mfc_A, self.mfc_B_fake:generated_mfc_B})
 
         self.writer.add_summary(generator_summaries, self.train_step)
