@@ -187,11 +187,11 @@ class VariationalCycleGAN(object):
         self.cycle_loss_pitch = (l1_loss(y=self.pitch_A_real, y_hat=self.pitch_cycle_A2A) \
                 + l1_loss(y=self.pitch_B_real, y_hat=self.pitch_cycle_B2B)) / 2.0
 
-        self.cycle_loss_mfc = (l1_loss(y=self.mfc_A_real, y_hat=self.mfc_cycle_A2A) \ 
+        self.cycle_loss_mfc = (l1_loss(y=self.mfc_A_real, y_hat=self.mfc_cycle_A2A) \
                 + l1_loss(y=self.mfc_B_real, y_hat=self.mfc_cycle_A2A)) / 2.0
 
         # Identity loss
-        self.identity_loss_mfc = (l1_loss(y=self.mfc_identity_A2B, y_hat=self.mfc_B_real) \ 
+        self.identity_loss_mfc = (l1_loss(y=self.mfc_identity_A2B, y_hat=self.mfc_B_real) \
                 + l1_loss(y=self.mfc_identity_B2A, y_hat=self.mfc_A_real)) / 2.0
 
         # Sampler-Generator loss
@@ -207,12 +207,12 @@ class VariationalCycleGAN(object):
 
         # Momenta loss
         self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momenta_generation_A2B, [-1,1])))) \ 
+            tf.reshape(self.momenta_generation_A2B, [-1,1])))) \
                 + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
                     tf.reshape(self.momenta_cycle_A2A, [-1,1]))))
 
         self.momenta_loss_B2A = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momenta_generation_B2A, [-1,1])))) \ 
+            tf.reshape(self.momenta_generation_B2A, [-1,1])))) \
                 + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
                     tf.reshape(self.momenta_cycle_B2B, [-1,1]))))
 
