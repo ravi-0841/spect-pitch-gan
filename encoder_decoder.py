@@ -346,8 +346,8 @@ if __name__=='__main__':
     speech_recon = pw.synthesize(f0, spect_recon[:len(f0)], ap, 16000, frame_period=5)
     speech_recon = (speech_recon - np.min(speech_recon)) / (np.max(speech_recon) - np.min(speech_recon))
     speech_recon = np.asarray(speech_recon - np.mean(speech_recon), np.float32)
-    scwav.write('/home/ravi/Desktop/test_cmu_pt_AE_angry_'+os.path.basename(filename), 
-                16000, speech_recon)
+#    scwav.write('/home/ravi/Desktop/test_cmu_pt_AE_angry_'+os.path.basename(filename), 
+#                16000, speech_recon)
     
     
     # Analyzing the correlation for energy profile
