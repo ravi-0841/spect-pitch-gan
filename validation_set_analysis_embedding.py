@@ -8,6 +8,7 @@ import scipy.signal as scisig
 import scipy.io as scio
 import pylab
 import tensorflow as tf
+import pyworld as pw
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
@@ -103,6 +104,26 @@ if __name__ == '__main__':
         f0_input = np.concatenate((f0_input, pitch_A_valid[i:i+1].reshape(1,-1)), axis=0)
     
     del pred_f0, pred_mfc, mfc_source, mfc_target, cyc_pred_f0, cyc_pred_mfc
+
+    mfc_B_valid = ae_model.get_mfcc(embeddings=mfc_B_valid)
+    mfc_B_valid = np.transpose(mfc_B_valid, (0,2,1))
+    mfc_B_valid = [np.asarray(np.copy(m, order='C'), np.float64) for m in mfc_B_valid]
+    spect_B_valid = [pw.decode_spectral_envelope(m, 16000, 1024) for m in mfc_B_valid]
+    
+    mfc_conv = np.expand_dims(mfc_conv, axis=-1)
+    mfc_conv = np.transpose(mfc_conv, (0,2,1))
+    mfc_conv = ae_model.get_mfcc(embeddings=mfc_conv)
+    mfc_conv = np.transpose(mfc_conv, (0,2,1))
+    mfc_conv = [np.asarray(np.copy(m, order='C'), np.float64) for m in mfc_conv]
+    spect_conv = [pw.decode_spectral_envelope(m, 16000, 1024) for m in mfc_conv]
+        
+    for i in range(10):
+        q = np.random.randint(448)
+        pylab.figure(), pylab.subplot(121)
+        pylab.imshow(_power_to_db(spect_B_valid[q].T ** 2)), pylab.title('Target')
+        pylab.subplot(122)    
+        pylab.imshow(_power_to_db(spect_conv[q].T ** 2)), pylab.title('Converted')
+        pylab.suptitle('Slice %d' % q)
 
 
 
