@@ -153,7 +153,7 @@ class AE(object):
 
         # generate noise to add to input mfcc
         self.additive_noise = tf.random_normal(shape=tf.shape(self.input_mfc), mean=0.0, 
-                stddev=0.001, dtype=tf.float32, name='noise_additive')
+                stddev=1.0, dtype=tf.float32, name='noise_additive')
 
         # generate embedding and get reconstruction from AE
         self.embedding, self.prediction \
@@ -293,7 +293,7 @@ if __name__ == '__main__':
         print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
         print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
 
-        model.save(directory='./model', filename='AE_cmu_pre_trained_noise.ckpt')
+        model.save(directory='./model', filename='AE_cmu_pre_trained_noise_std_1.ckpt')
         
         end_time_epoch = time.time()
         time_elapsed_epoch = end_time_epoch - start_time_epoch
