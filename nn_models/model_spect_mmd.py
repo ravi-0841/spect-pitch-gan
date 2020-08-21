@@ -48,7 +48,7 @@ class VariationalCycleGAN(object):
         if self.mode == 'train':
             self.train_step = 0
             self.writer = tf.summary.FileWriter('./tensorboard_log/'+log_file_name, 
-                    tf.get_default_summary())
+                    tf.get_default_graph())
             self.generator_summaries, self.discriminator_summaries = self.summary()
 
     def build_model(self):
@@ -333,9 +333,9 @@ class VariationalCycleGAN(object):
                         beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
 
 
-    def train(self, pitch_A, mfc_A, momenta_A2B, pitch_B, mfc_B, 
-            momenta_B2A, lambda_cycle_pitch, lambda_cycle_mfc, lambda_momenta,
-            lambda_identity_mfc, generator_learning_rate):
+    def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
+            lambda_cycle_mfc, lambda_momenta, lambda_identity_mfc, 
+            generator_learning_rate, discriminator_learning_rate):
 
         generated_momenta_B, generated_pitch_B, generated_mfc_B, \
                 generated_momenta_A, generated_pitch_A, generated_mfc_A, \
