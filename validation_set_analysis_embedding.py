@@ -13,6 +13,7 @@ import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
 from nn_models.model_embedding_wasserstein import VariationalCycleGAN
+from encoder_decoder import AE
 #from nn_models.model_wasserstein import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
 from scipy.linalg import sqrtm, inv
@@ -48,16 +49,12 @@ def normalize(x, nmz_type='min_max'):
 
 
 if __name__ == '__main__':
-    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_projection_5.mat')
+    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_5.mat')
     
-#    pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
-#    pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
     pitch_A_valid = np.transpose(data_valid['src_f0_feat'], (0,1,3,2))
     pitch_B_valid = np.transpose(data_valid['tar_f0_feat'], (0,1,3,2))
-    mfc_A_valid = np.transpose(np.expand_dims(data_valid['src_mfc_feat'], axis=-1), 
-                               (0,1,3,2))
-    mfc_B_valid = np.transpose(np.expand_dims(data_valid['tar_mfc_feat'], axis=-1), 
-                               (0,1,3,2))
+    mfc_A_valid = np.transpose(data_valid['src_mfc_feat'], (0,1,3,2))
+    mfc_B_valid = np.transpose(data_valid['tar_mfc_feat'], (0,1,3,2))
     
 #    mfc_A_valid, pitch_A_valid, \
 #        mfc_B_valid, pitch_B_valid = preproc.sample_data(mfc_A=mfc_A_valid, \
@@ -69,8 +66,13 @@ if __name__ == '__main__':
     pitch_A_valid = np.vstack(pitch_A_valid)
     pitch_B_valid = np.vstack(pitch_B_valid)
     
+    ae_model = AE(dim_mfc=23)
+    ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein/neu-ang_400.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein/neu-ang_1000.ckpt')
+    
+    mfc_A_valid = ae_model.get_embedding(mfc_features=mfc_A_valid)
+    mfc_B_valid = ae_model.get_embedding(mfc_features=mfc_B_valid)
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
@@ -93,17 +95,14 @@ if __name__ == '__main__':
         
         mfc_conv = np.concatenate((mfc_conv, pred_mfc.reshape(1,-1)), axis=0)
         cyc_mfc = np.concatenate((cyc_mfc, cyc_pred_mfc.reshape(1,-1)), axis=0)
-        
+
+        mfc_source = np.transpose(np.squeeze(mfc_A_valid[i]))        
         mfc_target = np.transpose(np.squeeze(mfc_B_valid[i]))
-        mfc_target = np.asarray(np.copy(mfc_target, order='C'), np.float64)
-        
-        mfc_source = np.transpose(np.squeeze(mfc_A_valid[i]))
-        mfc_source = np.asarray(np.copy(mfc_source, order='C'), np.float64)
         
         f0_valid = np.concatenate((f0_valid, pitch_B_valid[i:i+1].reshape(1,-1)), axis=0)
         f0_input = np.concatenate((f0_input, pitch_A_valid[i:i+1].reshape(1,-1)), axis=0)
     
-    del pred_f0, pred_mfc, mfc_target, cyc_pred_f0, cyc_pred_mfc
+    del pred_f0, pred_mfc, mfc_source, mfc_target, cyc_pred_f0, cyc_pred_mfc
 
 
 
