@@ -23,9 +23,9 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 def conversion(model_dir=None, model_name=None, audio_file=None, 
                data_dir=None, conversion_direction=None, output_dir=None):
     
-    ae_model = AE(dim_mfc=23)
-    ae_model.load(filepath='../model/AE_cmu_pre_trained.ckpt')
-    model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
+    ae_model = AE(dim_mfc=num_mfcc)
+    ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
+    model = VariationalCycleGAN(dim_mfc=1, dim_pitch=1, mode='test')
     model.load(filepath=os.path.join(model_dir, model_name))
     
     if audio_file is not None:
@@ -90,6 +90,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             
             coded_sp = np.expand_dims(coded_sp, axis=0)
             coded_sp = np.transpose(coded_sp, (0,2,1))
+            sp_embedding = ae_model.get_embedding(mfc_features=coded_sp)
             
             f0 = scisig.medfilt(f0, kernel_size=3)
             z_idx = np.where(f0<10.0)[0]
@@ -98,10 +99,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0 = np.reshape(f0, (1,1,-1))
     
             f0_converted, coded_sp_converted = model.test(input_pitch=f0, 
-                                                          input_mfc=coded_sp, 
+                                                          input_mfc=sp_embedding, 
                                                           direction=conversion_direction)
             
-    
+            coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
             coded_sp_converted = np.asarray(np.transpose(coded_sp_converted[0]), np.float64)
             coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
@@ -125,7 +126,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = '../model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein'
+    model_dir_default = './model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein'
     model_name_default = 'neu-ang_1000.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'

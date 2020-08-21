@@ -5,6 +5,7 @@ import numpy as np
 from model import CycleGAN
 from preprocess import *
 import scipy.io.wavfile as scwav
+import librosa
 
 def conversion(model_dir, model_name, data_dir, conversion_direction, output_dir):
 
@@ -34,30 +35,46 @@ def conversion(model_dir, model_name, data_dir, conversion_direction, output_dir
     for file in os.listdir(data_dir):
 
         filepath = os.path.join(data_dir, file)
-        wav, _ = librosa.load(filepath, sr = sampling_rate, mono = True)
-        wav = wav_padding(wav = wav, sr = sampling_rate, frame_period = frame_period, multiple = 4)
-        f0, timeaxis, sp, ap = world_decompose(wav = wav, fs = sampling_rate, frame_period = frame_period)
-        coded_sp = world_encode_spectral_envelop(sp = sp, fs = sampling_rate, dim = num_features)
+        wav, _ = librosa.load(filepath, sr=sampling_rate, mono=True)
+        wav = wav_padding(wav=wav, sr=sampling_rate, 
+                          frame_period=frame_period, multiple=4)
+        f0, timeaxis, sp, ap = world_decompose(wav=wav, fs=sampling_rate, 
+                                               frame_period=frame_period)
+        coded_sp = world_encode_spectral_envelop(sp=sp, fs=sampling_rate, 
+                                                 dim=num_features)
         coded_sp_transposed = coded_sp.T
 
         if conversion_direction == 'A2B':
-            f0_converted = pitch_conversion(f0 = f0, mean_log_src = logf0s_mean_A, std_log_src = logf0s_std_A, mean_log_target = logf0s_mean_B, std_log_target = logf0s_std_B)
+            f0_converted = pitch_conversion(f0=f0, mean_log_src=logf0s_mean_A, 
+                                            std_log_src=logf0s_std_A, 
+                                            mean_log_target=logf0s_mean_B, 
+                                            std_log_target=logf0s_std_B)
             #f0_converted = f0
             coded_sp_norm = (coded_sp_transposed - mcep_mean_A) / mcep_std_A
-            coded_sp_converted_norm = model.test(inputs = np.array([coded_sp_norm]), direction = conversion_direction)[0]
+            coded_sp_converted_norm = model.test(inputs=np.array([coded_sp_norm]), 
+                                                 direction=conversion_direction)[0]
             coded_sp_converted = coded_sp_converted_norm * mcep_std_B + mcep_mean_B
         else:
-            f0_converted = pitch_conversion(f0 = f0, mean_log_src = logf0s_mean_B, std_log_src = logf0s_std_B, mean_log_target = logf0s_mean_A, std_log_target = logf0s_std_A)
+            f0_converted = pitch_conversion(f0=f0, mean_log_src=logf0s_mean_B, 
+                                            std_log_src=logf0s_std_B, 
+                                            mean_log_target=logf0s_mean_A, 
+                                            std_log_target=logf0s_std_A)
             #f0_converted = f0
             coded_sp_norm = (coded_sp_transposed - mcep_mean_B) / mcep_std_B
-            coded_sp_converted_norm = model.test(inputs = np.array([coded_sp_norm]), direction = conversion_direction)[0]
+            coded_sp_converted_norm = model.test(inputs=np.array([coded_sp_norm]), 
+                                                 direction=conversion_direction)[0]
             coded_sp_converted = coded_sp_converted_norm * mcep_std_A + mcep_mean_A
 
         coded_sp_converted = coded_sp_converted.T
         coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
-        decoded_sp_converted = world_decode_spectral_envelop(coded_sp = coded_sp_converted, fs = sampling_rate)
-        wav_transformed = world_speech_synthesis(f0 = f0_converted, decoded_sp = decoded_sp_converted, ap = ap, fs = sampling_rate, frame_period = frame_period)
-        scwav.write(os.path.join(output_dir, os.path.basename(file)), sampling_rate, wav_transformed)
+        decoded_sp_converted = world_decode_spectral_envelop(coded_sp=coded_sp_converted, 
+                                                             fs=sampling_rate)
+        wav_transformed = world_speech_synthesis(f0=f0_converted, 
+                                                 decoded_sp=decoded_sp_converted, 
+                                                 ap=ap, fs=sampling_rate, 
+                                                 frame_period=frame_period)
+        scwav.write(os.path.join(output_dir, os.path.basename(file)), 
+                    sampling_rate, wav_transformed)
 
 
 if __name__ == '__main__':
