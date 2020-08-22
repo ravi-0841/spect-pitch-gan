@@ -364,7 +364,7 @@ class VariationalCycleGAN(object):
                 generated_momenta_A, generated_momenta_B
 
 
-    def test(self, mfc_A, pitch_A, mfc_B, pitch_B):
+    def test_gen(self, mfc_A, pitch_A, mfc_B, pitch_B):
         gen_mom_B, gen_pitch_B, gen_mfc_B, = self.sess.run([self.momenta_A2B_test, \
                                     self.pitch_A2B_test, self.mfc_A2B_test], \
                                     feed_dict={self.pitch_A_test:pitch_A, \
@@ -378,7 +378,7 @@ class VariationalCycleGAN(object):
         
         return gen_pitch_A, gen_mfc_A, gen_pitch_B, gen_mfc_B, gen_mom_A, gen_mom_B
 
-    def test_compact(self, input_pitch, input_mfc, direction):
+    def test(self, input_pitch, input_mfc, direction):
 
         if direction == 'A2B':
             generated_pitch, generated_mfc = self.sess.run([self.pitch_A2B_test, 
