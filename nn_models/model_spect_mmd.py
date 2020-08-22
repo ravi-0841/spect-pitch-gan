@@ -410,18 +410,22 @@ class VariationalCycleGAN(object):
     def summary(self):
 
         with tf.name_scope('generator_summaries'):
-            cycle_loss_pitch_summary = tf.summary.scalar('cycle_loss_pitch', \
-                                    self.cycle_loss_pitch)
-            cycle_loss_mfc_summary = tf.summary.scalar('cycle_loss_mfc', \
-                                    self.cycle_loss_mfc)
-            identity_loss_summary = tf.summary.scalar('identity_loss_mfc', \
-                                    self.identity_loss_mfc)
-            generator_loss_A2B_summary = tf.summary.scalar('generator_loss_A2B', \
-                                    self.generator_loss_A2B)
-            generator_loss_B2A_summary = tf.summary.scalar('generator_loss_B2A', \
-                                    self.generator_loss_B2A)
-            generator_kernel_loss_summary = tf.summary.scalar('generator_kernel_loss', \
-                                    self.gen_kernel_loss)
+            cycle_loss_pitch_summary = tf.summary.scalar('cycle_loss_pitch', 
+                    self.cycle_loss_pitch)
+            cycle_loss_mfc_summary = tf.summary.scalar('cycle_loss_mfc', 
+                    self.cycle_loss_mfc)
+            identity_loss_summary = tf.summary.scalar('identity_loss_mfc', 
+                    self.identity_loss_mfc)
+            generator_loss_A2B_summary = tf.summary.scalar('generator_loss_A2B', 
+                    self.generator_loss_A2B)
+            generator_loss_B2A_summary = tf.summary.scalar('generator_loss_B2A', 
+                    self.generator_loss_B2A)
+            generator_kernel_loss_summary = tf.summary.scalar('generator_kernel_loss', 
+                    self.gen_kernel_loss)
+            kernel_AA_summary = tf.summary.scalar('generator_kernel_AA', self.kernel_AA)
+            kernel_AB_summary = tf.summary.scalar('generator_kernel_AB', self.kernel_AB)
+            kernel_BB_summary = tf.summary.scalar('generator_kernel_BB', self.kernel_BB)
+            kernel_BA_summary = tf.summary.scalar('generator_kernel_BA', self.kernel_BA)
             generator_loss_summary = tf.summary.scalar('generator_loss', \
                                     self.generator_loss)
             generator_summaries = tf.summary.merge([cycle_loss_pitch_summary, \
@@ -430,7 +434,11 @@ class VariationalCycleGAN(object):
                                     generator_loss_A2B_summary, \
                                     generator_loss_B2A_summary, \
                                     generator_kernel_loss_summary, \
-                                    generator_loss_summary])
+                                    generator_loss_summary, \
+                                    kernel_AA_summary, \
+                                    kernel_AB_summary, \
+                                    kernel_BB_summary, \
+                                    kernel_BA_summary])
 
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_A_summary \
