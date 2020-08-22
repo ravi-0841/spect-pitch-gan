@@ -242,66 +242,66 @@ class AE(object):
         self.saver.save(self.sess, os.path.join(directory, filename))
 
 
-if __name__ == '__main__':
-
-    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest')
-    
-    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
-    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
-
-    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
-    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
-                             np.ones((mfc_B.shape[0],1))), axis=0)
-    
-    mini_batch_size = 512
-    learning_rate = 1e-03
-    num_epochs = 1000
-    lambda_ae = 1.5
-    
-    model = AE(dim_mfc=23, pre_train="./model/AE_cmu.ckpt")
-    
-    classifier_loss = list()
-    ae_loss = list()
-    
-    for epoch in range(1,num_epochs+1):
-
-        print('Epoch: %d' % epoch)
-
-        start_time_epoch = time.time()
-        n_samples = mfc_feats.shape[0]
-        
-        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
-        
-        train_class_loss = list()
-        train_ae_loss = list()
-
-        for i in range(n_samples // mini_batch_size):
-
-            start = i * mini_batch_size
-            end = (i + 1) * mini_batch_size
-
-            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
-                                               labels=labels[start:end], 
-                                               learning_rate=learning_rate, 
-                                               lambda_ae=lambda_ae)
-            
-            train_class_loss.append(c_loss)
-            train_ae_loss.append(a_loss)
-        
-        classifier_loss.append(np.mean(train_class_loss))
-        ae_loss.append(np.mean(train_ae_loss))
-        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
-        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
-
-        model.save(directory='./model', filename='AE_cmu_pre_trained_noise_std_1.ckpt')
-        
-        end_time_epoch = time.time()
-        time_elapsed_epoch = end_time_epoch - start_time_epoch
-
-        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
-                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
-
-        sys.stdout.flush()        
+#if __name__ == '__main__':
+#
+#    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest')
+#    
+#    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
+#    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
+#
+#    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
+#    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
+#                             np.ones((mfc_B.shape[0],1))), axis=0)
+#    
+#    mini_batch_size = 512
+#    learning_rate = 1e-03
+#    num_epochs = 1000
+#    lambda_ae = 1.5
+#    
+#    model = AE(dim_mfc=23, pre_train="./model/AE_cmu.ckpt")
+#    
+#    classifier_loss = list()
+#    ae_loss = list()
+#    
+#    for epoch in range(1,num_epochs+1):
+#
+#        print('Epoch: %d' % epoch)
+#
+#        start_time_epoch = time.time()
+#        n_samples = mfc_feats.shape[0]
+#        
+#        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
+#        
+#        train_class_loss = list()
+#        train_ae_loss = list()
+#
+#        for i in range(n_samples // mini_batch_size):
+#
+#            start = i * mini_batch_size
+#            end = (i + 1) * mini_batch_size
+#
+#            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
+#                                               labels=labels[start:end], 
+#                                               learning_rate=learning_rate, 
+#                                               lambda_ae=lambda_ae)
+#            
+#            train_class_loss.append(c_loss)
+#            train_ae_loss.append(a_loss)
+#        
+#        classifier_loss.append(np.mean(train_class_loss))
+#        ae_loss.append(np.mean(train_ae_loss))
+#        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
+#        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
+#
+#        model.save(directory='./model', filename='AE_cmu_pre_trained_noise_std_1.ckpt')
+#        
+#        end_time_epoch = time.time()
+#        time_elapsed_epoch = end_time_epoch - start_time_epoch
+#
+#        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
+#                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
+#
+#        sys.stdout.flush()        
 
 
 #if __name__=='__main__':
@@ -311,7 +311,7 @@ if __name__ == '__main__':
 #    import scipy.io.wavfile as scwav
 #    
 #    model = AE(dim_mfc=23)
-#    model.load('./model/AE_cmu_pre_trained.ckpt')
+#    model.load('./model/AE_cmu_pre_trained_noise_std_1.ckpt')
 #    data = scio.loadmat('./data/neu-ang/valid_mod_dtw_harvest.mat')
 #    mfc_A = data['src_mfc_feat']
 #    mfc_B = data['tar_mfc_feat']
@@ -338,7 +338,7 @@ if __name__ == '__main__':
 #    pylab.title('Reconstructed')
 #    pylab.suptitle('Slice %d' % q)
 #    
-#    filename = '/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/angry/1574.wav'
+#    filename = '/home/ravi/Desktop/pitch-lddmm-spect/data/evaluation/neu-ang/neutral/1074.wav'
 #    d = scwav.read(filename)
 #    d = np.asarray(d[1], np.float64)
 #    f0, sp, ap = pw.wav2world(d, 16000, frame_period=5)
@@ -351,8 +351,8 @@ if __name__ == '__main__':
 #    speech_recon = pw.synthesize(f0, spect_recon[:len(f0)], ap, 16000, frame_period=5)
 #    speech_recon = (speech_recon - np.min(speech_recon)) / (np.max(speech_recon) - np.min(speech_recon))
 #    speech_recon = np.asarray(speech_recon - np.mean(speech_recon), np.float32)
-##    scwav.write('/home/ravi/Desktop/test_cmu_pt_AE_angry_'+os.path.basename(filename), 
-##                16000, speech_recon)
+#    scwav.write('/home/ravi/Desktop/cmu_pt_AE_std_1_neutral_'+os.path.basename(filename), 
+#                16000, speech_recon)
 #    
 #    
 #    # Analyzing the correlation for energy profile
