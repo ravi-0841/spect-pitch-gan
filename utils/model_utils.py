@@ -115,7 +115,7 @@ def mfcc_derivative_loss(y, y_hat, derivative_op=None):
     return tf.reduce_mean(tf.abs(y_derivative - y_hat_derivative))
 
 def eval_kernel(kernel1, kernel2):
-    exp_kernel = tf.exp(-1*tf.reduce_sum(tf.pow(kernel1 - kernel2, 2)))
+    exp_kernel = tf.exp(-1*tf.reduce_sum(tf.pow(tf.subtract(kernel1, kernel2), 2))/100)
     return exp_kernel
 
 
