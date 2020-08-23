@@ -24,7 +24,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                data_dir=None, conversion_direction=None, output_dir=None):
     
     ae_model = AE(dim_mfc=num_mfcc)
-    ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
+    ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
     model = VariationalCycleGAN(dim_mfc=1, dim_pitch=1, mode='test')
     model.load(filepath=os.path.join(model_dir, model_name))
     
@@ -117,7 +117,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
                                                              frame_period=frame_period)
-            scwav.write(os.path.join(output_dir, os.path.basename(file)), 
+            scwav.write(os.path.join(output_dir, 'denoised_'+os.path.basename(file)), 
                         sampling_rate, wav_transformed)
             print('Processed: ' + file)
 
