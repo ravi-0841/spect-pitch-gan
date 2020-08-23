@@ -242,66 +242,66 @@ class AE(object):
         self.saver.save(self.sess, os.path.join(directory, filename))
 
 
-#if __name__ == '__main__':
-#
-#    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest')
-#    
-#    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
-#    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
-#
-#    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
-#    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
-#                             np.ones((mfc_B.shape[0],1))), axis=0)
-#    
-#    mini_batch_size = 512
-#    learning_rate = 1e-03
-#    num_epochs = 1000
-#    lambda_ae = 1.5
-#    
-#    model = AE(dim_mfc=23, pre_train="./model/AE_cmu.ckpt")
-#    
-#    classifier_loss = list()
-#    ae_loss = list()
-#    
-#    for epoch in range(1,num_epochs+1):
-#
-#        print('Epoch: %d' % epoch)
-#
-#        start_time_epoch = time.time()
-#        n_samples = mfc_feats.shape[0]
-#        
-#        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
-#        
-#        train_class_loss = list()
-#        train_ae_loss = list()
-#
-#        for i in range(n_samples // mini_batch_size):
-#
-#            start = i * mini_batch_size
-#            end = (i + 1) * mini_batch_size
-#
-#            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
-#                                               labels=labels[start:end], 
-#                                               learning_rate=learning_rate, 
-#                                               lambda_ae=lambda_ae)
-#            
-#            train_class_loss.append(c_loss)
-#            train_ae_loss.append(a_loss)
-#        
-#        classifier_loss.append(np.mean(train_class_loss))
-#        ae_loss.append(np.mean(train_ae_loss))
-#        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
-#        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
-#
-#        model.save(directory='./model', filename='AE_cmu_pre_trained_noise_std_1.ckpt')
-#        
-#        end_time_epoch = time.time()
-#        time_elapsed_epoch = end_time_epoch - start_time_epoch
-#
-#        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
-#                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
-#
-#        sys.stdout.flush()        
+if __name__ == '__main__':
+
+    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest')
+    
+    mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
+    mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
+
+    mfc_feats = np.concatenate((mfc_A, mfc_B), axis=0)    
+    labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
+                             np.ones((mfc_B.shape[0],1))), axis=0)
+    
+    mini_batch_size = 512
+    learning_rate = 1e-04
+    num_epochs = 1000
+    lambda_ae = 1.5
+    
+    model = AE(dim_mfc=23, pre_train="./model/AE_cmu_pre_trained_noise_std_1.ckpt")
+    
+    classifier_loss = list()
+    ae_loss = list()
+    
+    for epoch in range(1,num_epochs+1):
+
+        print('Epoch: %d' % epoch)
+
+        start_time_epoch = time.time()
+        n_samples = mfc_feats.shape[0]
+        
+        mfc_feats, labels = shuffle_feats_label(mfc_feats, labels)
+        
+        train_class_loss = list()
+        train_ae_loss = list()
+
+        for i in range(n_samples // mini_batch_size):
+
+            start = i * mini_batch_size
+            end = (i + 1) * mini_batch_size
+
+            c_loss, a_loss, embed, predict = model.train(mfc_features=mfc_feats[start:end], 
+                                               labels=labels[start:end], 
+                                               learning_rate=learning_rate, 
+                                               lambda_ae=lambda_ae)
+            
+            train_class_loss.append(c_loss)
+            train_ae_loss.append(a_loss)
+        
+        classifier_loss.append(np.mean(train_class_loss))
+        ae_loss.append(np.mean(train_ae_loss))
+        print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
+        print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
+
+        model.save(directory='./model', filename='AE_cmu_pre_trained_noise_std_1_2.ckpt')
+        
+        end_time_epoch = time.time()
+        time_elapsed_epoch = end_time_epoch - start_time_epoch
+
+        print('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
+                (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
+
+        sys.stdout.flush()        
 
 
 #if __name__=='__main__':
