@@ -38,7 +38,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
 
     lc_lm = "lp_"+str(lambda_pitch) \
             + '_lm_'+str(lambda_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_supervised_embedding'
+            +"_lmo_"+str(lambda_momenta) + '_supervised_embedding_denoised'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -89,7 +89,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
     
     # using pre_trained encoder model
     encoder_decoder = AE(dim_mfc=23)
-    encoder_decoder.load('./model/AE_cmu_pre_trained.ckpt')
+    encoder_decoder.load('./model/AE_cmu_pre_trained_noise_std_1.ckpt')
 
     # use pre_train arg to provide trained model
     model = VariationalCycleGAN(dim_pitch=1, dim_mfc=1, \
