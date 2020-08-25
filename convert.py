@@ -8,7 +8,8 @@ import pylab
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
-from nn_models.model_embedding_wasserstein import VariationalCycleGAN
+#from nn_models.model_embedding_wasserstein import VariationalCycleGAN as VCGAN_embedding
+from nn_models.model_separate_discriminate_id import VariationalCycleGAN as VCGAN
 from encoder_decoder import AE
 
 
@@ -22,12 +23,17 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
 def conversion(model_dir=None, model_name=None, audio_file=None, 
-               data_dir=None, conversion_direction=None, output_dir=None):
+               data_dir=None, conversion_direction=None, 
+               output_dir=None, embedding=False):
     
-    ae_model = AE(dim_mfc=num_mfcc)
-    ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
-    model = VariationalCycleGAN(dim_mfc=1, dim_pitch=1, mode='test')
-    model.load(filepath=os.path.join(model_dir, model_name))
+    if embedding:
+        ae_model = AE(dim_mfc=num_mfcc)
+        ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')    
+#        model = VCGAN_embedding(dim_mfc=1, dim_pitch=1, mode='test')
+#        model.load(filepath=os.path.join(model_dir, model_name))
+    else:
+        model = VCGAN(dim_mfc=23, dim_pitch=1, mode='test')
+        model.load(filepath=os.path.join(model_dir, model_name))
     
     if audio_file is not None:
         wav, sr = librosa.load(audio_file, sr=sampling_rate, mono=True)
@@ -41,7 +47,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         
         coded_sp = np.expand_dims(coded_sp, axis=0)
         coded_sp = np.transpose(coded_sp, (0,2,1))
-        sp_embedding = ae_model.get_embedding(mfc_features=coded_sp)
+        
+        if embedding:
+            sp_embedding = ae_model.get_embedding(mfc_features=coded_sp)
+            coded_sp = sp_embedding
         
         f0 = scisig.medfilt(f0, kernel_size=3)
         z_idx = np.where(f0<10.0)[0]
@@ -50,11 +59,13 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         f0 = np.reshape(f0, (1,1,-1))
 
         f0_converted, coded_sp_converted = model.test(input_pitch=f0, 
-                                                      input_mfc=sp_embedding, 
+                                                      input_mfc=coded_sp, 
                                                       direction=conversion_direction)
         
 
-        coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
+        if embedding:
+            coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
+
         coded_sp_converted = np.asarray(np.transpose(coded_sp_converted[0]), np.float64)
         coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
         f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
@@ -91,7 +102,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             
             coded_sp = np.expand_dims(coded_sp, axis=0)
             coded_sp = np.transpose(coded_sp, (0,2,1))
-            sp_embedding = ae_model.get_embedding(mfc_features=coded_sp)
+            
+            if embedding:
+                sp_embedding = ae_model.get_embedding(mfc_features=coded_sp)
+                coded_sp = sp_embedding
             
             f0 = scisig.medfilt(f0, kernel_size=3)
             z_idx = np.where(f0<10.0)[0]
@@ -100,10 +114,12 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0 = np.reshape(f0, (1,1,-1))
     
             f0_converted, coded_sp_converted = model.test(input_pitch=f0, 
-                                                          input_mfc=sp_embedding, 
+                                                          input_mfc=coded_sp, 
                                                           direction=conversion_direction)
             
-            coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
+            if embedding:
+                coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
+
             coded_sp_converted = np.asarray(np.transpose(coded_sp_converted[0]), np.float64)
             coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
@@ -111,20 +127,14 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted[z_idx] = 0
             
             # Mixing the mfcc features
-            print(np.min(coded_sp_converted), np.min(coded_sp))
-#            coded_sp_converted = np.max(coded_sp) \
-#                * (coded_sp_converted - np.min(coded_sp_converted)) \
-#                / (np.max(coded_sp_converted) - np.min(coded_sp_converted)) + np.min(coded_sp)
-            coded_sp_converted = 0.6*coded_sp_converted + 0.4*np.transpose(np.squeeze(coded_sp))
+#            print(np.min(coded_sp_converted), np.min(coded_sp))
+            
+            if embedding:
+                coded_sp_converted = 0.6*coded_sp_converted + 0.4*np.transpose(np.squeeze(coded_sp))
             
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                          fs=sampling_rate)
-            
-            # Mixing the spectral features
-#            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
-#            sp = sp / np.max(sp)
-#            decoded_sp_converted = 0.5*decoded_sp_converted + 0.5*sp
             
             # Normalization of converted features
 #            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
@@ -137,7 +147,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                 / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
-            scwav.write(os.path.join(output_dir, 'mfc_mixing_'+os.path.basename(file)), 
+            scwav.write(os.path.join(output_dir, 'old_style_'+os.path.basename(file)), 
                         sampling_rate, wav_transformed)
             print('Processed: ' + file)
 
@@ -146,7 +156,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein'
+    model_dir_default = './model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000'
     model_name_default = 'neu-ang_1000.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'

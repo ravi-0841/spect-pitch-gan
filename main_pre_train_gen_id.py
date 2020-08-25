@@ -17,7 +17,7 @@ import utils.preprocess as preproc
 from importlib import reload
 
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, \
             validation_dir, output_dir, \
