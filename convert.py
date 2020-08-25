@@ -25,7 +25,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                data_dir=None, conversion_direction=None, output_dir=None):
     
     ae_model = AE(dim_mfc=num_mfcc)
-    ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
+    ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
     model = VariationalCycleGAN(dim_mfc=1, dim_pitch=1, mode='test')
     model.load(filepath=os.path.join(model_dir, model_name))
     
@@ -111,6 +111,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted[z_idx] = 0
             
             # Mixing the mfcc features
+            print(np.min(coded_sp_converted), np.min(coded_sp))
 #            coded_sp_converted = np.max(coded_sp) \
 #                * (coded_sp_converted - np.min(coded_sp_converted)) \
 #                / (np.max(coded_sp_converted) - np.min(coded_sp_converted)) + np.min(coded_sp)
@@ -120,7 +121,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                          fs=sampling_rate)
             
-            # Mixing the decoded sp and input sp
+            # Mixing the spectral features
 #            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #            sp = sp / np.max(sp)
 #            decoded_sp_converted = 0.5*decoded_sp_converted + 0.5*sp
@@ -136,7 +137,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                 / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
-            scwav.write(os.path.join(output_dir, 'spect_mixing_denoised_'+os.path.basename(file)), 
+            scwav.write(os.path.join(output_dir, 'mfc_mixing_'+os.path.basename(file)), 
                         sampling_rate, wav_transformed)
             print('Processed: ' + file)
 
