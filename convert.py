@@ -111,7 +111,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted[z_idx] = 0
             
             # Mixing the mfcc features
-            coded_sp_converted = 0.5*coded_sp_converted + 0.5*np.transpose(np.squeeze(coded_sp))
+#            coded_sp_converted = np.max(coded_sp) \
+#                * (coded_sp_converted - np.min(coded_sp_converted)) \
+#                / (np.max(coded_sp_converted) - np.min(coded_sp_converted)) + np.min(coded_sp)
+            coded_sp_converted = 0.6*coded_sp_converted + 0.4*np.transpose(np.squeeze(coded_sp))
             
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
@@ -123,12 +126,17 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            decoded_sp_converted = 0.5*decoded_sp_converted + 0.5*sp
             
             # Normalization of converted features
-            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
+#            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
                                                              frame_period=frame_period)
-            scwav.write(os.path.join(output_dir, 'mfc_mixing_denoised_'+os.path.basename(file)), 
+            
+            wav_transformed = (wav_transformed - np.min(wav_transformed)) \
+                / (np.max(wav_transformed) - np.min(wav_transformed))
+            wav_transformed = wav_transformed - np.mean(wav_transformed)
+            
+            scwav.write(os.path.join(output_dir, 'spect_mixing_denoised_'+os.path.basename(file)), 
                         sampling_rate, wav_transformed)
             print('Processed: ' + file)
 
