@@ -11,7 +11,7 @@ class VariationalCycleGAN(object):
 
     def __init__(self, dim_pitch=1, dim_mfc=23, n_frames=128, 
             pitch_discriminator=pitch_discriminator, 
-            spect_discriminator=spect_discriminator,  
+            mfc_discriminator=mfc_discriminator,  
             generator=generator, sampler=sampler, 
             lddmm=lddmm, mode='train', 
             log_dir='./log', pre_train=None):
