@@ -5,6 +5,7 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --exclude=gpu023
 #SBATCH --exclude=gpu044
+#SBATCH --exclude=gpu030
 #SBATCH -t 48:00:00
 
 module load cuda/10.1
