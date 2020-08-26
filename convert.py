@@ -28,7 +28,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
     
     if embedding:
         ae_model = AE(dim_mfc=num_mfcc)
-        ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')    
+        ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
 #        model = VCGAN_embedding(dim_mfc=1, dim_pitch=1, mode='test')
 #        model.load(filepath=os.path.join(model_dir, model_name))
     else:
