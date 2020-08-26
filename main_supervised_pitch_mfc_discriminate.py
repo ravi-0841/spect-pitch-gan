@@ -88,7 +88,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
                                                                    (time_elapsed % 60 // 1)))
     
     # use pre_trained encoder model
-    encoder_decoder = AE(dim_mmfc=23)
+    encoder_decoder = AE(dim_mfc=23)
     encoder_decoder.load('./model/AE_cmu_pre_trained_noise_std_1.ckpt')
 
     # use pre_train arg to provide trained model
@@ -109,6 +109,9 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
                         momenta_B2A=momenta_B2A_train)
         mfc_A = encoder_decoder.get_embedding(mfc_features=mfc_A)
         mfc_B = encoder_decoder.get_embedding(mfc_features=mfc_B)
+
+        print(mfc_A.shape, mfc_B.shape)
+        sys.stdout.flush()
         
         n_samples = mfc_A.shape[0]
         
