@@ -29,7 +29,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     np.random.seed(random_seed)
 
-    num_epochs = 1000
+    num_epochs = 2000
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
@@ -118,7 +118,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     
     # using pre_trained encoder model
     encoder_decoder = AE(dim_mfc=23)
-    encoder_decoder.load('./model/AE_cmu_pre_trained.ckpt')
+    encoder_decoder.load('./model/AE_cmu_pre_trained_noise_std_1.ckpt')
 
     # modify validation mfc features
     mfc_A_valid = encoder_decoder.get_embedding(mfc_features=mfc_A_valid)
@@ -294,7 +294,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_embedding/cmu-arctic975.ckpt', 
+          pre_train='./model/cmu-arctic/lp_0.0001_lm_0.0001_lmo_0.01_supervised_embedding_denoised/cmu-arctic975.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_mfc=lambda_cycle_mfc, 
           lambda_momenta=lambda_momenta, lambda_identity_mfc=lambda_identity_mfc,  
           generator_learning_rate=generator_learning_rate, 
