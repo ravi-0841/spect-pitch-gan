@@ -16,6 +16,7 @@ from glob import glob
 from nn_models.model_supervised_pitch_mfc_discriminate import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 from importlib import reload
+from encoder_decoder import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -86,8 +87,12 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
                                                                    (time_elapsed % 3600 // 60), \
                                                                    (time_elapsed % 60 // 1)))
     
-    #use pre_train arg to provide trained model
-    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, \
+    # use pre_trained encoder model
+    encoder_decoder = AE(dim_mmfc=23)
+    encoder_decoder.load('./model/AE_cmu_pre_trained_noise_std_1.ckpt')
+
+    # use pre_train arg to provide trained model
+    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=1, \
                 n_frames=n_frames, pre_train=pre_train)
     
     for epoch in range(1,num_epochs+1):
@@ -102,6 +107,8 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
                         pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                         momenta_A2B=momenta_A2B_train, 
                         momenta_B2A=momenta_B2A_train)
+        mfc_A = encoder_decoder.get_embedding(mfc_features=mfc_A)
+        mfc_B = encoder_decoder.get_embedding(mfc_features=mfc_B)
         
         n_samples = mfc_A.shape[0]
         
