@@ -68,9 +68,9 @@ if __name__ == '__main__':
     pitch_B_valid = np.vstack(pitch_B_valid)
     
     ae_model = AE(dim_mfc=23)
-    ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
+    ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_embedding_wasserstein/neu-ang_1000.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_pre_trained_embedding_wasserstein/neu-ang_2000.ckpt')
     
     mfc_A_valid = ae_model.get_embedding(mfc_features=mfc_A_valid)
     mfc_B_valid = ae_model.get_embedding(mfc_features=mfc_B_valid)

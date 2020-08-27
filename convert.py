@@ -8,7 +8,7 @@ import pylab
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
-#from nn_models.model_embedding_wasserstein import VariationalCycleGAN as VCGAN_embedding
+from nn_models.model_embedding_wasserstein import VariationalCycleGAN as VCGAN_embedding
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN as VCGAN
 from encoder_decoder import AE
 
@@ -24,13 +24,13 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 def conversion(model_dir=None, model_name=None, audio_file=None, 
                data_dir=None, conversion_direction=None, 
-               output_dir=None, embedding=False):
+               output_dir=None, embedding=True):
     
     if embedding:
         ae_model = AE(dim_mfc=num_mfcc)
-        ae_model.load(filename='./model/AE_cmu_pre_trained.ckpt')
-#        model = VCGAN_embedding(dim_mfc=1, dim_pitch=1, mode='test')
-#        model.load(filepath=os.path.join(model_dir, model_name))
+        ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
+        model = VCGAN_embedding(dim_mfc=1, dim_pitch=1, mode='test')
+        model.load(filepath=os.path.join(model_dir, model_name))
     else:
         model = VCGAN(dim_mfc=23, dim_pitch=1, mode='test')
         model.load(filepath=os.path.join(model_dir, model_name))
@@ -105,7 +105,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             
             if embedding:
                 sp_embedding = ae_model.get_embedding(mfc_features=coded_sp)
-                coded_sp = sp_embedding
+            else:
+                sp_embedding = coded_sp
             
             f0 = scisig.medfilt(f0, kernel_size=3)
             z_idx = np.where(f0<10.0)[0]
@@ -114,13 +115,13 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0 = np.reshape(f0, (1,1,-1))
     
             f0_converted, coded_sp_converted = model.test(input_pitch=f0, 
-                                                          input_mfc=coded_sp, 
+                                                          input_mfc=sp_embedding, 
                                                           direction=conversion_direction)
             
             if embedding:
                 coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
 
-            coded_sp_converted = np.asarray(np.transpose(coded_sp_converted[0]), np.float64)
+            coded_sp_converted = np.asarray(np.transpose(np.squeeze(coded_sp_converted)), np.float64)
             coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
             f0_converted = np.ascontiguousarray(f0_converted)
@@ -147,7 +148,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                 / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
-            scwav.write(os.path.join(output_dir, 'old_style_'+os.path.basename(file)), 
+            scwav.write(os.path.join(output_dir, 
+                        '2000_mfc_mixing_denoised_'+os.path.basename(file)), 
                         sampling_rate, wav_transformed)
             print('Processed: ' + file)
 
@@ -156,18 +158,18 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id'
-    model_name_default = 'neu-ang_1000.ckpt'
+    model_dir_default = './model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_pre_trained_embedding_wasserstein'
+    model_name_default = 'neu-ang_2000.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/converted_emotion_AE_wasserstein'
     audio_file_default = None
 
-    parser.add_argument('--model_dir', type = str, help = 'Directory for the pre-trained model.', default=model_dir_default)
-    parser.add_argument('--model_name', type = str, help = 'Filename for the pre-trained model.', default=model_name_default)
-    parser.add_argument('--data_dir', type = str, help = 'Directory for the voices for conversion.', default=data_dir_default)
-    parser.add_argument('--conversion_direction', type = str, help = 'Conversion direction for VCGAN, A2B or B2A', default=conversion_direction_default)
-    parser.add_argument('--output_dir', type = str, help = 'Directory for the converted voices.', default=output_dir_default)
+    parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
+    parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
+    parser.add_argument('--data_dir', type=str, help='Directory for the voices for conversion.', default=data_dir_default)
+    parser.add_argument('--conversion_direction', type=str, help='Conversion direction for VCGAN, A2B or B2A', default=conversion_direction_default)
+    parser.add_argument('--output_dir', type=str, help='Directory for the converted voices.', default=output_dir_default)
     parser.add_argument('--audio_file', type=str, help='convert a single audio file', default=audio_file_default)
 
     argv = parser.parse_args()
