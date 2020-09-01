@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_spect_discriminate import sampler, \
+from modules.modules_pitch_mfc_discriminate import sampler, \
         generator, pitch_discriminator, mfc_discriminator
 from utils.model_utils import l1_loss
 from utils.tf_forward_tan import lddmm 
