@@ -285,7 +285,7 @@ class VariationalCycleGAN(object):
                 + self.mfc_discriminator_loss_B) / 2.0
 
         # Final merging of pitch and mfc discriminators
-        self.discriminator_loss = (self.joint_discriminator_loss + self.spect_discriminator_loss) / 2.0
+        self.discriminator_loss = (self.joint_discriminator_loss + self.mfc_discriminator_loss) / 2.0
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
