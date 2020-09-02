@@ -395,13 +395,13 @@ class VariationalCycleGAN(object):
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_pitch_summary \
                 = tf.summary.scalar('discriminator_loss_pitch', \
-                        self.pitch_discriminator_loss)
+                        tf.reduce_mean(self.pitch_discriminator_loss))
             discriminator_loss_mfc_summary \
                 = tf.summary.scalar('discriminator_loss_mfc', \
-                        self.mfc_discriminator_loss)
+                        tf.reduce_mean(self.mfc_discriminator_loss))
             discriminator_loss_summary \
                 = tf.summary.scalar('discriminator_loss', \
-                        self.discriminator_loss)
+                        tf.reduce_mean(self.discriminator_loss))
             discriminator_summaries \
                 = tf.summary.merge([discriminator_loss_pitch_summary, \
                         discriminator_loss_mfc_summary, \
