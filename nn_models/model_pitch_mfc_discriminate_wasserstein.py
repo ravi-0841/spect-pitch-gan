@@ -220,10 +220,10 @@ class VariationalCycleGAN(object):
             = (self.pitch_discrimination_input_A_real_B_fake \
                 - self.pitch_discrimination_input_A_fake_B_real) / 2.0
         self.pitch_discriminator_loss_B \
-            = (self.pitch_discrimination_input_B_real_A_fake \ 
+            = (self.pitch_discrimination_input_B_real_A_fake \
                 - self.pitch_discrimination_input_B_fake_A_real) / 2.0
         self.pitch_discriminator_loss = (self.pitch_discriminator_loss_A \
-                                     + self.pitch_discriminator_loss_B) / 2.0
+                + self.pitch_discriminator_loss_B) / 2.0
 
 
         # Compute the mfcc discriminator probability for mfcc 
@@ -246,7 +246,7 @@ class VariationalCycleGAN(object):
             = (self.mfc_discrimination_input_A_real_B_fake \
                 - self.mfc_discrimination_input_A_fake_B_real) / 2.0
         self.mfc_discriminator_loss_B \
-            = (self.mfc_discrimination_input_B_real_A_fake \ 
+            = (self.mfc_discrimination_input_B_real_A_fake \
                 - self.mfc_discrimination_input_B_fake_A_real) / 2.0
         self.mfc_discriminator_loss = (self.mfc_discriminator_loss_A \
                                      + self.mfc_discriminator_loss_B) / 2.0
