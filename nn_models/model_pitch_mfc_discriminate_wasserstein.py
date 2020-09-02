@@ -382,11 +382,11 @@ class VariationalCycleGAN(object):
             identity_loss_summary = tf.summary.scalar('identity_loss_mfc', \
                                     self.identity_loss_mfc)
             generator_loss_A2B_summary = tf.summary.scalar('generator_loss_A2B', \
-                                    self.generator_loss_A2B)
+                                    tf.reduce_mean(self.generator_loss_A2B))
             generator_loss_B2A_summary = tf.summary.scalar('generator_loss_B2A', \
-                                    self.generator_loss_B2A)
+                                    tf.reduce_mean(self.generator_loss_B2A))
             generator_loss_summary = tf.summary.scalar('generator_loss', \
-                                    self.generator_loss)
+                                    tf.reduce_mean(self.generator_loss))
             generator_summaries = tf.summary.merge([cycle_loss_pitch_summary, 
                                     cycle_loss_mfc_summary, identity_loss_summary, 
                                     generator_loss_A2B_summary, generator_loss_B2A_summary, 
