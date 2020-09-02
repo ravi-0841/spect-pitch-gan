@@ -176,14 +176,14 @@ class VariationalCycleGAN(object):
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
-        self.generator_loss_A2B = l1_loss(y=tf.ones_like(self.pitch_discrimination_B_fake), 
+        self.generator_loss_A2B = (l1_loss(y=tf.ones_like(self.pitch_discrimination_B_fake), 
                 y_hat=self.pitch_discrimination_B_fake) \
                 + l1_loss(y=tf.ones_like(self.mfc_discrimination_B_fake), 
-                          y_hat=self.mfc_discrimination_B_fake) / 2.0
-        self.generator_loss_B2A = l1_loss(y=tf.ones_like(self.pitch_discrimination_A_fake), 
+                          y_hat=self.mfc_discrimination_B_fake)) / 2.0
+        self.generator_loss_B2A = (l1_loss(y=tf.ones_like(self.pitch_discrimination_A_fake), 
                 y_hat=self.pitch_discrimination_A_fake) \
                 + l1_loss(y=tf.ones_like(self.mfc_discrimination_A_fake), 
-                          y_hat=self.mfc_discrimination_A_fake) / 2.0
+                          y_hat=self.mfc_discrimination_A_fake)) / 2.0
 
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
