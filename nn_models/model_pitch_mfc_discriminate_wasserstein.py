@@ -176,8 +176,8 @@ class VariationalCycleGAN(object):
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
-        self.generator_loss_A2B = (-1*self.pitch_discrimination_B_fake + -1*self.mfc_discrimination_B_fake) / 2.0
-        self.generator_loss_B2A = (-1*self.pitch_discrimination_A_fake + -1*self.mfc_discrimination_A_fake) / 2.0
+        self.generator_loss_A2B = -1*(self.pitch_discrimination_B_fake + self.mfc_discrimination_B_fake)
+        self.generator_loss_B2A = -1*(self.pitch_discrimination_A_fake + self.mfc_discrimination_A_fake)
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
         self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
@@ -218,12 +218,12 @@ class VariationalCycleGAN(object):
         # Compute pitch discriminator loss for backprop
         self.pitch_discriminator_loss_A \
             = (self.pitch_discrimination_input_A_real_B_fake \
-                - self.pitch_discrimination_input_A_fake_B_real)
+                - self.pitch_discrimination_input_A_fake_B_real) / 2.0
         self.pitch_discriminator_loss_B \
             = (self.pitch_discrimination_input_B_real_A_fake \
-                - self.pitch_discrimination_input_B_fake_A_real)
-        self.pitch_discriminator_loss = (self.pitch_discriminator_loss_A \
-                + self.pitch_discriminator_loss_B) / 2.0
+                - self.pitch_discrimination_input_B_fake_A_real) / 2.0
+#        self.pitch_discriminator_loss = (self.pitch_discriminator_loss_A \
+#                + self.pitch_discriminator_loss_B) / 2.0
 
 
         # Compute the mfcc discriminator probability for mfcc 
@@ -244,15 +244,19 @@ class VariationalCycleGAN(object):
         # Compute pitch discriminator loss for backprop
         self.mfc_discriminator_loss_A \
             = (self.mfc_discrimination_input_A_real_B_fake \
-                - self.mfc_discrimination_input_A_fake_B_real)
+                - self.mfc_discrimination_input_A_fake_B_real) / 2.0
         self.mfc_discriminator_loss_B \
             = (self.mfc_discrimination_input_B_real_A_fake \
-                - self.mfc_discrimination_input_B_fake_A_real)
-        self.mfc_discriminator_loss = (self.mfc_discriminator_loss_A \
-                                     + self.mfc_discriminator_loss_B) / 2.0
+                - self.mfc_discrimination_input_B_fake_A_real) / 2.0
+#        self.mfc_discriminator_loss = (self.mfc_discriminator_loss_A \
+#                                     + self.mfc_discriminator_loss_B) / 2.0
+
+        self.discriminator_A_loss = (self.pitch_discriminator_loss_A + self.mfc_discriminator_loss_A)
+        self.discriminator_B_loss = (self.pitch_discriminator_loss_B + self.mfc_discriminator_loss_B)
 
         # Final merging of pitch and mfc discriminators
-        self.discriminator_loss = (self.pitch_discriminator_loss + self.mfc_discriminator_loss) / 2.0
+#        self.discriminator_loss = (self.pitch_discriminator_loss + self.mfc_discriminator_loss) / 2.0
+        self.discriminator_loss = (self.discriminator_A_loss + self.discriminator_B_loss) / 2.0
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
