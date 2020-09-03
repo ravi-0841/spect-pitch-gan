@@ -423,8 +423,6 @@ class VariationalCycleGAN(object):
                         discriminatorB_loss_pitch_summary, \
                         discriminatorA_loss_mfc_summary, \
                         discriminatorB_loss_mfc_summary, \
-                        discriminator_loss_pitch_summary, \
-                        discriminator_loss_mfc_summary, \
                         discriminator_loss_summary])
 
         return generator_summaries, discriminator_summaries
