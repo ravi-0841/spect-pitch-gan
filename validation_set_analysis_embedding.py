@@ -13,7 +13,8 @@ import pyworld as pw
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
-from nn_models.model_embedding_wasserstein import VariationalCycleGAN
+from nn_models.model_pitch_mfc_discriminate_wasserstein import VariationalCycleGAN
+#from nn_models.model_embedding_wasserstein import VariationalCycleGAN
 from encoder_decoder import AE
 #from nn_models.model_wasserstein import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
@@ -70,7 +71,7 @@ if __name__ == '__main__':
     ae_model = AE(dim_mfc=23)
     ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_pre_trained_embedding_wasserstein/neu-ang_2000.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein/neu-ang_1700.ckpt')
     
     mfc_A_valid = ae_model.get_embedding(mfc_features=mfc_A_valid)
     mfc_B_valid = ae_model.get_embedding(mfc_features=mfc_B_valid)
