@@ -68,7 +68,7 @@ def sampler(input_pitch, input_mfc, final_filters=1, reuse=False, \
         return o2
 
 
-def generator(input_pitch, input_mfc, final_filters=1, reuse=False, \
+def generator(input_pitch, input_mfc, final_filters=23, reuse=False, \
                        scope_name='generator'):
 
     # Inputs have shape [batch_size, num_features, time]
