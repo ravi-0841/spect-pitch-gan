@@ -88,7 +88,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
     
 
     # use pre_train arg to provide trained model
-    model = VariationalCycleGAN(dim_pitch=23, dim_mfc=1, \
+    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=23, \
                 n_frames=n_frames, pre_train=pre_train)
     
     for epoch in range(1,num_epochs+1):
