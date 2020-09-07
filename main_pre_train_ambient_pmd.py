@@ -144,7 +144,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             generator_loss, discriminator_loss, \
             gen_pitch_A, gen_mfc_A, gen_pitch_B, \
             gen_mfc_B, mom_A, mom_B \
-                = model.train_grad(mfc_A=mfc_A[start:end], 
+                = model.train(mfc_A=mfc_A[start:end], 
                     mfc_B=mfc_B[start:end], pitch_A=pitch_A[start:end], 
                     pitch_B=pitch_B[start:end], lambda_cycle_pitch=lambda_cycle_pitch, 
                     lambda_cycle_mfc=lambda_cycle_mfc, lambda_momenta=lambda_momenta,
