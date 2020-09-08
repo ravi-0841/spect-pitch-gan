@@ -132,7 +132,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            print(np.min(coded_sp_converted), np.min(coded_sp))
             
             if embedding:
-                coded_sp_converted = 0.4*coded_sp_converted + 0.6*np.transpose(np.squeeze(coded_sp))
+                coded_sp_converted = 0.5*coded_sp_converted + 0.5*np.transpose(np.squeeze(coded_sp))
             
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
@@ -159,8 +159,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein'
-    model_name_default = 'neu-ang_1700.ckpt'
+    model_dir_default = './model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein'
+    model_name_default = 'neu-ang_2000.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/converted_emotion_AE_wasserstein'
