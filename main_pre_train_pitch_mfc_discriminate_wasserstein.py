@@ -264,13 +264,13 @@ if __name__ == '__main__':
     parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
             default=0.00001)
     parser.add_argument('--lambda_cycle_mfc', type=float, help="hyperparam for cycle loss mfc", 
-            default=1.0)
+            default=0.1)
     parser.add_argument('--lambda_identity_mfc', type=float, help="hyperparam for identity loss mfc", 
-            default=0.5)
+            default=0.05)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
-            default=1e-6)
+            default=1e-06)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
-            default=1e-07)
+            default=1e-06)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
     
