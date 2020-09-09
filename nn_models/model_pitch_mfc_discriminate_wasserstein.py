@@ -385,6 +385,7 @@ class VariationalCycleGAN(object):
                                     self.cycle_loss_mfc)
             identity_loss_summary = tf.summary.scalar('identity_loss_mfc', \
                                     self.identity_loss_mfc)
+            momenta_loss_summary = tf.summary.scalar('momenta_loss', self.momenta_loss)
             generator_loss_A2B_summary = tf.summary.scalar('generator_loss_A2B', \
                                     tf.reduce_mean(self.generator_loss_A2B))
             generator_loss_B2A_summary = tf.summary.scalar('generator_loss_B2A', \
@@ -393,8 +394,8 @@ class VariationalCycleGAN(object):
                                     tf.reduce_mean(self.generator_loss))
             generator_summaries = tf.summary.merge([cycle_loss_pitch_summary, 
                                     cycle_loss_mfc_summary, identity_loss_summary, 
-                                    generator_loss_A2B_summary, generator_loss_B2A_summary, 
-                                    generator_loss_summary])
+                                    momenta_loss_summary, generator_loss_A2B_summary, 
+                                    generator_loss_B2A_summary, generator_loss_summary])
 
         with tf.name_scope('discriminator_summaries'):
             discriminatorA_loss_pitch_summary \
