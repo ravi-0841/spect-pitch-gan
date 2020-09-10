@@ -42,7 +42,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +"_lmo_"+str(lambda_momenta) \
             +"_lrg_"+str(generator_learning_rate) \
             +"_lrd_"+str(discriminator_learning_rate) + "_li_"\
-            + str(lambda_identity_mfc) + '_pre_trained_pitch_mfc_discriminate_wasserstein'
+            + str(lambda_identity_mfc) + '_pre_trained_pitch_mfc_discriminate_wasserstein_reshuff'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -77,8 +77,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'train_5.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'valid_5.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'train_reshuff_5.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'valid_reshuff_5.mat'))
 
     pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
     pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
