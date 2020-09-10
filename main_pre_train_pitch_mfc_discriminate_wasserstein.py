@@ -242,7 +242,7 @@ if __name__ == '__main__':
 #    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
     output_dir_default = './validation_output/'+emo_pair
     tensorboard_log_dir_default = './log/'+emo_pair
-    random_seed_default = 1
+    random_seed_default = 0
 
     parser.add_argument('--train_dir', type=str, help='Directory for A.', 
             default=train_dir_default)
