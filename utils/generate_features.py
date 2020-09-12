@@ -278,7 +278,7 @@ if __name__=='__main__':
     emo_dict = {'neutral-angry':'neu-ang', 'neutral-happy':'neu-hap', \
                 'neutral-sad':'neu-sad'}
    
-    for i in ['test', 'valid', 'train']:
+    for i in ['test_reshuff', 'valid_reshuff', 'train_reshuff']:
    
         FILE_LIST_src = sorted(glob(os.path.join('/home/ravi/Downloads/Emo-Conv/', \
                                                  'neutral-'+target_emo+'/'+i+'/neutral/', '*.wav')))
@@ -296,7 +296,7 @@ if __name__=='__main__':
         file_names, (src_f0_feat, src_mfc_feat, tar_f0_feat, tar_mfc_feat, \
                      src_spect_feat, tar_spect_feat) \
                      = get_feats(FILE_LIST, sample_rate, window_len, 
-                             window_stride, n_feats=128, n_mfc=23, num_samps=8)
+                             window_stride, n_feats=128, n_mfc=23, num_samps=40)
 
         scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_'+i+'.mat', \
                     { \
@@ -304,8 +304,6 @@ if __name__=='__main__':
                          'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \
                          'src_f0_feat':    np.asarray(src_f0_feat, np.float32), \
                          'tar_f0_feat':    np.asarray(tar_f0_feat, np.float32), \
-                         'src_spect_feat':   np.asarray(src_spect_feat, np.float32), \
-                         'tar_spect_feat':   np.asarray(tar_spect_feat, np.float32), \
                          'file_names':     file_names
                      })
         
