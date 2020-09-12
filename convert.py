@@ -132,7 +132,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            print(np.min(coded_sp_converted), np.min(coded_sp))
             
             if embedding:
-                coded_sp_converted = 0.5*coded_sp_converted + 0.5*np.transpose(np.squeeze(coded_sp))
+                coded_sp_converted = 0.4*coded_sp_converted + 0.6*np.transpose(np.squeeze(coded_sp))
             
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
