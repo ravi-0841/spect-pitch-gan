@@ -12,6 +12,7 @@ from utils.helper import smooth, generate_interpolation
 from nn_models.model_pitch_mfc_discriminate_wasserstein import VariationalCycleGAN as VCGAN_embedding
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN as VCGAN
 from encoder_decoder import AE
+from model_pair_lvi import CycleGAN as CycleGAN_f0s
 
 
 num_mfcc = 23
@@ -32,6 +33,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
         model = VCGAN_embedding(dim_mfc=1, dim_pitch=1, mode='test')
         model.load(filepath=os.path.join(model_dir, model_name))
+        cgan_f0 = CycleGAN_f0s(mode='test')
+        cgan_f0.load(filepath='/home/ravi/Desktop/pitch-gan/pitch-lddmm-gan/model_f0/neu-ang/selected/neu-ang.ckpt')
     else:
         model = VCGAN(dim_mfc=23, dim_pitch=1, mode='test')
         model.load(filepath=os.path.join(model_dir, model_name))
@@ -115,9 +118,12 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0 = smooth(f0, window_len=13)
             f0 = np.reshape(f0, (1,1,-1))
     
-            f0_converted, coded_sp_converted = model.test(input_pitch=f0, 
+            _, coded_sp_converted = model.test(input_pitch=f0, 
                                                           input_mfc=sp_embedding, 
                                                           direction=conversion_direction)
+            
+            f0_converted = cgan_f0.test(input_pitch=f0, input_mfc=coded_sp, 
+                                        direction='A2B')
             
             if embedding:
                 coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
@@ -150,7 +156,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
             scwav.write(os.path.join(output_dir, 
-                        'mfc_mixing_pmw_denoised_'+os.path.basename(file)), 
+                        'old_f0_mfc_mixing_pmw_denoised_'+os.path.basename(file)), 
                         sampling_rate, wav_transformed)
             print('Processed: ' + file)
 
