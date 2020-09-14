@@ -38,9 +38,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = 'lp_'+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
-            +'_lmo_'+str(lambda_momenta) + '_li_' \
+            +'_lmo_'+str(lambda_momenta) \
             +'_lrg_'+str(generator_learning_rate) \
-            +'_lrd_'+str(discriminator_learning_rate) \
+            +'_lrd_'+str(discriminator_learning_rate) +'_li_' \
             + str(lambda_identity_mfc) + '_pre_trained_ambient_pmd_wasserstein'
 
     model_dir = os.path.join(model_dir, lc_lm)
