@@ -36,9 +36,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "lp_"+str(lambda_cycle_pitch) \
+    lc_lm = 'lp_'+str(lambda_cycle_pitch) \
             + '_lm_'+str(lambda_cycle_mfc) \
-            +"_lmo_"+str(lambda_momenta) + '_li_' \
+            +'_lmo_'+str(lambda_momenta) + '_li_' \
+            +'_lrg_'+str(generator_learning_rate) \
+            +'_lrd_'+str(discriminator_learning_rate) \
             + str(lambda_identity_mfc) + '_pre_trained_ambient_pmd_wasserstein'
 
     model_dir = os.path.join(model_dir, lc_lm)
@@ -254,6 +256,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
                         wav_transformed = preproc.world_speech_synthesis(f0=f0_conv, 
                                 decoded_sp=sp_conv, ap=ap_conv, fs=sampling_rate, 
                                 frame_period=frame_period)
+
+                        wav_transformed = (wav_transformed - np.min(wav_transformed)) \
+                                / (np.max(wav_transformed) - np.min(wav_transformed))
+                        wav_transformed = wav_transformed - np.mean(wav_transformed)
+
                         librosa.output.write_wav(os.path.join(validation_output_dir, \
                                 os.path.basename(file)), wav_transformed, sampling_rate)
                     except Exception as ex:
