@@ -253,8 +253,8 @@ if __name__ == '__main__':
     labels = np.concatenate((np.zeros((mfc_A.shape[0],1)), 
                              np.ones((mfc_B.shape[0],1))), axis=0)
     
-    mini_batch_size = 256
-    learning_rate = 1e-04
+    mini_batch_size = 512
+    learning_rate = 1e-03
     num_epochs = 1000
     lambda_ae = 1.5
     
