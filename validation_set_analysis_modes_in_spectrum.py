@@ -12,10 +12,9 @@ import tensorflow as tf
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
 from utils.model_utils import delta_matrix
-#from nn_models.model_separate_discriminate_id import VariationalCycleGAN
+from nn_models.model_separate_discriminate_id import VariationalCycleGAN
 #from nn_models.model_wasserstein import VariationalCycleGAN
 #from nn_models.model_spect_discriminate import VariationalCycleGAN
-from nn_models.model_pitch_mfc_discriminate_wasserstein import VariationalCycleGAN
 from mfcc_spect_analysis_VCGAN import _power_to_db
 from scipy.linalg import sqrtm, inv
 
@@ -54,11 +53,11 @@ if __name__ == '__main__':
     
     pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
     pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
-    pitch_A_valid = np.transpose(pitch_A_valid, (0,1,3,2))
-    pitch_B_valid = np.transpose(pitch_B_valid, (0,1,3,2))
+#    pitch_A_valid = np.transpose(pitch_A_valid, (0,1,3,2))
+#    pitch_B_valid = np.transpose(pitch_B_valid, (0,1,3,2))
     
-#    pitch_A_valid = np.transpose(data_valid['src_f0_feat'], (0,1,3,2))
-#    pitch_B_valid = np.transpose(data_valid['tar_f0_feat'], (0,1,3,2))
+    pitch_A_valid = np.transpose(data_valid['src_f0_feat'], (0,1,3,2))
+    pitch_B_valid = np.transpose(data_valid['tar_f0_feat'], (0,1,3,2))
     mfc_A_valid = np.transpose(data_valid['src_mfc_feat'], (0,1,3,2))
     mfc_B_valid = np.transpose(data_valid['tar_mfc_feat'], (0,1,3,2))
     
@@ -75,12 +74,12 @@ if __name__ == '__main__':
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_3500/neu-ang_3500.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id_1000/neu-ang_1000.ckpt')
-#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_id/neu-ang_1000.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss_inv_norm/neu-ang_1200.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_li_0.05_glr1e-07_dlr_1e-07_pre_trained_spect_loss/neu-ang_700.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_wasserstein/neu-ang_1700.ckpt')
 #    model.load(filepath='./model/neu-ang/lp_1e-05_lm_1.0_lmo_1e-06_li_0.5_pre_trained_spect_discriminate/neu-ang_900.ckpt')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein_all_spk/neu-ang_200.ckpt')
+
     
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))

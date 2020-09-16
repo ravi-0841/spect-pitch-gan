@@ -51,10 +51,15 @@ def normalize(x, nmz_type='min_max'):
 
 
 if __name__ == '__main__':
-    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_5.mat')
-    
-    pitch_A_valid = np.transpose(data_valid['src_f0_feat'], (0,1,3,2))
-    pitch_B_valid = np.transpose(data_valid['tar_f0_feat'], (0,1,3,2))
+    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_mod_dtw_harvest.mat')
+
+    pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
+    pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
+    pitch_A_valid = np.transpose(pitch_A_valid, (0,1,3,2))
+    pitch_B_valid = np.transpose(pitch_B_valid, (0,1,3,2))
+
+#    pitch_A_valid = np.transpose(data_valid['src_f0_feat'], (0,1,3,2))
+#    pitch_B_valid = np.transpose(data_valid['tar_f0_feat'], (0,1,3,2))
     mfc_A_valid = np.transpose(data_valid['src_mfc_feat'], (0,1,3,2))
     mfc_B_valid = np.transpose(data_valid['tar_mfc_feat'], (0,1,3,2))
     
@@ -71,7 +76,8 @@ if __name__ == '__main__':
     ae_model = AE(dim_mfc=23)
     ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
     model = VariationalCycleGAN(dim_mfc=num_mfcc, dim_pitch=num_pitch, mode='test')
-    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein/neu-ang_2000.ckpt')
+#    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein/neu-ang_2000.ckpt')
+    model.load(filepath='./model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein_all_spk/neu-ang_200.ckpt')
     
     mfc_A_valid = ae_model.get_embedding(mfc_features=mfc_A_valid)
     mfc_B_valid = ae_model.get_embedding(mfc_features=mfc_B_valid)
