@@ -18,4 +18,4 @@ cd $HOME/data/ravi/spect-pitch-gan
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf.simg python3 encoder_decoder.py 
+singularity exec --nv ./tf.simg python3 encoder_decoder_nmz.py 
