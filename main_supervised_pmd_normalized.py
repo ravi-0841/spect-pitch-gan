@@ -105,7 +105,7 @@ def train(train_dir, model_dir, model_name, random_seed, tensorboard_log_dir,
     
     # use pre_trained encoder model
     encoder_decoder = AE(dim_mfc=23)
-    encoder_decoder.load('./model/AE_cmu_nmz_noise_std_1.ckpt')
+    encoder_decoder.load('./model/AE_nmz_noise_std_1.ckpt')
 
     # use pre_train arg to provide trained model
     model = VariationalCycleGAN(dim_pitch=1, dim_mfc=1, \
