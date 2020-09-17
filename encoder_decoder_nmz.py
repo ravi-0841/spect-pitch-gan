@@ -244,7 +244,7 @@ class AE(object):
 
 if __name__ == '__main__':
 
-    data = scio.loadmat('./data/cmu-arctic/cmu-arctic.mat')
+    data = scio.loadmat('./data/neu-ang/train_mod_dtw_harvest.mat')
     
     mfc_A = np.vstack(np.transpose(data['src_mfc_feat'], (0,1,3,2)))
     mfc_B = np.vstack(np.transpose(data['tar_mfc_feat'], (0,1,3,2)))
@@ -262,11 +262,11 @@ if __name__ == '__main__':
                              np.ones((mfc_B.shape[0],1))), axis=0)
     
     mini_batch_size = 512
-    learning_rate = 1e-03
+    learning_rate = 1e-04
     num_epochs = 1000
     lambda_ae = 1.5
     
-    model = AE(dim_mfc=23, pre_train=None)
+    model = AE(dim_mfc=23, pre_train='./model/AE_cmu_nmz_noise_std_1.ckpt')
     
     classifier_loss = list()
     ae_loss = list()
@@ -301,7 +301,7 @@ if __name__ == '__main__':
         print('Classifier Loss in epoch %d- %f' % (epoch, np.mean(train_class_loss)))
         print('AE Loss in epoch %d- %f' % (epoch, np.mean(train_ae_loss)))
 
-        model.save(directory='./model', filename='AE_cmu_nmz_noise_std_1.ckpt')
+        model.save(directory='./model', filename='AE_nmz_noise_std_1.ckpt')
         
         end_time_epoch = time.time()
         time_elapsed_epoch = end_time_epoch - start_time_epoch
