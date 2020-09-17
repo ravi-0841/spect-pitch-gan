@@ -12,7 +12,7 @@ from utils.helper import smooth, generate_interpolation
 from nn_models.model_pitch_mfc_discriminate_wasserstein import VariationalCycleGAN as VCGAN_embedding
 from nn_models.model_separate_discriminate_id import VariationalCycleGAN as VCGAN
 from encoder_decoder import AE
-from model_pair_lvi import CycleGAN as CycleGAN_f0s
+#from model_pair_lvi import CycleGAN as CycleGAN_f0s
 
 
 num_mfcc = 23
@@ -33,8 +33,6 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         ae_model.load(filename='./model/AE_cmu_pre_trained_noise_std_1.ckpt')
         model = VCGAN_embedding(dim_mfc=1, dim_pitch=1, mode='test')
         model.load(filepath=os.path.join(model_dir, model_name))
-        cgan_f0 = CycleGAN_f0s(mode='test')
-        cgan_f0.load(filepath='/home/ravi/Desktop/pitch-gan/pitch-lddmm-gan/model_f0/neu-ang/selected/neu-ang.ckpt')
     else:
         model = VCGAN(dim_mfc=23, dim_pitch=1, mode='test')
         model.load(filepath=os.path.join(model_dir, model_name))
@@ -95,7 +93,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         for file in os.listdir(data_dir):
     
             filepath = os.path.join(data_dir, file)
+            
             wav, sr = librosa.load(filepath, sr=sampling_rate, mono=True)
+            wav = (wav - np.min(wav)) / (np.max(wav) - np.min(wav))
+            
             assert (sr==sampling_rate)
             wav = preproc.wav_padding(wav=wav, sr=sampling_rate, \
                               frame_period=frame_period, multiple=4)
@@ -118,12 +119,12 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0 = smooth(f0, window_len=13)
             f0 = np.reshape(f0, (1,1,-1))
     
-            _, coded_sp_converted = model.test(input_pitch=f0, 
+            f0_converted, coded_sp_converted = model.test(input_pitch=f0, 
                                                           input_mfc=sp_embedding, 
                                                           direction=conversion_direction)
             
-            f0_converted = cgan_f0.test(input_pitch=f0, input_mfc=coded_sp, 
-                                        direction='A2B')
+#            f0_converted = cgan_f0.test(input_pitch=f0, input_mfc=coded_sp, 
+#                                        direction='A2B')
             
             if embedding:
                 coded_sp_converted = ae_model.get_mfcc(embeddings=coded_sp_converted)
@@ -135,17 +136,17 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted[z_idx] = 0
             
             # Mixing the mfcc features
-#            print(np.min(coded_sp_converted), np.min(coded_sp))
+            print(np.min(coded_sp_converted), np.min(coded_sp))
             
             if embedding:
-                coded_sp_converted = 0.4*coded_sp_converted + 0.6*np.transpose(np.squeeze(coded_sp))
+                coded_sp_converted = 0.5*coded_sp_converted + 0.5*np.transpose(np.squeeze(coded_sp))
             
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                          fs=sampling_rate)
             
             # Normalization of converted features
-#            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
+            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
@@ -155,9 +156,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                 / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
-            scwav.write(os.path.join(output_dir, 
-                        'old_f0_mfc_mixing_pmw_denoised_'+os.path.basename(file)), 
-                        sampling_rate, wav_transformed)
+            scwav.write(os.path.join(output_dir, os.path.basename(file)), 
+                        16000, wav_transformed)
             print('Processed: ' + file)
 
 
@@ -165,9 +165,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein'
-    model_name_default = 'neu-ang_2000.ckpt'
-    data_dir_default = 'data/evaluation/neu-ang/neutral_5'
+    model_dir_default = './model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_2e-06_lrd_1e-07_li_0.05_pre_trained_pitch_mfc_discriminate_wasserstein_all_spk'
+    model_name_default = 'neu-ang_450.ckpt'
+    data_dir_default = 'data/evaluation/neu-ang/neutral'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/converted_emotion_AE_wasserstein'
     audio_file_default = None
