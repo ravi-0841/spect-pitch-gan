@@ -15,7 +15,7 @@ from nn_models.model_pitch_mfc_discriminate_wasserstein import VariationalCycleG
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
-from encoder_decoder import AE
+from encoder_decoder_nmz import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
