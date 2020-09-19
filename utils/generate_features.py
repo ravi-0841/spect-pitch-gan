@@ -17,6 +17,16 @@ from feat_utils import smooth, smooth_contour, \
     generate_interpolation, normalize_wav, encode_raw_spectrum
 
 
+def preprocess_pitch(pitch):
+    """
+    Expects pitch as a numpy array of shape (T,)
+    """
+    pitch = scisig.medfilt(pitch, kernel_size=3)
+    pitch = np.asarray(generate_interpolation(pitch), np.float32)
+    pitch = smooth(pitch, window_len=13)
+    return pitch
+
+
 def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128, 
                  n_mfc=23, num_samps=10, window_len=0.005, 
                  window_stride=0.005, encode_raw_spect=False):
@@ -58,27 +68,26 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
                                             hop_length=int(window_len*sample_rate), 
                                             win_length=int(0.025*sample_rate)))
 
-        f0_src = scisig.medfilt(f0_src, kernel_size=3)
-        f0_tar = scisig.medfilt(f0_tar, kernel_size=3)
-        f0_src = np.asarray(f0_src, np.float32)
-        f0_tar = np.asarray(f0_tar, np.float32)
+#        f0_src = scisig.medfilt(f0_src, kernel_size=3)
+#        f0_tar = scisig.medfilt(f0_tar, kernel_size=3)
 
 #        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
 #        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
 #        ec_src = scisig.medfilt(ec_src, kernel_size=3)
 #        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
-#        ec_src = np.asarray(ec_src, np.float32)
-#        ec_tar = np.asarray(ec_tar, np.float32)
 
-        f0_src = np.asarray(generate_interpolation(f0_src), np.float32)
-        f0_tar = np.asarray(generate_interpolation(f0_tar), np.float32)
+#        f0_src = np.asarray(generate_interpolation(f0_src), np.float32)
+#        f0_tar = np.asarray(generate_interpolation(f0_tar), np.float32)
 #        ec_src = np.asarray(generate_interpolation(ec_src), np.float32)
 #        ec_tar = np.asarray(generate_interpolation(ec_tar), np.float32)
         
-        f0_src = smooth(f0_src, window_len=13)
-        f0_tar = smooth(f0_tar, window_len=13)
+#        f0_src = smooth(f0_src, window_len=13)
+#        f0_tar = smooth(f0_tar, window_len=13)
 #        ec_src = smooth(ec_src, window_len=13)
 #        ec_tar = smooth(ec_tar, window_len=13)
+        
+        f0_src = preprocess_pitch(f0_src)
+        f0_tar = preprocess_pitch(f0_tar)
         
         if encode_raw_spect:
             src_mfc = encode_raw_spectrum(src_straight, axis=1, dim_mfc=n_mfc)
