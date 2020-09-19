@@ -5,6 +5,7 @@
 #SBATCH --cpus-per-task=6
 #SBATCH -t 10:00:00
 #SBATCH --qos=gpuv100
+#SBATCH --exclude=gpudev001
 
 module load cuda/10.1
 module load singularity
