@@ -192,7 +192,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info("Train Generator Loss- {}".format(np.mean(train_gen_loss)))
         logging.info("Train Discriminator Loss- {}".format(np.mean(train_disc_loss)))
 
-        if epoch%100 == 0:
+        if epoch%50 == 0:
 
             for i in range(mfc_A_valid.shape[0]):
 
@@ -245,6 +245,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
             
             cur_model_name = model_name+"_"+str(epoch)+".ckpt"
             model.save(directory=model_dir, filename=cur_model_name)
+        
+        sys.stdout.flush()
 
 
 if __name__ == '__main__':

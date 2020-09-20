@@ -1,11 +1,9 @@
 #!/bin/bash -l
-#SBATCH --partition=gpuv100
+#SBATCH --partition=gpuk80
 #SBATCH --gres=gpu:1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=6
 #SBATCH -t 10:00:00
-#SBATCH --qos=gpuv100
-#SBATCH --exclude=gpudev001
 
 module load cuda/10.1
 module load singularity
