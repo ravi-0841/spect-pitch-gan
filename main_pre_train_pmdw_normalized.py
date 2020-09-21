@@ -42,7 +42,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +"_lmo_"+str(lambda_momenta) \
             +"_lrg_"+str(generator_learning_rate) \
             +"_lrd_"+str(discriminator_learning_rate) + "_li_"\
-            + str(lambda_identity_mfc) + '_pre_trained_pmdw_normalized_all_spk2'
+            + str(lambda_identity_mfc) + '_pre_trained_pmdw_normalized_all_spk_2'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
