@@ -49,7 +49,7 @@ def normalize(x, nmz_type='min_max'):
 
 
 if __name__ == '__main__':
-    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_mod_dtw_harvest.mat')
+    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/valid_5.mat')
     
     pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
     pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
