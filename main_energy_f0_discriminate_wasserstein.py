@@ -100,7 +100,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_train = energy_B_train[indices_train]
 
     energy_A_valid, pitch_A_valid, \
-        energy_B_valid, pitch_B_valid = preproc.sample_data_energy(energy_A=energy_A_valid, \
+        energy_B_valid, pitch_B_valid = preproc.sample_data_embed(energy_A=energy_A_valid, \
                                     energy_B=energy_B_valid, pitch_A=pitch_A_valid, \
                                     pitch_B=pitch_B_valid)
 
@@ -130,7 +130,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         start_time_epoch = time.time()
 
         energy_A, pitch_A, \
-            energy_B, pitch_B = preproc.sample_data_energy(energy_A=energy_A_train, \
+            energy_B, pitch_B = preproc.sample_data_embed(energy_A=energy_A_train, \
                             energy_B=energy_B_train, pitch_A=pitch_A_train, \
                             pitch_B=pitch_B_train)
         
