@@ -100,8 +100,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_train = energy_B_train[indices_train]
 
     energy_A_valid, pitch_A_valid, \
-        energy_B_valid, pitch_B_valid = preproc.sample_data_embed(energy_A=energy_A_valid, \
-                                    energy_B=energy_B_valid, pitch_A=pitch_A_valid, \
+        energy_B_valid, pitch_B_valid = preproc.sample_data_embed(mfc_A=energy_A_valid, \
+                                    mfc_B=energy_B_valid, pitch_A=pitch_A_valid, \
                                     pitch_B=pitch_B_valid)
 
     if validation_dir is not None:
@@ -130,11 +130,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
         start_time_epoch = time.time()
 
         energy_A, pitch_A, \
-            energy_B, pitch_B = preproc.sample_data_embed(energy_A=energy_A_train, \
-                            energy_B=energy_B_train, pitch_A=pitch_A_train, \
+            energy_B, pitch_B = preproc.sample_data_embed(mfc_A=energy_A_train, \
+                            mfc_B=energy_B_train, pitch_A=pitch_A_train, \
                             pitch_B=pitch_B_train)
         
-        n_samples = mfc_A.shape[0]
+        n_samples = energy_A.shape[0]
         
         train_gen_loss = []
         train_disc_loss = []
@@ -214,7 +214,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
         logging.info('Time Elapsed for This Epoch: %02d:%02d:%02d' % (time_elapsed_epoch // 3600, \
                 (time_elapsed_epoch % 3600 // 60), (time_elapsed_epoch % 60 // 1)))
 
-        if epoch % 50 == 0:
+        if epoch % 100 == 0:
             
             cur_model_name = model_name+"_"+str(epoch)+".ckpt"
             model.save(directory=model_dir, filename=cur_model_name)
