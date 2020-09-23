@@ -5,6 +5,7 @@ import librosa
 import scipy.io.wavfile as scwav
 import scipy.signal as scisig
 import pylab
+import numpy.matlib as npmat
 
 import utils.preprocess as preproc
 from utils.helper import smooth, generate_interpolation
@@ -26,7 +27,7 @@ os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 def conversion(model_dir=None, model_name=None, audio_file=None, 
                data_dir=None, conversion_direction=None, 
-               output_dir=None, embedding=True):
+               output_dir=None, embedding=True, only_energy=False):
     
     if embedding:
         ae_model = AE(dim_mfc=num_mfcc)
@@ -138,8 +139,13 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             # Mixing the mfcc features
             print(np.min(coded_sp_converted), np.min(coded_sp))
             
-            if embedding:
+            if embedding and not only_energy:
                 coded_sp_converted = 0.6*coded_sp_converted + 0.4*np.transpose(np.squeeze(coded_sp))
+            elif embedding and only_energy:
+                energy_contour_converted = np.sum(coded_sp_converted**2, axis=1, keepdims=True)
+                energy_contour = np.sum(np.squeeze(coded_sp).T**2, axis=1, keepdims=True)
+                factor = (energy_contour_converted / energy_contour)**(0.5)
+                coded_sp_converted = np.squeeze(coded_sp).T * (npmat.repmat(factor, 1,coded_sp.shape[1]))
             
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
@@ -169,7 +175,7 @@ if __name__ == '__main__':
     model_name_default = 'neu-ang_450.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/test/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/AE_wasserstein'
+    output_dir_default = '/home/ravi/Desktop/AE_wasserstein_energy'
     audio_file_default = None
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
@@ -190,6 +196,6 @@ if __name__ == '__main__':
     
     conversion(model_dir=model_dir, model_name=model_name, audio_file=audio_file, 
                data_dir=data_dir, conversion_direction=conversion_direction, 
-               output_dir=output_dir)
+               output_dir=output_dir, embedding=True, only_energy=True)
 
 
