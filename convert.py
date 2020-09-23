@@ -152,7 +152,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                                          fs=sampling_rate)
             
             # Normalization of converted features
-            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
+#            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
