@@ -167,13 +167,13 @@ class VariationalCycleGAN(object):
 
 
         # Generator Discriminator Loss
-        self.discrimination_B_fake = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, 
-            self.mfc_generation_A2B], axis=1), input_pitch=tf.concat([self.pitch_A_real, 
-                self.pitch_generation_A2B], axis=1), reuse=False, scope_name='discriminator_A')
+        self.discrimination_B_fake = self.discriminator(input_pitch=tf.concat([self.pitch_A_real, 
+            self.pitch_A2B_fake], axis=1), input_energy=tf.concat([self.energy_A_real, 
+                self.energy_A2B_fake], axis=1), reuse=False, scope_name='discriminator_A')
 
-        self.discrimination_A_fake = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, 
-            self.mfc_generation_B2A], axis=1), input_pitch=tf.concat([self.pitch_B_real, 
-                self.pitch_generation_B2A], axis=1), reuse=False, scope_name='discriminator_B')
+        self.discrimination_A_fake = self.discriminator(input_pitch=tf.concat([self.pitch_B_real, 
+            self.pitch_B2A_fake], axis=1), input_energy=tf.concat([self.energy_B_real, 
+                self.energy_B2A_fake], axis=1), reuse=False, scope_name='discriminator_B')
 
         # Cycle loss
         self.cycle_loss_pitch = (utils.l1_loss(y=self.pitch_A_real, 
