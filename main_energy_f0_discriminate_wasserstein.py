@@ -42,7 +42,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +"_lmo_"+str(lambda_momenta) \
             +"_lrg_"+str(generator_learning_rate) \
             +"_lrd_"+str(discriminator_learning_rate) + "_li_"\
-            + str(lambda_identity_mfc) + '_enerfy_f0_discriminate_wasserstein_all_spk'
+            + str(lambda_identity_mfc) + '_energy_f0_discriminate_wasserstein_all_spk'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -171,7 +171,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
                 gen_mom_A, gen_pitch_A, gen_energy_A, gen_mom_B, \
                         gen_pitch_B, gen_energy_B = model.test_gen(mfc_A=energy_A_valid[i:i+1], 
-                                                    energy_B=mfc_B_valid[i:i+1], 
+                                                    mfc_B=energy_B_valid[i:i+1], 
                                                     pitch_A=pitch_A_valid[i:i+1], 
                                                     pitch_B=pitch_B_valid[i:i+1])
 
