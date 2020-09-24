@@ -167,7 +167,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         if epoch%100 == 0:
 
-            for i in range(mfc_A_valid.shape[0]):
+            for i in range(energy_A_valid.shape[0]):
 
                 gen_mom_A, gen_pitch_A, gen_energy_A, gen_mom_B, \
                         gen_pitch_B, gen_energy_B = model.test_gen(mfc_A=energy_A_valid[i:i+1], 
