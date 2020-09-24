@@ -118,8 +118,8 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_A, reuse=True, scope_name='sampler_energy_A2B')
         self.energy_A2B_fake = self.lddmm(x=self.energy_A_real, p=self.momenta_energy_A2B, 
                 kernel=self.kernel_energy, reuse=False, scope_name='lddmm')
-        self.mfc_A2B_fake = tf.multiply(self.mfc_A, tf.math.pow(tf.divide(tf.add(self.energy_A2B_fake, 
-                1e-06), tf.add(self.energy_A_real, 1e-06)), 0.5))
+        self.mfc_A2B_fake = utils.modify_mfcc(self.mfc_A, utils.add_epsilon(self.energy_A2B_fake), 
+                utils.add_epsilon(self.energy_A_real))
 
         # Cyclic generation
         self.momenta_pitch_cycle_A2A = self.sampler_pitch(input_pitch=self.pitch_A2B_fake, 
@@ -148,8 +148,8 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_B2A')
         self.energy_B2A_fake = self.lddmm(x=self.energy_B_real, p=self.momenta_energy_B2A, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
-        self.mfc_B2A_fake = tf.multiply(self.mfc_B, tf.math.pow(tf.divide(tf.add(self.energy_B2A_fake, 
-                1e-06), tf.add(self.energy_B_real, 1e-06)), 0.5))
+        self.mfc_B2A_fake = utils.modify_mfcc(self.mfc_B, utils.add_epsilon(self.energy_B2A_fake), 
+                utils.add_epsilon(self.energy_B_real))
 
         # Cyclic generation
         self.momenta_pitch_cycle_B2B = self.sampler_pitch(input_pitch=self.pitch_B2A_fake, 
@@ -180,14 +180,14 @@ class VariationalCycleGAN(object):
             y_hat=self.pitch_cycle_A2A) + utils.l1_loss(y=self.pitch_B_real, 
                 y_hat=self.pitch_cycle_B2B)) / 2.0
 
-        self.cycle_loss_mfc = (utils.l1_loss(y=self.mfc_A_real, 
-            y_hat=self.mfc_cycle_A2A) + utils.l1_loss(y=self.mfc_B_real, 
-                y_hat=self.mfc_cycle_B2B)) / 2.0
+        self.cycle_loss_energy = (utils.l1_loss(y=self.energy_A_real, 
+            y_hat=self.energy_cycle_A2A) + utils.l1_loss(y=self.energy_B_real, 
+                y_hat=self.energy_cycle_B2B)) / 2.0
         
         # Identity Loss
-        self.identity_loss_mfc = (utils.l1_loss(y=self.mfc_identity_A2B, 
-            y_hat=self.mfc_B_real) + utils.l1_loss(y=self.mfc_identity_B2A, 
-                    y_hat=self.mfc_A_real)) / 2.0
+        self.identity_loss_energy = (utils.l1_loss(y=self.energy_identity_A2B, 
+            y_hat=self.energy_B_real) + utils.l1_loss(y=self.energy_identity_B2A, 
+                    y_hat=self.energy_A_real)) / 2.0
 
         # Sampler-Generator loss
         # Sampler-Generator wants to fool discriminator
@@ -195,50 +195,50 @@ class VariationalCycleGAN(object):
         self.generator_loss_B2A = -1*self.discrimination_A_fake
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
-        self.momentum_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momentum_A2B, [-1,1])))) \
-                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-                        tf.reshape(self.momentum_cycle_A2A, [-1,1]))))
-
-        self.momentum_loss_B2A = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momentum_B2A, [-1,1])))) \
-                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-                        tf.reshape(self.momentum_cycle_B2B, [-1,1]))))
-
-        self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
+#        self.momentum_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#            tf.reshape(self.momentum_A2B, [-1,1])))) \
+#                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#                        tf.reshape(self.momentum_cycle_A2A, [-1,1]))))
+#
+#        self.momentum_loss_B2A = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#            tf.reshape(self.momentum_B2A, [-1,1])))) \
+#                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#                        tf.reshape(self.momentum_cycle_B2B, [-1,1]))))
+#
+#        self.momenta_loss = (self.momentum_loss_A2B + self.momentum_loss_B2A) / 2.0
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
         self.generator_loss \
             = self.gen_disc_loss + self.lambda_cycle_pitch * self.cycle_loss_pitch \
-                + self.lambda_cycle_mfc * self.cycle_loss_mfc \
-                + self.lambda_momenta * self.momenta_loss \
-                + self.lambda_identity_mfc * self.identity_loss_mfc
+                + self.lambda_cycle_energy * self.cycle_loss_energy \
+                + self.lambda_identity_energy * self.identity_loss_energy
+#                + self.lambda_momenta * self.momenta_loss
 
         # Compute the discriminator probability for pair of inputs
         self.discrimination_input_A_real_B_fake \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_A_real, self.mfc_B_fake], axis=1), 
-                    input_pitch=tf.concat([self.pitch_A_real, self.pitch_B_fake], axis=1), 
+            = self.discriminator(input_pitch=tf.concat([self.pitch_A_real, self.pitch_B_fake], axis=1), 
+                    input_energy=tf.concat([self.energy_A_real, self.energy_B_fake], axis=1), 
                     reuse=True, scope_name='discriminator_A')
         self.discrimination_input_A_fake_B_real \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_A_fake, self.mfc_B_real], axis=1), 
-                    input_pitch=tf.concat([self.pitch_A_fake, self.pitch_B_real], axis=1), 
+            = self.discriminator(input_pitch=tf.concat([self.pitch_A_fake, self.pitch_B_real], axis=1), 
+                    input_energy=tf.concat([self.energy_A_fake, self.energy_B_real], axis=1), 
                     reuse=True, scope_name='discriminator_A')
 
         self.discrimination_input_B_real_A_fake \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_B_real, self.mfc_A_fake], axis=1), 
-                    input_pitch=tf.concat([self.pitch_B_real, self.pitch_A_fake], axis=1), 
+            = self.discriminator(input_pitch=tf.concat([self.pitch_B_real, self.pitch_A_fake], axis=1), 
+                    input_energy=tf.concat([self.energy_B_real, self.energy_A_fake], axis=1), 
                     reuse=True, scope_name='discriminator_B')
         self.discrimination_input_B_fake_A_real \
-            = self.discriminator(input_mfc=tf.concat([self.mfc_B_fake, self.mfc_A_real], axis=1), 
-                    input_pitch=tf.concat([self.pitch_B_fake, self.pitch_A_real], axis=1), 
+            = self.discriminator(input_pitch=tf.concat([self.pitch_B_fake, self.pitch_A_real], axis=1), 
+                    input_energy=tf.concat([self.energy_B_fake, self.energy_A_real], axis=1), 
                     reuse=True, scope_name='discriminator_B')
 
 
         # Compute discriminator loss for backprop
         self.discriminator_loss_A = (self.discrimination_input_A_real_B_fake \
-                - self.discrimination_input_A_fake_B_real) / 2.0
+                - self.discrimination_input_A_fake_B_real)
         self.discriminator_loss_B = (self.discrimination_input_B_real_A_fake \
-                - self.discrimination_input_B_fake_A_real) / 2.0
+                - self.discrimination_input_B_fake_A_real)
 
         # Merge the two discriminators into one
         self.discriminator_loss = (self.discriminator_loss_A + self.discriminator_loss_B) / 2.0
@@ -246,23 +246,30 @@ class VariationalCycleGAN(object):
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
-        self.generator_vars = [var for var in trainable_variables if 'generator' in var.name \
-                                                                    or 'sampler' in var.name]
+        self.generator_vars = [var for var in trainable_variables if 'sampler' in var.name]
 
         # Reserved for test
-        self.momentum_A2B_test = self.sampler(input_pitch=self.pitch_A_test, 
-                input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_A2B')
-        self.pitch_A2B_test = self.lddmm(x=self.pitch_A_test, 
-                p=self.momentum_A2B_test, kernel=self.kernel, reuse=True, scope_name='lddmm')
-        self.mfc_A2B_test = self.generator(input_pitch=self.pitch_A2B_test, 
-                input_mfc=self.mfc_A_test, reuse=True, scope_name='generator_A2B')
+        self.momenta_pitch_A2B_test = self.sampler_pitch(input_pitch=self.pitch_A_test, 
+                input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_pitch_A2B')
+        self.pitch_A2B_test = self.lddmm(x=self.pitch_A_test, p=self.momenta_pitch_A2B_test, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.momenta_energy_A2B_test = self.sampler_energy(input_energy=self.energy_A_test, 
+                input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_energy_A2B')
+        self.energy_A2B_test = self.lddmm(x=self.energy_A_test, p=self.momenta_energy_A2B_test, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.mfc_A2B_test = utils.modify_mfcc(self.mfc_A_test, utils.add_epsilon(self.energy_A2B_test), 
+                utils.add_epsilon(self.energy_A_test))
 
-        self.momentum_B2A_test = self.sampler(input_pitch=self.pitch_B_test, 
-                input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_B2A')
-        self.pitch_B2A_test = self.lddmm(x=self.pitch_B_test, 
-                p=self.momentum_B2A_test, kernel=self.kernel, reuse=True, scope_name='lddmm')
-        self.mfc_B2A_test = self.generator(input_pitch=self.pitch_B2A_test, 
-                input_mfc=self.mfc_B_test, reuse=True, scope_name='generator_B2A')
+        self.momenta_pitch_B2A_test = self.sampler_pitch(input_pitch=self.pitch_B_test, 
+                input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_pitch_B2A')
+        self.pitch_B2A_test = self.lddmm(x=self.pitch_B_test, p=self.momenta_pitch_B2A_test, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.momenta_energy_B2A_test = self.sampler_energy(input_energy=self.energy_B_test, 
+                input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_energy_B2A')
+        self.energy_B2A_test = self.lddmm(x=self.energy_B_test, p=self.momenta_energy_B2A_test, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.mfc_B2A_test = utils.modify_mfcc(self.mfc_B_test, utils.add_epsilon(self.energy_B2A_test), 
+                utils.add_epsilon(self.energy_B_test))
 
 
     def optimizer_initializer(self):
