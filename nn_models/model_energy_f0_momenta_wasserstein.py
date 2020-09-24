@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_energy_f0_momenta_wasserstein import sampler, generator, discriminator
+from modules.modules_energy_f0_momenta_wasserstein import sampler_pitch, sampler_energy, discriminator
 import utils.model_utils as utils
 from utils.tf_forward_tan import lddmm 
 
@@ -65,6 +65,11 @@ class VariationalCycleGAN(object):
         self.energy_B_real = tf.placeholder(tf.float32, shape=self.energy_shape, 
                 name='energy_B_real')
         
+        self.mfc_A = tf.placeholder(tf.float32, shape=self.mfc_shape, 
+                name='mfc_A_real')
+        self.mfc_B = tf.placeholder(tf.float32, shape=self.mfc_shape, 
+                name='mfc_B_real')
+
         # Placeholders for fake generated samples
         self.pitch_A_fake = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_fake')
@@ -79,12 +84,16 @@ class VariationalCycleGAN(object):
         # Placeholder for test samples
         self.pitch_A_test = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_test')
-        self.energy_A_test = tf.placeholder(tf.float32, shape=self.mfc_shape, 
+        self.energy_A_test = tf.placeholder(tf.float32, shape=self.energy_shape, 
+                name='energy_A_test')
+        self.mfc_A_test = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_A_test')
 
         self.pitch_B_test = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_B_test')
-        self.energy_B_test = tf.placeholder(tf.float32, shape=self.mfc_shape, 
+        self.energy_B_test = tf.placeholder(tf.float32, shape=self.energy_shape, 
+                name='energy_B_test')
+        self.mfc_B_test = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_B_test')
 
         # Place holder for lambda_cycle and lambda_identity
@@ -100,52 +109,61 @@ class VariationalCycleGAN(object):
         '''
         Generator A
         '''
-        # Generate pitch from A to B
+        # Generate pitch and energy from A to B
         self.momenta_pitch_A2B = self.sampler_pitch(input_pitch=self.pitch_A_real, 
                 input_mfc=self.mfc_A, reuse=False, scope_name='sampler_pitch_A2B')
-        self.pitch_generation_A2B = self.lddmm(x=self.pitch_A_real, 
-                p=self.momenta_pitch_A2B, kernel=self.kernel_pitch, reuse=False, scope_name='lddmm')
-        self.momenta_energy_A2B = self.sampler_energy(input_pitch=self.pitch_generation_A2B, 
-                input_mfc=self.mfc_A, reuse=False, scope_name='sampler_energy_A2B')
-        self.energy_generation_A2B = self.lddmm(x=self.energy_A_real, 
-                p=self.momenta_energy_A2B, kernel=self.kernel_energy, reuse=False, scope_name='lddmm')
-        self.mfc_generation_A2B = tf.multiply(self.mfc_A, tf.math.pow(tf.divide(tf.add(self.energy_generation_A2B, 
+        self.pitch_A2B_fake = self.lddmm(x=self.pitch_A_real, p=self.momenta_pitch_A2B, 
+                kernel=self.kernel_pitch, reuse=False, scope_name='lddmm')
+        self.momenta_energy_A2B = self.sampler_energy(input_pitch=self.pitch_A2B_fake, 
+                input_mfc=self.mfc_A, reuse=True, scope_name='sampler_energy_A2B')
+        self.energy_A2B_fake = self.lddmm(x=self.energy_A_real, p=self.momenta_energy_A2B, 
+                kernel=self.kernel_energy, reuse=False, scope_name='lddmm')
+        self.mfc_A2B_fake = tf.multiply(self.mfc_A, tf.math.pow(tf.divide(tf.add(self.energy_A2B_fake, 
                 1e-06), tf.add(self.energy_A_real, 1e-06)), 0.5))
 
         # Cyclic generation
-        self.momenta_pitch_cycle_A2A = self.sampler_pitch(input_pitch=self.pitch_generation_A2B, 
-                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='sampler_pitch_B2A')
-        self.pitch_cycle_A2A = self.lddmm(x=self.pitch_generation_A2B, 
-                p=self.momenta_pitch_cycle_A2A, kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.momenta_pitch_cycle_A2A = self.sampler_pitch(input_pitch=self.pitch_A2B_fake, 
+                input_mfc=self.mfc_A2B_fake, reuse=False, scope_name='sampler_pitch_B2A')
+        self.pitch_cycle_A2A = self.lddmm(x=self.pitch_A2B_fake, p=self.momenta_pitch_cycle_A2A, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
         self.momenta_energy_cycle_A2A = self.sampler_energy(input_pitch=self.pitch_cycle_A2A, 
-                input_mfc=self.mfc_generation_A2B, reuse=False, scope_name='sampler_energy_B2A')
-        self.energy_cycle_A2A = self.lddmm(x=self.energy_generation_A2B, 
-                p=self.momenta_energy_cycle_A2A, kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+                input_mfc=self.mfc_A2B_fake, reuse=False, scope_name='sampler_energy_B2A')
+        self.energy_cycle_A2A = self.lddmm(x=self.energy_A2B_fake, p=self.momenta_energy_cycle_A2A, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
         self.momenta_energy_identity_A2B = self.sampler_energy(input_pitch=self.pitch_B_real, 
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_A2B')
-        self.energy_identity_A2B = self.lddmm(x=self.energy_B_real, 
-                p=self.momenta_energy_identity_A2B, kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_identity_A2B = self.lddmm(x=self.energy_B_real, p=self.momenta_energy_identity_A2B, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
 
 
         '''
         Generator B
         '''
-        # Generate pitch from B to A
-        self.momentum_B2A = self.sampler(input_pitch=self.pitch_B_real, 
-                input_mfc=self.mfc_B_real, reuse=True, scope_name='sampler_B2A')
-        self.pitch_generation_B2A = self.lddmm(x=self.pitch_B_real, 
-                p=self.momentum_B2A, kernel=self.kernel, reuse=True, scope_name='lddmm')
-        self.mfc_generation_B2A = self.generator(input_pitch=self.pitch_generation_B2A, 
-                input_mfc=self.mfc_B_real, reuse=True, scope_name='generator_B2A')
+        # Generate pitch and energy from B to A
+        self.momenta_pitch_B2A = self.sampler_pitch(input_pitch=self.pitch_B_real, 
+                input_mfc=self.mfc_B, reuse=True, scope_name='sampler_pitch_B2A')
+        self.pitch_B2A_fake = self.lddmm(x=self.pitch_B_real, p=self.momenta_pitch_B2A, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.momenta_energy_B2A = self.sampler_energy(input_pitch=self.pitch_B2A_fake, 
+                input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_B2A')
+        self.energy_B2A_fake = self.lddmm(x=self.energy_B_real, p=self.momenta_energy_B2A, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.mfc_B2A_fake = tf.multiply(self.mfc_B, tf.math.pow(tf.divide(tf.add(self.energy_B2A_fake, 
+                1e-06), tf.add(self.energy_B_real, 1e-06)), 0.5))
+
         # Cyclic generation
-        self.momentum_cycle_B2B = self.sampler(input_pitch=self.pitch_generation_B2A, 
-                input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='sampler_A2B')
-        self.pitch_cycle_B2B = self.lddmm(x=self.pitch_generation_B2A, 
-                p=self.momentum_cycle_B2B, kernel=self.kernel, reuse=True, scope_name='lddmm')
-        self.mfc_cycle_B2B = self.generator(input_pitch=self.pitch_cycle_B2B, 
-                input_mfc=self.mfc_generation_B2A, reuse=True, scope_name='generator_A2B')
-        self.mfc_identity_B2A = self.generator(input_pitch=self.pitch_A_real, 
-                input_mfc=self.mfc_A_real, reuse=True, scope_name='generator_B2A')
+        self.momenta_pitch_cycle_B2B = self.sampler_pitch(input_pitch=self.pitch_B2A_fake, 
+                input_mfc=self.mfc_B2A_fake, reuse=True, scope_name='sampler_pitch_A2B')
+        self.pitch_cycle_B2B = self.lddmm(x=self.pitch_B2A_fake, p=self.momenta_pitch_cycle_B2B, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.momenta_energy_cycle_B2B = self.sampler_energy(input_pitch=self.pitch_cycle_B2B, 
+                input_mfc=self.mfc_B2A_fake, reuse=True, scope_name='sampler_energy_A2B')
+        self.energy_cycle_B2B = self.lddmm(x=self.energy_B2A_fake, p=self.momenta_energy_cycle_B2B, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.momenta_energy_identity_B2A = self.sampler_energy(input_pitch=self.pitch_A_real, 
+                input_mfc=self.mfc_A, reuse=True, scope_name='sampler_energy_B2A')
+        self.energy_identity_B2A = self.lddmm(x=self.energy_A_real, p=self.momenta_energy_identity_B2A, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
 
 
         # Generator Discriminator Loss
