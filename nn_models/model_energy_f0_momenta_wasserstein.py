@@ -10,7 +10,7 @@ class VariationalCycleGAN(object):
 
     def __init__(self, dim_pitch=1, dim_energy=1, dim_mfc=23, 
             n_frames=128, discriminator=discriminator, 
-            generator=generator, sampler=sampler, 
+            sampler_pitch=sampler_pitch, sampler_energy=sampler_energy, 
             lddmm=lddmm, mode='train', log_file_name='no_name_passed', 
             pre_train=None):
         
@@ -29,8 +29,8 @@ class VariationalCycleGAN(object):
         self.kernel_energy = tf.expand_dims(tf.constant([6,3], 
             dtype=tf.float32), axis=0)
 
-        self.sampler = sampler
-        self.generator = generator
+        self.sampler_pitch = sampler_pitch
+        self.sampler_energy = sampler_energy
         self.discriminator = discriminator
         self.lddmm = lddmm
         self.mode = mode

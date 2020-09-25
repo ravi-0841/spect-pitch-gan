@@ -33,7 +33,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
-    num_mcep = 1
+    num_mcep = 23
     frame_period = 5
     n_frames = 128
 
@@ -105,8 +105,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_train = energy_B_train[indices_train]
     mfc_B_train = mfc_B_train[indices_train]
 
-    energy_A_valid, pitch_A_valid, mfc_A_valid, \
-        energy_B_valid, pitch_B_valid, mfc_B_valid = preproc.sample_data_energy(mfc_A=energy_A_valid, 
+    mfc_A_valid, pitch_A_valid, energy_A_valid, \
+        mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=energy_A_valid, 
                 mfc_B=energy_B_valid, pitch_A=pitch_A_valid, pitch_B=pitch_B_valid, 
                 energy_A=energy_A_valid, energy_B=energy_B_valid)
 
@@ -125,7 +125,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                                                                    (time_elapsed % 60 // 1)))
     
     #use pre_train arg to provide trained model
-    model = VariationalCycleGAN(dim_pitch=1, dim_mfc=1, n_frames=n_frames, 
+    model = VariationalCycleGAN(dim_pitch=1, dim_energy=1, dim_mfc=1, n_frames=n_frames, 
                                 pre_train=pre_train, log_file_name=lc_lm)
     
     for epoch in range(1,num_epochs+1):
@@ -135,8 +135,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         start_time_epoch = time.time()
 
-        energy_A, pitch_A, mfc_A, \
-            energy_B, pitch_B, mfc_B = preproc.sample_data_energy(mfc_A=energy_A_train, 
+        mfc_A, pitch_A, energy_A, \
+            mfc_B, pitch_B, energy_B = preproc.sample_data_energy(mfc_A=energy_A_train, 
                     mfc_B=energy_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                     energy_A=energy_A_train, energy_B=energy_B_train)
         
