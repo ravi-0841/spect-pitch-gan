@@ -26,7 +26,7 @@ class VariationalCycleGAN(object):
         # Create the kernel for lddmm
         self.kernel_pitch = tf.expand_dims(tf.constant([6,50], 
             dtype=tf.float32), axis=0)
-        self.kernel_energy = tf.expand_dims(tf.constant([6,7], 
+        self.kernel_energy = tf.expand_dims(tf.constant([6,3], 
             dtype=tf.float32), axis=0)
 
         self.sampler = sampler
