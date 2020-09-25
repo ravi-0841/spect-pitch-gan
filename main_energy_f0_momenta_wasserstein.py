@@ -242,11 +242,11 @@ if __name__ == '__main__':
                         "neu-hap":['neutral', 'happy']}
 
     emo_pair = "neu-ang"
-    train_dir_default = "~/scratch/data/"+emo_pair
+    train_dir_default = "./data/"+emo_pair
     model_dir_default = "./model/"+emo_pair
     model_name_default = emo_pair
 #    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
-    validation_dir_default = '~/scratch/data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
+    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
     output_dir_default = './validation_output/'+emo_pair
     tensorboard_log_dir_default = './log/'+emo_pair
     random_seed_default = 0
