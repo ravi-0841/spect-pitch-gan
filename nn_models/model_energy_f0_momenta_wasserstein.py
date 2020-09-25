@@ -339,18 +339,21 @@ class VariationalCycleGAN(object):
 
 
     def test_gen(self, mfc_A, pitch_A, energy_A, mfc_B, pitch_B, energy_B):
-        gen_pitch_B, gen_energy_B = self.sess.run([self.pitch_A2B_test, \
-                                        self.energy_A2B_test], \
+        gen_pitch_B, gen_energy_B, mom_pitch_B, mom_energy_B = self.sess.run([self.pitch_A2B_test, \
+                                        self.energy_A2B_test, self.momenta_pitch_A2B_test, \
+                                        self.momenta_energy_A2B_test], \
                                         feed_dict={self.pitch_A_test:pitch_A, \
                                         self.mfc_A_test:mfc_A, self.energy_A_test:energy_A})
 
 
-        gen_pitch_A, gen_energy_A = self.sess.run([self.pitch_B2A_test, \
-                                        self.energy_B2A_test], \
+        gen_pitch_A, gen_energy_A, mom_pitch_A, mom_energy_A = self.sess.run([self.pitch_B2A_test, \
+                                        self.energy_B2A_test, self.momenta_pitch_B2A_test, \
+                                        self.momenta_energy_B2A_test], \
                                         feed_dict={self.pitch_B_test:pitch_B, \
                                         self.mfc_B_test:mfc_B, self.energy_B_test:energy_B})
         
-        return gen_pitch_A, gen_energy_A, gen_pitch_B, gen_energy_B
+        return gen_pitch_A, gen_energy_A, gen_pitch_B, gen_energy_B, mom_pitch_A, mom_pitch_B, \
+                mom_energy_A, mom_energy_B
 
 
     def test(self, input_pitch, input_energy, input_mfc, direction):
