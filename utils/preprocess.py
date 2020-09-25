@@ -462,8 +462,8 @@ def sample_data_energy(mfc_A, pitch_A, mfc_B, pitch_B, energy_A, energy_B):
     mfc_data_B = list()                                                                                                                   
     pitch_data_A = list()                                                                                                                 
     pitch_data_B = list()                                                                                                                 
-    energy_A = list()                                                                                                             
-    energy_B = list()                                                                  
+    energy_data_A = list()                                                                                                             
+    energy_data_B = list()                                                                  
                                                                                                                                           
     for i in range(mfc_A.shape[0]):                                                                                                       
         q = np.random.randint(0, mfc_A.shape[1])                                                                                          
@@ -471,14 +471,12 @@ def sample_data_energy(mfc_A, pitch_A, mfc_B, pitch_B, energy_A, energy_B):
         mfc_data_B.append(np.squeeze(mfc_B[i,q,:,:]))                                                                                     
         pitch_data_A.append(np.squeeze(pitch_A[i,q,:,:]))                                                                                 
         pitch_data_B.append(np.squeeze(pitch_B[i,q,:,:]))                                                                                 
-        energy_A.append(np.squeeze(energy_A[i,q,:,:]))                                                                         
-        energy_B.append(np.squeeze(energy_B[i,q,:,:]))                                                                         
+        energy_data_A.append(np.squeeze(energy_A[i,q,:,:]))                                                                         
+        energy_data_B.append(np.squeeze(energy_B[i,q,:,:]))                                                                         
                                                                                                                                           
                                                                                                                                           
-    mfc_data_A = np.transpose(np.expand_dims(np.asarray(mfc_data_A), axis=-1), 
-                    axes=(0,2,1))
-    mfc_data_B = np.transpose(np.expand_dims(np.asarray(mfc_data_B), axis=-1), 
-                    axes=(0,2,1))
+    mfc_data_A = np.transpose(np.asarray(mfc_data_A), axes=(0,2,1))
+    mfc_data_B = np.transpose(np.asarray(mfc_data_B), axes=(0,2,1))
     pitch_data_A = np.transpose(np.expand_dims(np.asarray(pitch_data_A), axis=-1), 
                     axes=(0,2,1))                                                                    
     pitch_data_B = np.transpose(np.expand_dims(np.asarray(pitch_data_B), axis=-1), 

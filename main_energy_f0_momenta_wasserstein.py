@@ -79,17 +79,17 @@ def train(train_dir, model_dir, model_name, random_seed, \
     data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train.mat'))
     data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid.mat'))
 
-    pitch_A_train = np.expand_dims(data_train['src_f0_feat'], axis=-1)
-    pitch_B_train = np.expand_dims(data_train['tar_f0_feat'], axis=-1)
-    energy_A_train = np.expand_dims(data_train['src_ec_feat'], axis=-1)
-    energy_B_train = np.expand_dims(data_train['tar_ec_feat'], axis=-1)
+    pitch_A_train = data_train['src_f0_feat']
+    pitch_B_train = data_train['tar_f0_feat']
+    energy_A_train = data_train['src_ec_feat']
+    energy_B_train = data_train['tar_ec_feat']
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
-    pitch_A_valid = np.expand_dims(data_valid['src_f0_feat'], axis=-1)
-    pitch_B_valid = np.expand_dims(data_valid['tar_f0_feat'], axis=-1)
-    energy_A_valid = np.expand_dims(data_valid['src_ec_feat'], axis=-1)
-    energy_B_valid = np.expand_dims(data_valid['tar_ec_feat'], axis=-1)
+    pitch_A_valid = data_valid['src_f0_feat']
+    pitch_B_valid = data_valid['tar_f0_feat']
+    energy_A_valid = data_valid['src_ec_feat']
+    energy_B_valid = data_valid['tar_ec_feat']
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
@@ -106,8 +106,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     mfc_B_train = mfc_B_train[indices_train]
 
     mfc_A_valid, pitch_A_valid, energy_A_valid, \
-        mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=energy_A_valid, 
-                mfc_B=energy_B_valid, pitch_A=pitch_A_valid, pitch_B=pitch_B_valid, 
+        mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 
+                mfc_B=mfc_B_valid, pitch_A=pitch_A_valid, pitch_B=pitch_B_valid, 
                 energy_A=energy_A_valid, energy_B=energy_B_valid)
 
     if validation_dir is not None:
@@ -125,7 +125,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                                                                    (time_elapsed % 60 // 1)))
     
     #use pre_train arg to provide trained model
-    model = VariationalCycleGAN(dim_pitch=1, dim_energy=1, dim_mfc=1, n_frames=n_frames, 
+    model = VariationalCycleGAN(dim_pitch=1, dim_energy=1, dim_mfc=23, n_frames=n_frames, 
                                 pre_train=pre_train, log_file_name=lc_lm)
     
     for epoch in range(1,num_epochs+1):
@@ -136,8 +136,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
         start_time_epoch = time.time()
 
         mfc_A, pitch_A, energy_A, \
-            mfc_B, pitch_B, energy_B = preproc.sample_data_energy(mfc_A=energy_A_train, 
-                    mfc_B=energy_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
+            mfc_B, pitch_B, energy_B = preproc.sample_data_energy(mfc_A=mfc_A_train, 
+                    mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                     energy_A=energy_A_train, energy_B=energy_B_train)
         
         n_samples = energy_A.shape[0]
@@ -194,9 +194,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.plot(mom_pitch_B.reshape(-1,), label='momenta')
                 pylab.legend(loc=2)
                 pylab.subplot(222)
-                pylab.plot(energy_A_valid[i].reshape(-1,), label='Mfc A')
-                pylab.plot(gen_energy_B.reshape(-1,), label='Mfc A2B')
-                pylab.plot(energy_B_valid[i].reshape(-1,), label='Mfc B')
+                pylab.plot(energy_A_valid[i].reshape(-1,), label='Energy A')
+                pylab.plot(gen_energy_B.reshape(-1,), label='Energy A2B')
+                pylab.plot(energy_B_valid[i].reshape(-1,), label='Energy B')
                 pylab.plot(mom_energy_B.reshape(-1,), label='momenta')
                 pylab.legend(loc=2)
 
@@ -207,9 +207,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.plot(mom_pitch_A.reshape(-1,), label='momenta')
                 pylab.legend(loc=2)
                 pylab.subplot(224)
-                pylab.plot(energy_B_valid[i].reshape(-1,), label='Mfc B')
-                pylab.plot(gen_energy_A.reshape(-1,), label='Mfc B2A')
-                pylab.plot(energy_A_valid[i].reshape(-1,), label='Mfc A')
+                pylab.plot(energy_B_valid[i].reshape(-1,), label='Energy B')
+                pylab.plot(gen_energy_A.reshape(-1,), label='Energy B2A')
+                pylab.plot(energy_A_valid[i].reshape(-1,), label='Energy A')
                 pylab.plot(mom_energy_A.reshape(-1,), label='momenta')
                 pylab.legend(loc=2)
 
