@@ -303,17 +303,18 @@ class VariationalCycleGAN(object):
         generation_energy_B, momenta_pitch_A, generation_pitch_A, 
         momenta_energy_A, generation_energy_A, generator_loss, \
         _, generator_summaries \
-                = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
-                    self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
-                    self.mfc_generation_B2A, self.gen_disc_loss, 
-                    self.generator_train_op, self.generator_summaries], 
+                = self.sess.run([self.momenta_pitch_A2B, self.pitch_A2B_fake, 
+                    self.momenta_energy_A2B, self.energy_A2B_fake, self.momenta_pitch_B2A, 
+                    self.pitch_B2A_fake, self.momenta_energy_B2A, self.energy_B2A_fake, 
+                    self.gen_disc_loss, self.generator_train_op, self.generator_summaries], 
                     feed_dict = {self.lambda_cycle_pitch:lambda_cycle_pitch, 
-                        self.lambda_cycle_mfc:lambda_cycle_mfc, 
+                        self.lambda_cycle_energy:lambda_cycle_energy, 
                         self.lambda_momenta:lambda_momenta, 
-                        self.lambda_identity_mfc:lambda_identity_mfc, 
+                        self.lambda_identity_energy:lambda_identity_energy, 
                         self.pitch_A_real:pitch_A, 
-                        self.pitch_B_real:pitch_B, self.mfc_A_real:mfc_A, 
-                        self.mfc_B_real:mfc_B, 
+                        self.pitch_B_real:pitch_B, self.mfc_A:mfc_A, 
+                        self.mfc_B:mfc_B, self.energy_A_real:energy_A, 
+                        self.energy_B_real:energy_B, 
                         self.generator_learning_rate:generator_learning_rate})
 
         self.writer.add_summary(generator_summaries, self.train_step)
@@ -322,10 +323,10 @@ class VariationalCycleGAN(object):
             = self.sess.run([self.discriminator_loss, self.discriminator_train_op, 
                 self.discriminator_summaries], 
                     feed_dict = {self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
-                        self.mfc_A_real:mfc_A, self.mfc_B_real:mfc_B, 
+                        self.energy_A_real:energy_A, self.energy_B_real:energy_B, 
                         self.discriminator_learning_rate:discriminator_learning_rate, 
                         self.pitch_A_fake:generation_pitch_A, self.pitch_B_fake:generation_pitch_B, 
-                        self.mfc_A_fake:generation_mfc_A, self.mfc_B_fake:generation_mfc_B})
+                        self.energy_A_fake:generation_energy_A, self.energy_B_fake:generation_energy_B})
 #        self.sess.run(self.clip_weights)
 
         self.writer.add_summary(discriminator_summaries, self.train_step)
@@ -333,40 +334,42 @@ class VariationalCycleGAN(object):
         self.train_step += 1
 
         return generator_loss, discriminator_loss, generation_pitch_A, \
-                generation_mfc_A, generation_pitch_B, generation_mfc_B, \
-                momentum_A, momentum_B
+                generation_energy_A, generation_pitch_B, generation_energy_B, \
+                momenta_pitch_A, momenta_pitch_B, momenta_energy_A, momenta_energy_B
 
 
-    def test_gen(self, mfc_A, pitch_A, mfc_B, pitch_B):
-        gen_mom_B, gen_pitch_B, gen_mfc_B, = self.sess.run([self.momentum_A2B_test, \
-                                    self.pitch_A2B_test, self.mfc_A2B_test], \
-                                    feed_dict={self.pitch_A_test:pitch_A, \
-                                        self.mfc_A_test:mfc_A})
+    def test_gen(self, mfc_A, pitch_A, energy_A, mfc_B, pitch_B, energy_B):
+        gen_pitch_B, gen_energy_B = self.sess.run([self.pitch_A2B_test, \
+                                        self.energy_A2B_test], \
+                                        feed_dict={self.pitch_A_test:pitch_A, \
+                                        self.mfc_A_test:mfc_A, self.energy_A_test:energy_A})
 
 
-        gen_mom_A, gen_pitch_A, gen_mfc_A = self.sess.run([self.momentum_B2A_test, \
-                                    self.pitch_B2A_test, self.mfc_B2A_test], \
-                                    feed_dict={self.pitch_B_test:pitch_B, \
-                                        self.mfc_B_test:mfc_B})
+        gen_pitch_A, gen_energy_A = self.sess.run([self.pitch_B2A_test, \
+                                        self.energy_B2A_test], \
+                                        feed_dict={self.pitch_B_test:pitch_B, \
+                                        self.mfc_B_test:mfc_B, self.energy_B_test:energy_B})
         
-        return gen_mom_A, gen_pitch_A, gen_mfc_A, gen_mom_B, gen_pitch_B, gen_mfc_B
+        return gen_pitch_A, gen_energy_A, gen_pitch_B, gen_energy_B
 
 
-    def test(self, input_pitch, input_mfc, direction):
+    def test(self, input_pitch, input_energy, input_mfc, direction):
 
         if direction == 'A2B':
-            generation_pitch, generation_mfc = self.sess.run([self.pitch_A2B_test, 
-                self.mfc_A2B_test], feed_dict = {self.pitch_A_test:input_pitch, 
-                    self.mfc_A_test:input_mfc})
+            generation_pitch, generation_energy, generation_mfc \
+                    = self.sess.run([self.pitch_A2B_test, self.energy_A2B_test,  
+                        self.mfc_A2B_test], feed_dict = {self.pitch_A_test:input_pitch, 
+                        self.energy_A_test:input_energy, self.mfc_A_test:input_mfc})
         
         elif direction == 'B2A':
-            generation_pitch, generation_mfc = self.sess.run([self.pitch_B2A_test, 
-                self.mfc_B2A_test], feed_dict = {self.pitch_B_test:input_pitch, 
-                    self.mfc_B_test:input_mfc})
+            generation_pitch, generation_energy, generation_mfc \
+                    = self.sess.run([self.pitch_B2A_test, self.energy_B2A_test, 
+                        self.mfc_B2A_test], feed_dict = {self.pitch_B_test:input_pitch, 
+                        self.energy_B_test:input_energy, self.mfc_B_test:input_mfc})
         else:
             raise Exception('Conversion direction must be specified.')
 
-        return generation_pitch, generation_mfc
+        return generation_pitch, generation_energy, generation_mfc
 
 
     def save(self, directory, filename):
