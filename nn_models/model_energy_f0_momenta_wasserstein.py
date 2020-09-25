@@ -294,13 +294,15 @@ class VariationalCycleGAN(object):
             clip_value_max=clip_range)) for var in self.discriminator_vars]
 
 
-    def train(self, pitch_A, mfc_A, pitch_B, mfc_B, lambda_cycle_pitch, 
-            lambda_cycle_mfc, lambda_momenta, lambda_identity_mfc, 
-            generator_learning_rate, discriminator_learning_rate):
+    def train(self, pitch_A, mfc_A, energy_A, pitch_B, mfc_B, energy_B, 
+            lambda_cycle_pitch, lambda_cycle_energy, lambda_momenta, 
+            lambda_identity_energy, generator_learning_rate, 
+            discriminator_learning_rate):
 
-        momentum_B, generation_pitch_B, generation_mfc_B, momentum_A, \
-                generation_pitch_A, generation_mfc_A, generator_loss, \
-                _, generator_summaries \
+        momenta_pitch_B, generation_pitch_B, momenta_energy_B, 
+        generation_energy_B, momenta_pitch_A, generation_pitch_A, 
+        momenta_energy_A, generation_energy_A, generator_loss, \
+        _, generator_summaries \
                 = self.sess.run([self.momentum_A2B, self.pitch_generation_A2B, 
                     self.mfc_generation_A2B, self.momentum_B2A, self.pitch_generation_B2A, 
                     self.mfc_generation_B2A, self.gen_disc_loss, 
