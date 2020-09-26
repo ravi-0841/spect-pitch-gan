@@ -260,10 +260,10 @@ class VariationalCycleGAN(object):
                     reuse=True, scope_name='discriminator_energy_A')
 
         self.energy_discrimination_input_B_real_A_fake \
-            = self.mfc_discriminator(input_energy=tf.concat([self.energy_B_real, self.energy_A_fake], axis=1), 
+            = self.discriminator_energy(input_energy=tf.concat([self.energy_B_real, self.energy_A_fake], axis=1), 
                     reuse=True, scope_name='discriminator_energy_B')
         self.energy_discrimination_input_B_fake_A_real \
-            = self.mfc_discriminator(input_energy=tf.concat([self.energy_B_fake, self.energy_A_real], axis=1), 
+            = self.discriminator_energy(input_energy=tf.concat([self.energy_B_fake, self.energy_A_real], axis=1), 
                     reuse=True, scope_name='discriminator_energy_B')
         
         # Compute pitch discriminator loss for backprop
