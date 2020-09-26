@@ -11,7 +11,7 @@ import pylab
 import logging
 
 from glob import glob
-from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN
+from nn_models.model_energy_f0_momenta_discriminate_wasserstein import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
@@ -81,15 +81,15 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = data_train['src_ec_feat']
-    energy_B_train = data_train['tar_ec_feat']
+    energy_A_train = np.log(data_train['src_ec_feat'])
+    energy_B_train = np.log(data_train['tar_ec_feat'])
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = data_valid['src_ec_feat']
-    energy_B_valid = data_valid['tar_ec_feat']
+    energy_A_valid = np.log(data_valid['src_ec_feat'])
+    energy_B_valid = np.log(data_valid['tar_ec_feat'])
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
