@@ -10,7 +10,8 @@ from utils.tf_forward_tan import lddmm
 class VariationalCycleGAN(object):
 
     def __init__(self, dim_pitch=1, dim_energy=1, dim_mfc=23, 
-            n_frames=128, discriminator=discriminator, 
+            n_frames=128, discriminator_pitch=discriminator_pitch, 
+            discriminator_energy=discriminator_energy, 
             sampler_pitch=sampler_pitch, sampler_energy=sampler_energy, 
             lddmm=lddmm, mode='train', log_file_name='no_name_passed', 
             pre_train=None):
