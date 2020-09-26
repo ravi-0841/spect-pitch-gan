@@ -120,7 +120,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_A, reuse=False, scope_name='sampler_energy_A2B')
         self.energy_A2B_fake = self.lddmm(x=self.energy_A_real, p=self.momenta_energy_A2B, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
-        self.mfc_A2B_fake = utils.modify_mfcc(self.mfc_A, utils.add_epsilon(self.energy_A2B_fake), 
+        self.mfc_A2B_fake = utils.modify_mfcc_log(self.mfc_A, utils.add_epsilon(self.energy_A2B_fake), 
                 utils.add_epsilon(self.energy_A_real))
 
         # Cyclic generation
@@ -150,7 +150,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_B2A')
         self.energy_B2A_fake = self.lddmm(x=self.energy_B_real, p=self.momenta_energy_B2A, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
-        self.mfc_B2A_fake = utils.modify_mfcc(self.mfc_B, utils.add_epsilon(self.energy_B2A_fake), 
+        self.mfc_B2A_fake = utils.modify_mfcc_log(self.mfc_B, utils.add_epsilon(self.energy_B2A_fake), 
                 utils.add_epsilon(self.energy_B_real))
 
         # Cyclic generation

@@ -124,6 +124,10 @@ def add_epsilon(tensor, epsilon=1e-08):
 def modify_mfcc(mfcc, new_energy, old_energy):
     return tf.multiply(mfcc, tf.math.pow(tf.divide(new_energy, old_energy), 0.5))
 
+def modify_mfcc_log(mfcc, new_energy, old_energy):
+    new_energy = tf.math.exp(tf.clip_by_value(new_energy, -18, 2.3))
+    old_energy = tf.math.exp(tf.clip_by_value(old_energy, -18, 2.3))
+    return tf.multiply(mfcc, tf.math.pow(tf.divide(new_energy, old_energy), 0.5))
 
 
 
