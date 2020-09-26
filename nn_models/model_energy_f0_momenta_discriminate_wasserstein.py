@@ -224,7 +224,7 @@ class VariationalCycleGAN(object):
         self.generator_loss \
             = self.gen_disc_loss + self.lambda_cycle_pitch * self.cycle_loss_pitch \
                 + self.lambda_cycle_energy * self.cycle_loss_energy \
-                + self.lambda_identity_energy * self.identity_loss_energy
+                + self.lambda_identity_energy * self.identity_loss_energy \
                 + self.lambda_momenta * self.momenta_loss
 
         # Compute the pitch discriminator probability for pair of inputs
