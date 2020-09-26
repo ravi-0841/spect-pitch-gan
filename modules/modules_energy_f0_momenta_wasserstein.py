@@ -126,9 +126,9 @@ def sampler_energy(input_pitch, input_mfc, final_filters=1, reuse=False, \
         u2 = tf.nn.dropout(u2, keep_prob=0.5)
 
         # Output
-        o1 = tf.nn.relu(conv1d_layer(inputs=u2, filters=final_filters, \
+        o1 = conv1d_layer(inputs=u2, filters=final_filters, \
                 kernel_size=15, strides=1, \
-                activation=None, name='o1_conv'))
+                activation=None, name='o1_conv')
 
         o2 = tf.transpose(o1, perm=[0, 2, 1], name='output_transpose')
         return o2
