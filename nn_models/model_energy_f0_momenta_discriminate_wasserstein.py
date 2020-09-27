@@ -443,9 +443,9 @@ class VariationalCycleGAN(object):
 
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_A_summary = tf.summary.scalar('discriminator_loss_A', 
-                        tf.reduce_mean(self.discriminator_loss_A))
+                        tf.reduce_mean(self.discriminator_A_loss))
             discriminator_loss_B_summary = tf.summary.scalar('discriminator_loss_B', 
-                    tf.reduce_mean(self.discriminator_loss_B))
+                    tf.reduce_mean(self.discriminator_B_loss))
             discriminator_loss_summary = tf.summary.scalar('discriminator_loss', 
                     tf.reduce_mean(self.discriminator_loss))
             discriminator_summaries = tf.summary.merge([discriminator_loss_A_summary, 
