@@ -292,8 +292,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_energy_A2B')
         self.energy_A2B_test = self.lddmm(x=self.energy_A_test, p=self.momenta_energy_A2B_test, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
-        self.mfc_A2B_test = utils.modify_mfcc(self.mfc_A_test, utils.add_epsilon(self.energy_A2B_test), 
-                utils.add_epsilon(self.energy_A_test))
+        self.mfc_A2B_test = utils.modify_mfcc(self.mfc_A_test, self.energy_A2B_test, self.energy_A_test)
 
         self.momenta_pitch_B2A_test = self.sampler_pitch(input_pitch=self.pitch_B_test, 
                 input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_pitch_B2A')
@@ -303,8 +302,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_energy_B2A')
         self.energy_B2A_test = self.lddmm(x=self.energy_B_test, p=self.momenta_energy_B2A_test, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
-        self.mfc_B2A_test = utils.modify_mfcc(self.mfc_B_test, utils.add_epsilon(self.energy_B2A_test), 
-                utils.add_epsilon(self.energy_B_test))
+        self.mfc_B2A_test = utils.modify_mfcc(self.mfc_B_test, self.energy_B2A_test, self.energy_B_test)
 
 
     def optimizer_initializer(self):
