@@ -294,7 +294,7 @@ if __name__ == '__main__':
 
     lambda_cycle_pitch = argv.lambda_cycle_pitch
     lambda_cycle_energy = argv.lambda_cycle_energy
-    lambda_identity_energy = argv.lambda_identity_energy
+    lambda_identity_energy = argv.lambda_identity_energy*0.5
     lambda_momenta = argv.lambda_momenta
 
     generator_learning_rate = argv.generator_learning_rate
