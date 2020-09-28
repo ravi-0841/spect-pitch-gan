@@ -76,8 +76,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train_5.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid_5.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
