@@ -35,7 +35,8 @@ class VariationalCycleGAN(object):
         self.sampler_energy = sampler_energy
         self.discriminator_pitch = discriminator_pitch
         self.discriminator_energy = discriminator_energy
-        self.lddmm = lddmm
+        self.lddmm_pitch = lddmm
+        self.lddmm_energy = lddmm
         self.mode = mode
 
         self.build_model()
@@ -115,27 +116,27 @@ class VariationalCycleGAN(object):
         # Generate pitch and energy from A to B
         self.momenta_pitch_A2B = self.sampler_pitch(input_pitch=self.pitch_A_real, 
                 input_mfc=self.mfc_A, reuse=False, scope_name='sampler_pitch_A2B')
-        self.pitch_A2B_fake = self.lddmm(x=self.pitch_A_real, p=self.momenta_pitch_A2B, 
-                kernel=self.kernel_pitch, reuse=False, scope_name='lddmm')
+        self.pitch_A2B_fake = self.lddmm_pitch(x=self.pitch_A_real, p=self.momenta_pitch_A2B, 
+                kernel=self.kernel_pitch, reuse=False, scope_name='lddmm_pitch')
         self.momenta_energy_A2B = self.sampler_energy(input_pitch=self.pitch_A2B_fake, 
                 input_mfc=self.mfc_A, reuse=False, scope_name='sampler_energy_A2B')
-        self.energy_A2B_fake = self.lddmm(x=self.energy_A_real, p=self.momenta_energy_A2B, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_A2B_fake = self.lddmm_energy(x=self.energy_A_real, p=self.momenta_energy_A2B, 
+                kernel=self.kernel_energy, reuse=False, scope_name='lddmm_energy')
         self.mfc_A2B_fake = utils.modify_mfcc_log(self.mfc_A, self.energy_A2B_fake, self.energy_A_real)
 
         # Cyclic generation
         self.momenta_pitch_cycle_A2A = self.sampler_pitch(input_pitch=self.pitch_A2B_fake, 
                 input_mfc=self.mfc_A2B_fake, reuse=False, scope_name='sampler_pitch_B2A')
-        self.pitch_cycle_A2A = self.lddmm(x=self.pitch_A2B_fake, p=self.momenta_pitch_cycle_A2A, 
-                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.pitch_cycle_A2A = self.lddmm_pitch(x=self.pitch_A2B_fake, p=self.momenta_pitch_cycle_A2A, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
         self.momenta_energy_cycle_A2A = self.sampler_energy(input_pitch=self.pitch_cycle_A2A, 
                 input_mfc=self.mfc_A2B_fake, reuse=False, scope_name='sampler_energy_B2A')
-        self.energy_cycle_A2A = self.lddmm(x=self.energy_A2B_fake, p=self.momenta_energy_cycle_A2A, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_cycle_A2A = self.lddmm_energy(x=self.energy_A2B_fake, p=self.momenta_energy_cycle_A2A, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
         self.momenta_energy_identity_A2B = self.sampler_energy(input_pitch=self.pitch_B_real, 
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_A2B')
-        self.energy_identity_A2B = self.lddmm(x=self.energy_B_real, p=self.momenta_energy_identity_A2B, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_identity_A2B = self.lddmm_energy(x=self.energy_B_real, p=self.momenta_energy_identity_A2B, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
 
 
         '''
@@ -144,27 +145,27 @@ class VariationalCycleGAN(object):
         # Generate pitch and energy from B to A
         self.momenta_pitch_B2A = self.sampler_pitch(input_pitch=self.pitch_B_real, 
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_pitch_B2A')
-        self.pitch_B2A_fake = self.lddmm(x=self.pitch_B_real, p=self.momenta_pitch_B2A, 
-                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.pitch_B2A_fake = self.lddmm_pitch(x=self.pitch_B_real, p=self.momenta_pitch_B2A, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
         self.momenta_energy_B2A = self.sampler_energy(input_pitch=self.pitch_B2A_fake, 
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_B2A')
-        self.energy_B2A_fake = self.lddmm(x=self.energy_B_real, p=self.momenta_energy_B2A, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_B2A_fake = self.lddmm_energy(x=self.energy_B_real, p=self.momenta_energy_B2A, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
         self.mfc_B2A_fake = utils.modify_mfcc_log(self.mfc_B, self.energy_B2A_fake, self.energy_B_real)
 
         # Cyclic generation
         self.momenta_pitch_cycle_B2B = self.sampler_pitch(input_pitch=self.pitch_B2A_fake, 
                 input_mfc=self.mfc_B2A_fake, reuse=True, scope_name='sampler_pitch_A2B')
-        self.pitch_cycle_B2B = self.lddmm(x=self.pitch_B2A_fake, p=self.momenta_pitch_cycle_B2B, 
-                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.pitch_cycle_B2B = self.lddmm_pitch(x=self.pitch_B2A_fake, p=self.momenta_pitch_cycle_B2B, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
         self.momenta_energy_cycle_B2B = self.sampler_energy(input_pitch=self.pitch_cycle_B2B, 
                 input_mfc=self.mfc_B2A_fake, reuse=True, scope_name='sampler_energy_A2B')
-        self.energy_cycle_B2B = self.lddmm(x=self.energy_B2A_fake, p=self.momenta_energy_cycle_B2B, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_cycle_B2B = self.lddmm_energy(x=self.energy_B2A_fake, p=self.momenta_energy_cycle_B2B, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
         self.momenta_energy_identity_B2A = self.sampler_energy(input_pitch=self.pitch_A_real, 
                 input_mfc=self.mfc_A, reuse=True, scope_name='sampler_energy_B2A')
-        self.energy_identity_B2A = self.lddmm(x=self.energy_A_real, p=self.momenta_energy_identity_B2A, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_identity_B2A = self.lddmm_energy(x=self.energy_A_real, p=self.momenta_energy_identity_B2A, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
 
         '''
         Initialize the pitch discriminators
@@ -286,21 +287,21 @@ class VariationalCycleGAN(object):
         # Reserved for test
         self.momenta_pitch_A2B_test = self.sampler_pitch(input_pitch=self.pitch_A_test, 
                 input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_pitch_A2B')
-        self.pitch_A2B_test = self.lddmm(x=self.pitch_A_test, p=self.momenta_pitch_A2B_test, 
-                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.pitch_A2B_test = self.lddmm_pitch(x=self.pitch_A_test, p=self.momenta_pitch_A2B_test, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
         self.momenta_energy_A2B_test = self.sampler_energy(input_pitch=self.pitch_A_test, 
                 input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_energy_A2B')
-        self.energy_A2B_test = self.lddmm(x=self.energy_A_test, p=self.momenta_energy_A2B_test, 
-                kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
+        self.energy_A2B_test = self.lddmm_energy(x=self.energy_A_test, p=self.momenta_energy_A2B_test, 
+                kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
         self.mfc_A2B_test = utils.modify_mfcc(self.mfc_A_test, self.energy_A2B_test, self.energy_A_test)
 
         self.momenta_pitch_B2A_test = self.sampler_pitch(input_pitch=self.pitch_B_test, 
                 input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_pitch_B2A')
-        self.pitch_B2A_test = self.lddmm(x=self.pitch_B_test, p=self.momenta_pitch_B2A_test, 
-                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm')
+        self.pitch_B2A_test = self.lddmm_pitch(x=self.pitch_B_test, p=self.momenta_pitch_B2A_test, 
+                kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
         self.momenta_energy_B2A_test = self.sampler_energy(input_pitch=self.pitch_B_test, 
                 input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_energy_B2A')
-        self.energy_B2A_test = self.lddmm(x=self.energy_B_test, p=self.momenta_energy_B2A_test, 
+        self.energy_B2A_test = self.lddmm_energy(x=self.energy_B_test, p=self.momenta_energy_B2A_test, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
         self.mfc_B2A_test = utils.modify_mfcc(self.mfc_B_test, self.energy_B2A_test, self.energy_B_test)
 

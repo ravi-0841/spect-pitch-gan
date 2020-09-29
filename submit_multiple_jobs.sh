@@ -3,7 +3,7 @@
 cycle_array_pitch=( 1e-06 0.00001 0.0001 )
 cycle_array_energy=( 0.00001 0.001 0.1 )
 
-counter=1
+counter=10
 for p in "${cycle_array_pitch[@]}"
 do
     for e in "${cycle_array_energy[@]}"
