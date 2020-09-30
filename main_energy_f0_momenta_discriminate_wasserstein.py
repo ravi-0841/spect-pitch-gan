@@ -68,8 +68,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     if not os.path.isdir("./pitch_spect/"+lc_lm):
         os.makedirs(os.path.join("./pitch_spect/", lc_lm))
     else:
-        for f in glob(os.path.join("./pitch_spect/", \
-                lc_lm, "*.png")):
+        for f in glob(os.path.join("./pitch_spect/", lc_lm, "*.png")):
             os.remove(f)
     
     print('Preprocessing Data...')
