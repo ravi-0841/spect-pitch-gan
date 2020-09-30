@@ -51,7 +51,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         ec_z_idx = np.where(ec<1e-04)[0]
 
         f0 = preprocess_contour(f0)
-        ec = scisig.medfilt(ec, kernel_size=3)
+        ec = preprocess_contour(ec)
 
         f0 = np.reshape(f0, (1,1,-1))
         ec = np.reshape(ec, (1,1,-1))
@@ -80,24 +80,24 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #        decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
 #                                                                    fs=sampling_rate)
         
-        ec_converted = scisig.medfilt(np.exp(ec_converted.reshape(-1,)), kernel_size=3)
+        ec_converted = preprocess_contour(np.exp(ec_converted.reshape(-1,)))
         ec_converted[ec_z_idx] = 1e-04
         
-        decoded_sp_converted = np.multiply(sp.T, np.power(np.divide(ec_converted.reshape(1,-1), 
-                                    ec.reshape(1,-1)), 0.5))
+        decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
+                                    ec.reshape(1,-1))**0.5)
 
         # Normalization of converted features
-        decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
-        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
+#        decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
+#        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
         
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                         decoded_sp=decoded_sp_converted, 
+                                                         decoded_sp=decoded_sp_converted.T, 
                                                          ap=ap, fs=sampling_rate, 
                                                          frame_period=frame_period)
         
-#        wav_transformed = (wav_transformed - np.min(wav_transformed)) \
-#                / (np.max(wav_transformed) - np.min(wav_transformed))
-#        wav_transformed = wav_transformed - np.mean(wav_transformed)
+        wav_transformed = -1 + 2*(wav_transformed - np.min(wav_transformed)) \
+                / (np.max(wav_transformed) - np.min(wav_transformed))
+        wav_transformed = wav_transformed - np.mean(wav_transformed)
         
         scwav.write(os.path.join('/home/ravi/Desktop', 
                                  os.path.basename(audio_file)), 
@@ -133,7 +133,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             ec_z_idx = np.where(ec<1e-04)[0]
 
             f0 = preprocess_contour(f0)
-            ec = scisig.medfilt(ec, kernel_size=3)
+            ec = preprocess_contour(ec)
 
             f0 = np.reshape(f0, (1,1,-1))
             ec = np.reshape(ec, (1,1,-1))
@@ -154,11 +154,11 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
 #                                                                         fs=sampling_rate)
             
-            ec_converted = np.exp(ec_converted.reshape(-1,))
+            ec_converted = preprocess_contour(np.exp(ec_converted.reshape(-1,)))
             ec_converted[ec_z_idx] = 1e-04
             
-            decoded_sp_converted = np.multiply(sp.T, np.power(np.divide(ec_converted.reshape(1,-1), 
-                                    ec.reshape(1,-1)), 0.5))
+            decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
+                                    ec.reshape(1,-1))**0.5)
 
             # Normalization of converted features
 #            decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
@@ -169,7 +169,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                              ap=ap, fs=sampling_rate, 
                                                              frame_period=frame_period)
 
-            wav_transformed = (wav_transformed - np.min(wav_transformed)) \
+            wav_transformed = -1 + 2*(wav_transformed - np.min(wav_transformed)) \
                 / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
@@ -187,7 +187,7 @@ if __name__ == '__main__':
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
-    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1070.wav'
+    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)

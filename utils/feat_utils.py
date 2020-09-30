@@ -450,13 +450,13 @@ def shuffle_feats_label(features, label):
     return features[shuffle_ids], label[shuffle_ids]
 
 
-def preprocess_contour(contour):
+def preprocess_contour(contour, window=13):
     """
     Expects contour as a numpy array of shape (T,)
     """
     contour = scisig.medfilt(contour, kernel_size=3)
     contour = np.asarray(generate_interpolation(contour), np.float32)
-    contour = smooth(contour, window_len=13)
+    contour = smooth(contour, window_len=window)
     return contour
 
 
