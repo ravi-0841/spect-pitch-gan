@@ -122,11 +122,11 @@ class VariationalCycleGAN(object):
         '''
         # Generate pitch and energy from B to A
         self.momenta_pitch_B2A = self.sampler_pitch(input_pitch=self.pitch_B_real, 
-                input_mfc=self.mfc_B, reuse=True, scope_name='sampler_pitch_B2A')
+                input_mfc=self.mfc_B, reuse=False, scope_name='sampler_pitch_B2A')
         self.pitch_B2A_fake = self.lddmm_pitch(x=self.pitch_B_real, p=self.momenta_pitch_B2A, 
                 kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
         self.momenta_energy_B2A = self.sampler_energy(input_pitch=self.pitch_B2A_fake, 
-                input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_B2A')
+                input_mfc=self.mfc_B, reuse=False, scope_name='sampler_energy_B2A')
         self.energy_B2A_fake = self.lddmm_energy(x=self.energy_B_real, p=self.momenta_energy_B2A, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
 
@@ -316,19 +316,9 @@ class VariationalCycleGAN(object):
     def summary(self):
 
         with tf.name_scope('generator_summaries'):
-            cycle_loss_pitch_summary = tf.summary.scalar('cycle_loss_pitch', 
-                    self.cycle_loss_pitch)
-            cycle_loss_energy_summary = tf.summary.scalar('cycle_loss_energy', 
-                    self.cycle_loss_energy)
-            generator_loss_A2B_summary = tf.summary.scalar('generator_loss_A2B', 
-                    tf.reduce_mean(self.generator_loss_A2B))
-            generator_loss_B2A_summary = tf.summary.scalar('generator_loss_B2A', 
-                    tf.reduce_mean(self.generator_loss_B2A))
             generator_loss_summary = tf.summary.scalar('generator_loss', 
-                    tf.reduce_mean(self.gen_disc_loss))
-            generator_summaries = tf.summary.merge([cycle_loss_pitch_summary, 
-                cycle_loss_energy_summary, generator_loss_A2B_summary, 
-                generator_loss_B2A_summary, generator_loss_summary])
+                    tf.reduce_mean(self.generator_loss))
+            generator_summaries = tf.summary.merge([generator_loss_summary])
 
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_A_summary = tf.summary.scalar('discriminator_loss_A', 

@@ -21,10 +21,9 @@ from encoder_decoder import AE
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, \
-            validation_dir, output_dir, \
             tensorboard_log_dir, pre_train=None, \
             lambda_energy=0, generator_learning_rate=1e-05, 
-            discriminator_learning_rate=1e-03):
+            discriminator_learning_rate=1e-05):
 
     np.random.seed(random_seed)
 
@@ -179,8 +178,6 @@ if __name__ == '__main__':
             default=model_name_default)
     parser.add_argument('--random_seed', type=int, help='Random seed for model training.', 
             default=random_seed_default)
-    parser.add_argument('--output_dir', type=str, help='Output directory for converted validation voices.', 
-            default=output_dir_default)
     parser.add_argument('--tensorboard_log_dir', type=str, help='TensorBoard log directory.', 
             default=tensorboard_log_dir_default)
     parser.add_argument('--current_iter', type=int, help="Current iteration of the model (Fine tuning)", 
@@ -198,7 +195,6 @@ if __name__ == '__main__':
     model_dir = argv.model_dir
     model_name = argv.model_name
     random_seed = argv.random_seed
-    output_dir = argv.output_dir
     tensorboard_log_dir = argv.tensorboard_log_dir
 
     lambda_energy = argv.lambda_energy
@@ -207,8 +203,7 @@ if __name__ == '__main__':
     discriminator_learning_rate = argv.discriminator_learning_rate
 
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
-          random_seed=random_seed, validation_dir=validation_dir, 
-          output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
+          random_seed=random_seed, tensorboard_log_dir=tensorboard_log_dir, 
           pre_train=None, lambda_energy=lambda_energy, 
           generator_learning_rate=generator_learning_rate, 
           discriminator_learning_rate=discriminator_learning_rate)
