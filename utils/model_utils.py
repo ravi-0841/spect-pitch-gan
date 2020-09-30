@@ -15,6 +15,9 @@ def _log10(x):
 def _power_to_db(s):
     return 20*_log10(s)
 
+def _add_epsilon(tensor, epsilon=1e-06):
+    return tf.add(tensor, epsilon)
+
 def _sliding_windows(template, size):
     template = np.asarray(template)
     p = np.zeros(size-1, dtype=template.dtype)
@@ -118,12 +121,9 @@ def eval_kernel(kernel1, kernel2):
     exp_kernel = tf.exp(-1*tf.reduce_sum(tf.pow(tf.subtract(kernel1, kernel2), 2))/100)
     return exp_kernel
 
-def add_epsilon(tensor, epsilon=1e-08):
-    return tf.add(tensor, epsilon)
-
 def modify_mfcc(mfcc, new_energy, old_energy):
-    new_energy = tf.add(new_energy, 1e-03)
-    old_energy = tf.add(old_energy, 1e-03)
+    new_energy = tf.clip_by_value(new_energy, 1e-06, 100)
+    old_energy = tf.clip_by_value(old_energy, 1e-06, 100)
     return tf.multiply(mfcc, tf.math.pow(tf.divide(new_energy, old_energy), 0.5))
 
 def modify_mfcc_log(mfcc, new_energy, old_energy):
