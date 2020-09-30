@@ -104,14 +104,15 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             coded_sp = np.expand_dims(coded_sp, axis=0)
             coded_sp = np.transpose(coded_sp, (0,2,1))
             
-            z_idx = np.where(f0<10.0)[0]
-            
+            f0_z_idx = np.where(f0<10.0)[0]
+            ec_z_idx = np.where(ec<1e-06)[0]
+
             f0 = preprocess_contour(f0)
             ec = preprocess_contour(ec)
-            
+
             f0 = np.reshape(f0, (1,1,-1))
             ec = np.reshape(ec, (1,1,-1))
-    
+
             f0_converted, ec_converted, coded_sp_converted = model.test(input_pitch=f0, 
                                                           input_mfc=coded_sp,
                                                           input_energy=np.log(ec),
@@ -122,19 +123,19 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
             f0_converted = np.ascontiguousarray(f0_converted)
-            f0_converted[z_idx] = 0
-            
+            f0_converted[f0_z_idx] = 0
+
             # Pyworld decoding
             decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
                                                                          fs=sampling_rate)
-            
+
             # Normalization of converted features
             decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
                                                              frame_period=frame_period)
-            
+
             wav_transformed = (wav_transformed - np.min(wav_transformed)) \
                 / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
