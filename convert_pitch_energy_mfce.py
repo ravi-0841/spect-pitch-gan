@@ -59,17 +59,19 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             = model.test(input_pitch=f0, input_mfc=coded_sp,
                          input_energy=ec, direction=conversion_direction)
 
+        pylab.figure(), pylab.subplot(311)
         pylab.plot(ec.reshape(-1,), label='original energy')
         pylab.plot(ec_converted.reshape(-1,), label='converted energy')
         pylab.legend()
         
-        pylab.figure(), pylab.plot(f0.reshape(-1,), label='original F0')
+        pylab.subplot(312), pylab.plot(f0.reshape(-1,), label='original F0')
         pylab.plot(f0_converted.reshape(-1,), label='converted F0')
         pylab.legend()
         
-        pylab.figure(), pylab.plot(ec_momenta.reshape(-1,), label='momenta')
+        pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='momenta')
 
         coded_sp = np.squeeze(coded_sp)
+#        ec_converted = preprocess_contour(ec_converted.reshape(-1,))
         coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
                                     ec.reshape(1,-1)))
         coded_sp_converted = np.ascontiguousarray(np.transpose(coded_sp_converted))
@@ -185,7 +187,7 @@ if __name__ == '__main__':
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
-    audio_file_default = None #'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
+    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
