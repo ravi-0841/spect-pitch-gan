@@ -289,7 +289,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_pitch_A2B')
         self.pitch_A2B_test = self.lddmm_pitch(x=self.pitch_A_test, p=self.momenta_pitch_A2B_test, 
                 kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
-        self.momenta_energy_A2B_test = self.sampler_energy(input_pitch=self.pitch_A_test, 
+        self.momenta_energy_A2B_test = self.sampler_energy(input_pitch=self.pitch_A2B_test, 
                 input_mfc=self.mfc_A_test, reuse=True, scope_name='sampler_energy_A2B')
         self.energy_A2B_test = self.lddmm_energy(x=self.energy_A_test, p=self.momenta_energy_A2B_test, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
@@ -299,7 +299,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_pitch_B2A')
         self.pitch_B2A_test = self.lddmm_pitch(x=self.pitch_B_test, p=self.momenta_pitch_B2A_test, 
                 kernel=self.kernel_pitch, reuse=True, scope_name='lddmm_pitch')
-        self.momenta_energy_B2A_test = self.sampler_energy(input_pitch=self.pitch_B_test, 
+        self.momenta_energy_B2A_test = self.sampler_energy(input_pitch=self.pitch_B2A_test, 
                 input_mfc=self.mfc_B_test, reuse=True, scope_name='sampler_energy_B2A')
         self.energy_B2A_test = self.lddmm_energy(x=self.energy_B_test, p=self.momenta_energy_B2A_test, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm')
@@ -392,20 +392,22 @@ class VariationalCycleGAN(object):
     def test(self, input_pitch, input_energy, input_mfc, direction):
 
         if direction == 'A2B':
-            generation_pitch, generation_energy, generation_mfc \
-                    = self.sess.run([self.pitch_A2B_test, self.energy_A2B_test,  
-                        self.mfc_A2B_test], feed_dict = {self.pitch_A_test:input_pitch, 
-                        self.energy_A_test:input_energy, self.mfc_A_test:input_mfc})
+            generation_pitch, generation_momenta, generation_energy, generation_mfc \
+                    = self.sess.run([self.pitch_A2B_test, self.momenta_energy_A2B_test, \
+                                     self.energy_A2B_test, self.mfc_A2B_test], 
+                        feed_dict = {self.pitch_A_test:input_pitch, self.energy_A_test:input_energy, 
+                                     self.mfc_A_test:input_mfc})
         
         elif direction == 'B2A':
-            generation_pitch, generation_energy, generation_mfc \
-                    = self.sess.run([self.pitch_B2A_test, self.energy_B2A_test, 
-                        self.mfc_B2A_test], feed_dict = {self.pitch_B_test:input_pitch, 
-                        self.energy_B_test:input_energy, self.mfc_B_test:input_mfc})
+            generation_pitch, generation_momenta, generation_energy, generation_mfc \
+                    = self.sess.run([self.pitch_B2A_test, self.momenta_energy_B2A_test, \
+                                     self.energy_B2A_test, self.mfc_B2A_test], 
+                        feed_dict = {self.pitch_B_test:input_pitch, self.energy_B_test:input_energy, 
+                                     self.mfc_B_test:input_mfc})
         else:
             raise Exception('Conversion direction must be specified.')
 
-        return generation_pitch, generation_energy, generation_mfc
+        return generation_pitch, generation_momenta, generation_energy, generation_mfc
 
 
     def save(self, directory, filename):
