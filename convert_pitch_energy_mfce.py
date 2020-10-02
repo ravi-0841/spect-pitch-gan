@@ -75,7 +75,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
                                     ec.reshape(1,-1)))
         coded_sp_converted = np.ascontiguousarray(np.transpose(coded_sp_converted))
-        decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp_converted, sr)
+        sp_converted = preproc.world_decode_spectral_envelope(coded_sp_converted, sr)
         f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
         f0_converted = np.ascontiguousarray(f0_converted)
         f0_converted[f0_z_idx] = 0
@@ -84,15 +84,15 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #        decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
         
-        energy_converted = np.sqrt(np.sum(decoded_sp_converted**2, axis=1))
+        energy_converted = np.sqrt(np.sum(sp_converted**2, axis=1))
         energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
-        decoded_sp_converted = np.multiply(decoded_sp_converted.T, 
-                                           np.divide(energy_filtered.reshape(1,-1), 
-                                                     energy_converted.reshape(1,-1)))
-        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
+        sp_converted = np.multiply(sp_converted.T, 
+                                   np.divide(energy_filtered.reshape(1,-1), 
+                                   energy_converted.reshape(1,-1)))
+        sp_converted = np.ascontiguousarray(sp_converted.T)
         
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
-                                                         decoded_sp=decoded_sp_converted, 
+                                                         decoded_sp=sp_converted, 
                                                          ap=ap, fs=sampling_rate, 
                                                          frame_period=frame_period)
         
@@ -167,12 +167,12 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
             
-            energy_converted = np.sqrt(np.sum(decoded_sp_converted**2, axis=1))
+            energy_converted = np.sqrt(np.sum(sp_converted**2, axis=1))
             energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
-            decoded_sp_converted = np.multiply(decoded_sp_converted.T, 
-                                            np.divide(energy_filtered.reshape(1,-1), 
-                                            energy_converted.reshape(1,-1)))
-            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
+            sp_converted = np.multiply(sp_converted.T, 
+                                       np.divide(energy_filtered.reshape(1,-1), 
+                                       energy_converted.reshape(1,-1)))
+            sp_converted = np.ascontiguousarray(sp_converted.T)
             
 #            f0_converted = f0_converted[5:]
 #            sp_converted = sp_converted[5:]
