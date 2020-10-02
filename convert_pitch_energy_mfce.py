@@ -71,7 +71,6 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='momenta')
 
         coded_sp = np.squeeze(coded_sp)
-#        ec_converted = preprocess_contour(ec_converted.reshape(-1,))
         coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
                                     ec.reshape(1,-1)))
         coded_sp_converted = np.ascontiguousarray(np.transpose(coded_sp_converted))
@@ -91,6 +90,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                    energy_converted.reshape(1,-1)))
         sp_converted = np.ascontiguousarray(sp_converted.T)
         
+        f0_converted = f0_converted[5:]
+        sp_converted = sp_converted[5:]
+        ap = ap[5:]
+
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=sp_converted, 
                                                          ap=ap, fs=sampling_rate, 
@@ -174,9 +177,9 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                        energy_converted.reshape(1,-1)))
             sp_converted = np.ascontiguousarray(sp_converted.T)
             
-#            f0_converted = f0_converted[5:]
-#            sp_converted = sp_converted[5:]
-#            ap = ap[5:]
+            f0_converted = f0_converted[5:]
+            sp_converted = sp_converted[5:]
+            ap = ap[5:]
 
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=sp_converted, 
@@ -196,7 +199,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/lp_1e-05_lm_0.1_lmo_1e-06_lrg_1e-05_lrd_1e-07_li_0.05_energy_f0_mwd_mfce'
+    model_dir_default = './model/neu-ang/lp_0.0001_lm_0.001_lmo_1e-06_lrg_1e-05_lrd_1e-07_li_0.0_energy_f0_mwd_mfce'
     model_name_default = 'neu-ang_1000.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
