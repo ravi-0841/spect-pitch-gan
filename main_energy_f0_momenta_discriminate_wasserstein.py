@@ -38,11 +38,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
     n_frames = 128
 
     lc_lm = "lp_"+str(lambda_cycle_pitch) \
-            + '_lm_'+str(lambda_cycle_energy) \
+            + '_le_'+str(lambda_cycle_energy) \
             +"_lmo_"+str(lambda_momenta) \
             +"_lrg_"+str(generator_learning_rate) \
             +"_lrd_"+str(discriminator_learning_rate) + "_li_"\
-            + str(lambda_identity_energy) + '_energy_f0_mwd_drop_0.6'
+            + str(lambda_identity_energy) + '_ec_f0_mwd_pt'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -302,7 +302,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train=None, 
+          pre_train='./model/cmu-arctic/le_10.0_supervised_energy_f0_mwd_mfce/cmu-arctic_950.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_energy=lambda_cycle_energy, 
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
