@@ -84,6 +84,13 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #        decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
         
+        energy_converted = np.sqrt(np.sum(decoded_sp_converted**2, axis=1))
+        energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
+        decoded_sp_converted = np.multiply(decoded_sp_converted.T, 
+                                           np.divide(energy_filtered.reshape(1,-1), 
+                                                     energy_converted.reshape(1,-1)))
+        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
+        
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=decoded_sp_converted, 
                                                          ap=ap, fs=sampling_rate, 
@@ -160,10 +167,17 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
             
-            f0_converted = f0_converted[5:]
-            sp_converted = sp_converted[5:]
-            ap = ap[5:]
+            energy_converted = np.sqrt(np.sum(decoded_sp_converted**2, axis=1))
+            energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
+            decoded_sp_converted = np.multiply(decoded_sp_converted.T, 
+                                            np.divide(energy_filtered.reshape(1,-1), 
+                                            energy_converted.reshape(1,-1)))
+            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
             
+#            f0_converted = f0_converted[5:]
+#            sp_converted = sp_converted[5:]
+#            ap = ap[5:]
+
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=sp_converted, 
                                                              ap=ap, fs=sampling_rate, 
@@ -187,7 +201,7 @@ if __name__ == '__main__':
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
-    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
+    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
