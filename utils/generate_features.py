@@ -17,16 +17,6 @@ from feat_utils import smooth, smooth_contour, \
     normalize_wav, encode_raw_spectrum, preprocess_contour
 
 
-def preprocess_pitch(pitch):
-    """
-    Expects pitch as a numpy array of shape (T,)
-    """
-    pitch = scisig.medfilt(pitch, kernel_size=3)
-    pitch = np.asarray(generate_interpolation(pitch), np.float32)
-    pitch = smooth(pitch, window_len=13)
-    return pitch
-
-
 def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128, 
                  n_mfc=23, num_samps=10, window_len=0.005, 
                  window_stride=0.005, encode_raw_spect=False):
@@ -241,8 +231,8 @@ def get_feats(FILE_LIST, sample_rate, window_len,
 ##----------------------------------generate CMU-ARCTIC features---------------------------------
 if __name__=='__main__':
    
-   FILE_LIST_src = sorted(glob(os.path.join('/home/ravi/Desktop/spect-pitch-gan/data/CMU-ARCTIC-US/train/source/', '*.wav')))
-   FILE_LIST_tar = sorted(glob(os.path.join('/home/ravi/Desktop/spect-pitch-gan/data/CMU-ARCTIC-US/train/target/', '*.wav')))
+   FILE_LIST_src = sorted(glob(os.path.join('../data/CMU-ARCTIC-US/train_male_female/source/', '*.wav')))
+   FILE_LIST_tar = sorted(glob(os.path.join('../data/CMU-ARCTIC-US/train_male_female/target/', '*.wav')))
    
    sample_rate = 16000.0
    window_len = 0.005
@@ -255,7 +245,7 @@ if __name__=='__main__':
              = get_feats(FILE_LIST, sample_rate, window_len, 
                          window_stride, n_feats=128, n_mfc=23, num_samps=10)
 
-   scio.savemat('/home/ravi/Desktop/mfc_energy_cmu_arctic.mat', \
+   scio.savemat('/home/ravi/Desktop/mfc_energy_cmu_arctic_2.mat', \
                 { \
                      'src_mfc_feat':           src_mfc_feat, \
                      'tar_mfc_feat':           tar_mfc_feat, \

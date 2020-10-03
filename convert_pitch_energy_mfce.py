@@ -199,8 +199,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/lp_0.0001_lm_0.001_lmo_1e-06_lrg_1e-05_lrd_1e-07_li_0.0_energy_f0_mwd_mfce'
-    model_name_default = 'neu-ang_1000.ckpt'
+    model_dir_default = '/home/ravi/Desktop/spect-pitch-gan/model/cmu-arctic/le_10.0_supervised_energy_f0_mwd_mfce'
+    model_name_default = 'cmu-arctic_950.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
