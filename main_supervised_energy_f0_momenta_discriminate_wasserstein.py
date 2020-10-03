@@ -35,7 +35,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "le_"+str(lambda_energy)+'_supervised_energy_f0_mwd_mfce'
+    lc_lm = "le_"+str(lambda_energy)+'_supervised_mwd_mfce_male_female'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -64,7 +64,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'mfc_energy_cmu_arctic.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'mfc_energy_cmu_arctic_2.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
@@ -164,7 +164,7 @@ if __name__ == '__main__':
                         "neu-hap":['neutral', 'happy']}
 
     emo_pair = "cmu-arctic"
-    train_dir_default = "./data/"+emo_pair
+    train_dir_default = "~/scratch/data/"+emo_pair
     model_dir_default = "./model/"+emo_pair
     model_name_default = emo_pair
     tensorboard_log_dir_default = './log/'+emo_pair
