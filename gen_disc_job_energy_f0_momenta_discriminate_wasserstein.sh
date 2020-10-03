@@ -17,4 +17,4 @@ singularity pull --name tf_1_12.simg shub://ravi-0841/singularity-tensorflow-1.1
 # export singularity home path
 export SINGULARITY_HOME=$PWD:/home/$USER
 
-singularity exec --nv ./tf_1_12.simg python3 main_energy_f0_momenta_discriminate_wasserstein.py --lambda_cycle_pitch $1 --lambda_cycle_energy $2 --lambda_identity_energy 0.0 --lambda_momenta 1e-06 --generator_learning_rate 1e-05 --discriminator_learning_rate 1e-07
+singularity exec --nv ./tf_1_12.simg python3 main_energy_f0_momenta_discriminate_wasserstein.py --lambda_cycle_pitch $1 --lambda_cycle_energy $2 --lambda_identity_energy 0.0 --lambda_momenta 1e-06 --generator_learning_rate 1e-04 --discriminator_learning_rate 1e-06
