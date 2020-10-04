@@ -164,7 +164,7 @@ if __name__ == '__main__':
                         "neu-hap":['neutral', 'happy']}
 
     emo_pair = "cmu-arctic"
-    train_dir_default = "~/scratch/data/"+emo_pair
+    train_dir_default = "./data/"+emo_pair
     model_dir_default = "./model/"+emo_pair
     model_name_default = emo_pair
     tensorboard_log_dir_default = './log/'+emo_pair
