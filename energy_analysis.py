@@ -202,15 +202,15 @@ if __name__ == '__main__':
     tar_results = []
     
     dim = 8
-    sampling = 2
-    for sampling in range(sampling):
+    times_sampling = 2
+    for sampling in range(times_sampling):
         for i in src_list:
             src_futures.append(executor.submit(partial(_get_spect_no_abs, i, dim, False)))
     #        src_results.append(_get_spect_no_abs(i, dim))
     #        print(i)
     src_results = [src_future.result() for src_future in tqdm(src_futures)]
     
-    for sampling in range(sampling):
+    for sampling in range(times_sampling):
         for i in tar_list:
             tar_futures.append(executor.submit(partial(_get_spect_no_abs, i, dim, False)))
     #        tar_results.append(_get_spect_no_abs(i, dim))
