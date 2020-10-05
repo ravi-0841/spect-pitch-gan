@@ -322,6 +322,17 @@ class VariationalCycleGAN(object):
                 beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
 
 
+    def compute_gradient(self):
+        self.discriminator_A_gradient = tf.gradients(self.discriminator_pitch_A, 
+                                            self.discriminator_pitch_A.trainable_weights) \
+                                            + tf.gradients(self.discriminator_energy_A, 
+                                            self.discriminator_energy_A.trainable_weights)
+        self.discriminator_B_gradient = tf.gradients(self.discriminator_pitch_B, 
+                                            self.discriminator_pitch_B.trainable_weights) \
+                                            + tf.gradients(self.discriminator_energy_B, 
+                                            self.discriminator_energy_B.trainable_weights)
+
+
     def clip_discriminator_weights(self, clip_range):
 
         self.clip_weights = [tf.assign(var, tf.clip_by_value(var, clip_value_min=-1*clip_range, 
