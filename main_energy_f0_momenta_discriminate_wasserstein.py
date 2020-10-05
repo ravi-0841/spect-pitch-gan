@@ -25,7 +25,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             tensorboard_log_dir, pre_train=None, \
             lambda_cycle_pitch=0, lambda_cycle_energy=0, lambda_momenta=0, 
             lambda_identity_energy=0, generator_learning_rate=1e-05, 
-            discriminator_learning_rate=1e-03):
+            discriminator_learning_rate=1e-03, emo_pair='neu-ang'):
 
     np.random.seed(random_seed)
 
@@ -37,12 +37,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "lp_"+str(lambda_cycle_pitch) \
+    lc_lm = 'lp_'+str(lambda_cycle_pitch) \
             + '_le_'+str(lambda_cycle_energy) \
-            +"_lmo_"+str(lambda_momenta) \
-            +"_lrg_"+str(generator_learning_rate) \
-            +"_lrd_"+str(discriminator_learning_rate) + "_li_"\
-            + str(lambda_identity_energy) + '_ec_f0_mwd'
+            + '_li_'+str(lambda_identity_energy) \ 
+            +'_lrg_'+str(generator_learning_rate) \
+            +'_lrd_'+str(discriminator_learning_rate) \
+            + '_ec_f0_'+emo_pair
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -240,14 +240,7 @@ if __name__ == '__main__':
                         "neu-sad":['neutral', 'sad'], \
                         "neu-hap":['neutral', 'happy']}
 
-    emo_pair = "neu-ang"
-    train_dir_default = "./data/"+emo_pair
-    model_dir_default = "./model/"+emo_pair
-    model_name_default = emo_pair
-#    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
-    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
-    output_dir_default = './validation_output/'+emo_pair
-    tensorboard_log_dir_default = './log/'+emo_pair
+    emo_pair_default = "neu-ang"
     random_seed_default = 0
 
     parser.add_argument('--train_dir', type=str, help='Directory for A.', 
@@ -267,7 +260,7 @@ if __name__ == '__main__':
             default=tensorboard_log_dir_default)
     parser.add_argument('--current_iter', type=int, help="Current iteration of the model (Fine tuning)", 
             default=1)
-    parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
+    parser.add_argument('--lambda_cycle_pitch', type=float, help="hyperparam for cycle loss pitch", 
             default=0.00001)
     parser.add_argument('--lambda_cycle_energy', type=float, help="hyperparam for cycle loss energy", 
             default=0.1)
@@ -279,17 +272,23 @@ if __name__ == '__main__':
             default=1e-06)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
+    parser.add_argument('--emotion_pair', type=float, help="Emotion Pair", 
+            default=emo_pair_default)
     
     argv = parser.parse_args()
 
-    train_dir = argv.train_dir
-    model_dir = argv.model_dir
-    model_name = argv.model_name
+    emo_pair = argv.emotion_pair
+    train_dir = "./data/"+emo_pair
+    model_dir = "./model/"+emo_pair
+    model_name = emo_pair
+    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
+#    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
+    output_dir = './validation_output/'+emo_pair
+    tensorboard_log_dir = './log/'+emo_pair
+
     random_seed = argv.random_seed
     validation_dir = None if argv.validation_dir == 'None' or argv.validation_dir == 'none' \
                         else argv.validation_dir
-    output_dir = argv.output_dir
-    tensorboard_log_dir = argv.tensorboard_log_dir
 
     lambda_cycle_pitch = argv.lambda_cycle_pitch
     lambda_cycle_energy = argv.lambda_cycle_energy
@@ -306,4 +305,5 @@ if __name__ == '__main__':
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_energy=lambda_cycle_energy, 
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
-          discriminator_learning_rate=discriminator_learning_rate)
+          discriminator_learning_rate=discriminator_learning_rate, 
+          emo_pair=argv.emotion_pair)
