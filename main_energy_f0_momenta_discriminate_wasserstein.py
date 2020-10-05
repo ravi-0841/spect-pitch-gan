@@ -39,7 +39,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     lc_lm = 'lp_'+str(lambda_cycle_pitch) \
             + '_le_'+str(lambda_cycle_energy) \
-            + '_li_'+str(lambda_identity_energy) \ 
+            + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
             + '_ec_f0_'+emo_pair
@@ -75,8 +75,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'mfc_energy_unaligned_train_5.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'mfc_energy_unaligned_valid_5.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'mfc_energy_unaligned_train.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'mfc_energy_unaligned_valid.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
@@ -243,21 +243,8 @@ if __name__ == '__main__':
     emo_pair_default = "neu-ang"
     random_seed_default = 0
 
-    parser.add_argument('--train_dir', type=str, help='Directory for A.', 
-            default=train_dir_default)
-    parser.add_argument('--model_dir', type=str, help='Directory for saving models.', 
-            default=model_dir_default)
-    parser.add_argument('--model_name', type=str, help='File name for saving model.', 
-            default=model_name_default)
     parser.add_argument('--random_seed', type=int, help='Random seed for model training.', 
             default=random_seed_default)
-    parser.add_argument('--validation_dir', type=str, 
-            help='Convert validation after each training epoch. Set None for no conversion', 
-            default=validation_dir_default)
-    parser.add_argument('--output_dir', type=str, help='Output directory for converted validation voices.', 
-            default=output_dir_default)
-    parser.add_argument('--tensorboard_log_dir', type=str, help='TensorBoard log directory.', 
-            default=tensorboard_log_dir_default)
     parser.add_argument('--current_iter', type=int, help="Current iteration of the model (Fine tuning)", 
             default=1)
     parser.add_argument('--lambda_cycle_pitch', type=float, help="hyperparam for cycle loss pitch", 
@@ -272,7 +259,7 @@ if __name__ == '__main__':
             default=1e-06)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
-    parser.add_argument('--emotion_pair', type=float, help="Emotion Pair", 
+    parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 
             default=emo_pair_default)
     
     argv = parser.parse_args()
@@ -287,8 +274,6 @@ if __name__ == '__main__':
     tensorboard_log_dir = './log/'+emo_pair
 
     random_seed = argv.random_seed
-    validation_dir = None if argv.validation_dir == 'None' or argv.validation_dir == 'none' \
-                        else argv.validation_dir
 
     lambda_cycle_pitch = argv.lambda_cycle_pitch
     lambda_cycle_energy = argv.lambda_cycle_energy

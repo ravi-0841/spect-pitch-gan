@@ -375,7 +375,7 @@ class VariationalCycleGAN(object):
 
         self.writer.add_summary(generator_summaries, self.train_step)
 
-        discriminator_loss, _, discriminator_summaries, A_grad, B_grad \
+        discriminator_loss, _, discriminator_summaries \
             = self.sess.run([self.discriminator_loss, self.discriminator_train_op, 
                 self.discriminator_summaries], 
                     feed_dict = {self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
