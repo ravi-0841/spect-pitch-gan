@@ -105,9 +105,9 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                 / (np.max(wav_transformed) - np.min(wav_transformed))
         wav_transformed = wav_transformed - np.mean(wav_transformed)
         
-        scwav.write(os.path.join('/home/ravi/Desktop', 
-                                 os.path.basename(audio_file)), 
-                                sampling_rate, wav_transformed)
+#        scwav.write(os.path.join('/home/ravi/Desktop', 
+#                                 os.path.basename(audio_file)), 
+#                                sampling_rate, wav_transformed)
         print('Processed: ' + audio_file)
         
     else:
@@ -208,7 +208,7 @@ if __name__ == '__main__':
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
-    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
+    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/CMU-ARCTIC-US/cmu_us_m1/wav/arctic_a0073.wav'#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
