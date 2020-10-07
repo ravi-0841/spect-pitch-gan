@@ -415,22 +415,22 @@ class VariationalCycleGAN(object):
     def test(self, input_pitch, input_energy, input_mfc, direction):
 
         if direction == 'A2B':
-            generation_pitch, generation_momenta, generation_energy, generation_mfc \
-                    = self.sess.run([self.pitch_A2B_test, self.momenta_energy_A2B_test, \
-                                     self.energy_A2B_test, self.mfc_A2B_test], 
+            generation_pitch, generation_pitch_momenta, generation_energy, generation_energy_momenta \
+                    = self.sess.run([self.pitch_A2B_test, self.momenta_pitch_A2B_test, 
+                                     self.energy_A2B_test, self.momenta_energy_A2B_test], 
                         feed_dict = {self.pitch_A_test:input_pitch, self.energy_A_test:input_energy, 
                                      self.mfc_A_test:input_mfc})
         
         elif direction == 'B2A':
-            generation_pitch, generation_momenta, generation_energy, generation_mfc \
-                    = self.sess.run([self.pitch_B2A_test, self.momenta_energy_B2A_test, \
-                                     self.energy_B2A_test, self.mfc_B2A_test], 
+            generation_pitch, generation_pitch_momenta, generation_energy, generation_energy_momenta \
+                    = self.sess.run([self.pitch_B2A_test, self.momenta_pitch_B2A_test, 
+                                     self.energy_B2A_test, self.momenta_energy_B2A_test], 
                         feed_dict = {self.pitch_B_test:input_pitch, self.energy_B_test:input_energy, 
                                      self.mfc_B_test:input_mfc})
         else:
             raise Exception('Conversion direction must be specified.')
 
-        return generation_pitch, generation_momenta, generation_energy, generation_mfc
+        return generation_pitch, generation_pitch_momenta, generation_energy, generation_energy_momenta
 
 
     def save(self, directory, filename):

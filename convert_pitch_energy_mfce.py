@@ -55,20 +55,22 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         f0 = np.reshape(f0, (1,1,-1))
         ec = np.reshape(ec, (1,1,-1))
 
-        f0_converted, ec_momenta, ec_converted, _ \
+        f0_converted, f0_momenta, ec_converted, ec_momenta \
             = model.test(input_pitch=f0, input_mfc=coded_sp,
                          input_energy=ec, direction=conversion_direction)
 
         pylab.figure(), pylab.subplot(311)
         pylab.plot(ec.reshape(-1,), label='original energy')
         pylab.plot(ec_converted.reshape(-1,), label='converted energy')
-        pylab.legend()
+        pylab.legend(loc=1)
         
         pylab.subplot(312), pylab.plot(f0.reshape(-1,), label='original F0')
         pylab.plot(f0_converted.reshape(-1,), label='converted F0')
-        pylab.legend()
+        pylab.legend(loc=1)
         
-        pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='momenta')
+        pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
+        pylab.plot(f0_momenta.reshape(-1,), label='Pitch momenta')
+        pylab.legend(loc=1)
 
         coded_sp = np.squeeze(coded_sp)
         coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
@@ -142,21 +144,23 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0 = np.reshape(f0, (1,1,-1))
             ec = np.reshape(ec, (1,1,-1))
     
-            f0_converted, ec_momenta, ec_converted, _ \
+            f0_converted, f0_momenta, ec_converted, ec_momenta \
                 = model.test(input_pitch=f0, input_mfc=coded_sp,
                              input_energy=ec, direction=conversion_direction)
     
             pylab.figure(), pylab.subplot(311)
             pylab.plot(ec.reshape(-1,), label='original energy')
             pylab.plot(ec_converted.reshape(-1,), label='converted energy')
-            pylab.legend()
+            pylab.legend(loc=1)
             
             pylab.subplot(312), pylab.plot(f0.reshape(-1,), label='original F0')
             pylab.plot(f0_converted.reshape(-1,), label='converted F0')
-            pylab.legend()
+            pylab.legend(loc=1)
             
-            pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='momenta')
-    
+            pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
+            pylab.plot(f0_momenta.reshape(-1,), label='Pitch momenta')
+            pylab.legend(loc=1)
+
             coded_sp = np.squeeze(coded_sp)
             coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
                                         ec.reshape(1,-1)))
@@ -200,7 +204,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
     model_dir_default = '/home/ravi/Desktop/spect-pitch-gan/model/cmu-arctic/le_10.0_supervised_mwd_mfce_male_female'
-    model_name_default = 'cmu-arctic_300.ckpt'
+    model_name_default = 'cmu-arctic_550.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
