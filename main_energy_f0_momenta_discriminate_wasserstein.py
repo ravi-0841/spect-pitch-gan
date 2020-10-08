@@ -42,7 +42,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_ec_f0_'+emo_pair
+            + '_ec_f0_'+emo_pair+'_take_2'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
