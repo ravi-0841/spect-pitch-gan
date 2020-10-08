@@ -5,7 +5,7 @@
 #SBATCH --cpus-per-task=1
 module load matlab/R2018a
 
-cd $HOME/data/ravi/pitch-lddmm-spect
+cd $HOME/data/ravi/spect-pitch-gan
 
-matlab  -nodisplay -nosplash -r "generate_momenta $1 $2 $3;"
+matlab  -nodisplay -nosplash -r "generate_momenta $SLURM_ARRAY_TASK_ID cmu-arctic train;"
 echo "matlab exit code: $?"
