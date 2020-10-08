@@ -2,7 +2,7 @@ function P_final = get_momentum(src, tar, xkernel, ykernel)
     defo = struct();
     options = struct();
     defo.kernel_size_mom   = [xkernel ykernel];
-    defo.nb_euler_steps    = 15;
+    defo.nb_euler_steps    = 3;
 
     objfun.lambda = 1.5;
 

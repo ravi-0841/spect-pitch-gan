@@ -7,5 +7,5 @@ module load matlab/R2018a
 
 cd $HOME/data/ravi/pitch-lddmm-spect
 
-matlab  -nodisplay -nosplash -r "generate_mfc_momenta $1 $2 $3;"
+matlab  -nodisplay -nosplash -r "generate_momenta $1 $2 $3;"
 echo "matlab exit code: $?"

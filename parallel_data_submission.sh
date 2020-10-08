@@ -1,9 +1,9 @@
 #!/bin/bash
 
-emo="neu-ang"
+emo="cmu-arctic"
 mode="train"
 job_counter=1
-for i in {1..146..1}
+for i in {1..2264..1}
 do
     if [ -f "./data/${emo}/momenta/f0-train-${i}.mat" ]
     then
@@ -15,35 +15,35 @@ do
     fi
 done
 
-emo="neu-hap"
-mode="train"
-job_counter=1
-for i in {1..123..1}
-do
-    if [ -f "./data/${emo}/momenta/f0-train-${i}.mat" ]
-    then
-        echo "file ${i} exists"
-    else
-	    echo "Current job is $job_counter"
-    	sbatch -J "${mode}_${i}" -o "./txt_files/${emo}_${mode}_${i}.txt" data_creation_job.sh $i $emo $mode
-	    job_counter=$((job_counter+1))
-    fi
-done
-
-emo="neu-sad"
-mode="train"
-job_counter=1
-for i in {1..140..1}
-do
-    if [ -f "./data/${emo}/momenta/f0-train-${i}.mat" ]
-    then
-        echo "file ${i} exists"
-    else
-	    echo "Current job is $job_counter"
-    	sbatch -J "${mode}_${i}" -o "./txt_files/${emo}_${mode}_${i}.txt" data_creation_job.sh $i $emo $mode
-	    job_counter=$((job_counter+1))
-    fi
-done
+#emo="neu-hap"
+#mode="train"
+#job_counter=1
+#for i in {1..123..1}
+#do
+#    if [ -f "./data/${emo}/momenta/f0-train-${i}.mat" ]
+#    then
+#        echo "file ${i} exists"
+#    else
+#	    echo "Current job is $job_counter"
+#    	sbatch -J "${mode}_${i}" -o "./txt_files/${emo}_${mode}_${i}.txt" data_creation_job.sh $i $emo $mode
+#	    job_counter=$((job_counter+1))
+#    fi
+#done
+#
+#emo="neu-sad"
+#mode="train"
+#job_counter=1
+#for i in {1..140..1}
+#do
+#    if [ -f "./data/${emo}/momenta/f0-train-${i}.mat" ]
+#    then
+#        echo "file ${i} exists"
+#    else
+#	    echo "Current job is $job_counter"
+#    	sbatch -J "${mode}_${i}" -o "./txt_files/${emo}_${mode}_${i}.txt" data_creation_job.sh $i $emo $mode
+#	    job_counter=$((job_counter+1))
+#    fi
+#done
 
 #mode="valid"
 #job_counter=1
