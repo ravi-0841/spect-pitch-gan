@@ -85,16 +85,16 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #        decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
         
-        energy_converted = np.sqrt(np.sum(sp_converted**2, axis=1))
-        energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
-        sp_converted = np.multiply(sp_converted.T, 
-                                   np.divide(energy_filtered.reshape(1,-1), 
-                                   energy_converted.reshape(1,-1)))
-        sp_converted = np.ascontiguousarray(sp_converted.T)
+#        energy_converted = np.sqrt(np.sum(sp_converted**2, axis=1))
+#        energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
+#        sp_converted = np.multiply(sp_converted.T, 
+#                                   np.divide(energy_filtered.reshape(1,-1), 
+#                                   energy_converted.reshape(1,-1)))
+#        sp_converted = np.ascontiguousarray(sp_converted.T)
         
-        f0_converted = f0_converted[5:]
-        sp_converted = sp_converted[5:]
-        ap = ap[5:]
+        f0_converted = f0_converted[6:-6]
+        sp_converted = sp_converted[6:-6]
+        ap = ap[6:-6]
 
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=sp_converted, 
@@ -160,6 +160,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
             pylab.plot(f0_momenta.reshape(-1,), label='Pitch momenta')
             pylab.legend(loc=1)
+            pylab.savefig(os.path.join(output_dir, os.path.basename(file)[:-4]+'.png'))
+            pylab.close()
 
             coded_sp = np.squeeze(coded_sp)
             coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
@@ -174,16 +176,16 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
             
-            energy_converted = np.sqrt(np.sum(sp_converted**2, axis=1))
-            energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
-            sp_converted = np.multiply(sp_converted.T, 
-                                       np.divide(energy_filtered.reshape(1,-1), 
-                                       energy_converted.reshape(1,-1)))
-            sp_converted = np.ascontiguousarray(sp_converted.T)
+#            energy_converted = np.sqrt(np.sum(sp_converted**2, axis=1))
+#            energy_filtered = scisig.medfilt(energy_converted, kernel_size=3)
+#            sp_converted = np.multiply(sp_converted.T, 
+#                                       np.divide(energy_filtered.reshape(1,-1), 
+#                                       energy_converted.reshape(1,-1)))
+#            sp_converted = np.ascontiguousarray(sp_converted.T)
             
-            f0_converted = f0_converted[5:]
-            sp_converted = sp_converted[5:]
-            ap = ap[5:]
+            f0_converted = f0_converted[6:-6]
+            sp_converted = sp_converted[6:-6]
+            ap = ap[6:-6]
 
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=sp_converted, 
@@ -194,8 +196,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                     / (np.max(wav_transformed) - np.min(wav_transformed))
             wav_transformed = wav_transformed - np.mean(wav_transformed)
             
-#            scwav.write(os.path.join(output_dir, os.path.basename(file)), 
-#                        16000, wav_transformed)
+            scwav.write(os.path.join(output_dir, os.path.basename(file)), 
+                        16000, wav_transformed)
             print('Processed: ' + file)
 
 
@@ -203,12 +205,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/spect-pitch-gan/model/cmu-arctic/le_10.0_supervised_mwd_mfce_male_female'
-    model_name_default = 'cmu-arctic_550.ckpt'
-    data_dir_default = 'data/evaluation/neu-ang/neutral_5'
+    model_dir_default = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/lp_1e-05_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_ec_f0_neu-ang'
+    model_name_default = 'neu-ang_500.ckpt'
+    data_dir_default = 'data/evaluation/neu-ang/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/pitch_energy_wasserstein'
-    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/CMU-ARCTIC-US/cmu_us_m1/wav/arctic_a0073.wav'#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
+    output_dir_default = '/home/ravi/Desktop/F0_ec/neu-ang_1e-05_0.1'
+    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/CMU-ARCTIC-US/cmu_us_m1/wav/arctic_a0073.wav'#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1152.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
