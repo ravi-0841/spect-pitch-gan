@@ -46,7 +46,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     model_dir = os.path.join(model_dir, lc_lm)
 
-    logger_file = './log/'+lc_lm+'.log'
+    logger_file = './log/elog_ec/'+lc_lm+'.log'
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
@@ -65,30 +65,30 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.info("generator_lr - {}".format(generator_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
-    if not os.path.isdir("./pitch_spect/"+lc_lm):
-        os.makedirs(os.path.join("./pitch_spect/", lc_lm))
+    if not os.path.isdir("./pitch_spect/elog_ec/"+lc_lm):
+        os.makedirs(os.path.join("./pitch_spect/elog_ec/", lc_lm))
     else:
-        for f in glob(os.path.join("./pitch_spect/", lc_lm, "*.png")):
+        for f in glob(os.path.join("./pitch_spect/elog_ec/", lc_lm, "*.png")):
             os.remove(f)
     
     print('Preprocessing Data...')
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'mfc_energy_unaligned_train.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'mfc_energy_unaligned_valid.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train_no_ec_process_5.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid_no_ec_process_5.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = data_train['src_ec_feat']
-    energy_B_train = data_train['tar_ec_feat']
+    energy_A_train = np.log(data_train['src_ec_feat'])
+    energy_B_train = np.log(data_train['tar_ec_feat'])
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = data_valid['src_ec_feat']
-    energy_B_valid = data_valid['tar_ec_feat']
+    energy_A_valid = np.log(data_valid['src_ec_feat'])
+    energy_B_valid = np.log(data_valid['tar_ec_feat'])
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
@@ -266,7 +266,7 @@ if __name__ == '__main__':
 
     emo_pair = argv.emotion_pair
     train_dir = "./data/"+emo_pair
-    model_dir = "./model/"+emo_pair
+    model_dir = "./model/"+emo_pair+"/elog_ec"
     model_name = emo_pair
     validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
 #    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]

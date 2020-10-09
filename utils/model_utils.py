@@ -122,8 +122,8 @@ def eval_kernel(kernel1, kernel2):
     return exp_kernel
 
 def modify_mfcc(mfcc, new_energy, old_energy):
-    new_energy = tf.clip_by_value(new_energy, 1e-06, 100)
-    old_energy = tf.clip_by_value(old_energy, 1e-06, 100)
+    new_energy = tf.clip_by_value(new_energy, -20, 20) #(1e-06, 100)
+    old_energy = tf.clip_by_value(old_energy, -20, 20)
     return tf.multiply(mfcc, tf.divide(new_energy, old_energy))
 
 def modify_mfcc_log(mfcc, new_energy, old_energy):
