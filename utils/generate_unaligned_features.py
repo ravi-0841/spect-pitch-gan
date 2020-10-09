@@ -41,8 +41,8 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         tar_wav = scwav.read(wav_tar)
         tar = np.asarray(tar_wav[1], np.float64)
         
-        src = normalize_wav(src)
-        tar = normalize_wav(tar)
+        src = normalize_wav(src, floor=-1, ceil=1)
+        tar = normalize_wav(tar, floor=-1, ceil=1)
 
         f0_src, t_src   = pw.harvest(src, sample_rate, frame_period=int(1000*window_len))
         src_straight    = pw.cheaptrick(src, f0_src, t_src, sample_rate)
@@ -63,13 +63,13 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
             src_mfc = pw.code_spectral_envelope(src_straight, sample_rate, n_mfc)
             tar_mfc = pw.code_spectral_envelope(tar_straight, sample_rate, n_mfc)
         
-        ec_src = np.sqrt(np.sum(np.square(src_mfc), axis=1))
-        ec_tar = np.sqrt(np.sum(np.square(tar_mfc), axis=1))
+        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
+        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
         
         f0_src = preprocess_contour(f0_src)
         f0_tar = preprocess_contour(f0_tar)
-        ec_src = preprocess_contour(ec_src)
-        ec_tar = preprocess_contour(ec_tar)
+#        ec_src = preprocess_contour(ec_src)
+#        ec_tar = preprocess_contour(ec_tar)
         
         f0_src = f0_src.reshape(-1,1)
         f0_tar = f0_tar.reshape(-1,1)
