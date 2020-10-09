@@ -253,7 +253,7 @@ def tuanad_encode_mcep(spec: np.ndarray, n0: int = 20, fs: int = 16000,
     Spec is magnitude spectrogram (N x D) array
     """
     interp_mat = _interp_matrix_hz2mel()
-    Xml = np.dot(interp_mat, np.log(spec.T)).T
+    Xml = np.dot(interp_mat, np.log(spec.T ** 2)).T
     Xc = scipy.fftpack.dct(Xml, axis=1, norm='ortho') / np.sqrt(n_fft)
     return Xc[:, :n0]
 
@@ -267,7 +267,7 @@ def tuanad_decode_mcep(cepstrum: np.ndarray, n_fft:int):
                             n=(n_fft//2 + 1), norm='ortho')
     Yl = np.dot(interp_mat, Yl.T).T
 
-    return np.exp(Yl)
+    return np.sqrt(np.exp(Yl))
 
 
 def low_pass_filt(S, cutoff_freq=10, fs=32):

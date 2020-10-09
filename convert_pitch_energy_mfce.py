@@ -71,6 +71,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
         pylab.plot(f0_momenta.reshape(-1,), label='Pitch momenta')
         pylab.legend(loc=1)
+        pylab.suptitle(os.path.basename(audio_file))
 
         coded_sp = np.squeeze(coded_sp)
         coded_sp_converted = np.multiply(coded_sp, np.divide(ec_converted.reshape(1,-1), 
@@ -160,6 +161,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             pylab.subplot(313), pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
             pylab.plot(f0_momenta.reshape(-1,), label='Pitch momenta')
             pylab.legend(loc=1)
+            pylab.suptitle(os.path.basename(file))
             pylab.savefig(os.path.join(output_dir, os.path.basename(file)[:-4]+'.png'))
             pylab.close()
 
@@ -171,7 +173,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
             f0_converted = np.ascontiguousarray(f0_converted)
             f0_converted[f0_z_idx] = 0
-    
+
             # Normalization of converted features
 #            decoded_sp_converted = decoded_sp_converted / np.max(decoded_sp_converted)
 #            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
