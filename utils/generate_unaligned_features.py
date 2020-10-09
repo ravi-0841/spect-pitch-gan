@@ -68,8 +68,8 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
         
         f0_src = preprocess_contour(f0_src)
         f0_tar = preprocess_contour(f0_tar)
-#        ec_src = preprocess_contour(ec_src)
-#        ec_tar = preprocess_contour(ec_tar)
+        ec_src = scisig.medfilt(ec_src, kernel_size=3)
+        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
         
         f0_src = f0_src.reshape(-1,1)
         f0_tar = f0_tar.reshape(-1,1)
@@ -229,7 +229,7 @@ if __name__=='__main__':
                      = get_feats(FILE_LIST, sample_rate, window_len, 
                         window_stride, n_feats=128, n_mfc=23, num_samps=30)
 
-        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_unaligned_'+i+'.mat', \
+        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_unaligned_'+i+'_no_ec_process.mat', \
                     { \
                          'src_mfc_feat':   np.asarray(src_mfc_feat, np.float32), \
                          'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \
