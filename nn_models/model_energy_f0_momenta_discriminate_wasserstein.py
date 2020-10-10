@@ -28,7 +28,7 @@ class VariationalCycleGAN(object):
         # Create the kernel for lddmm
         self.kernel_pitch = tf.expand_dims(tf.constant([6,50], 
             dtype=tf.float32), axis=0)
-        self.kernel_energy = tf.expand_dims(tf.constant([6,3], 
+        self.kernel_energy = tf.expand_dims(tf.constant([6,2], 
             dtype=tf.float32), axis=0) #[6,5] in general
 
         self.sampler_pitch = sampler_pitch
@@ -123,7 +123,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_A, reuse=False, scope_name='sampler_energy_A2B')
         self.energy_A2B_fake = self.lddmm_energy(x=self.energy_A_real, p=self.momenta_energy_A2B, 
                 kernel=self.kernel_energy, reuse=False, scope_name='lddmm_energy')
-        self.mfc_A2B_fake = utils.modify_mfcc(self.mfc_A, self.energy_A2B_fake, self.energy_A_real)
+        self.mfc_A2B_fake = utils.modify_mfcc_log(self.mfc_A, self.energy_A2B_fake, self.energy_A_real)
 
         # Cyclic generation
         self.momenta_pitch_cycle_A2A = self.sampler_pitch(input_pitch=self.pitch_A2B_fake, 
@@ -152,7 +152,7 @@ class VariationalCycleGAN(object):
                 input_mfc=self.mfc_B, reuse=True, scope_name='sampler_energy_B2A')
         self.energy_B2A_fake = self.lddmm_energy(x=self.energy_B_real, p=self.momenta_energy_B2A, 
                 kernel=self.kernel_energy, reuse=True, scope_name='lddmm_energy')
-        self.mfc_B2A_fake = utils.modify_mfcc(self.mfc_B, self.energy_B2A_fake, self.energy_B_real)
+        self.mfc_B2A_fake = utils.modify_mfcc_log(self.mfc_B, self.energy_B2A_fake, self.energy_B_real)
 
         # Cyclic generation
         self.momenta_pitch_cycle_B2B = self.sampler_pitch(input_pitch=self.pitch_B2A_fake, 
