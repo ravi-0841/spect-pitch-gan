@@ -74,6 +74,16 @@ class VariationalCycleGAN(object):
         self.mfc_B = tf.placeholder(tf.float32, shape=self.mfc_shape, 
                 name='mfc_B')
 
+        self.momenta_energy_A2B_real = tf.placeholder(tf.float32, shape=self.energy_shape, 
+                name='momenta_energy_A2B_real')
+        self.momenta_energy_B2A_real = tf.placeholder(tf.float32, shape=self.energy_shape, 
+                name='momenta_energy_B2A_real')
+
+        self.momenta_pitch_A2B_real = tf.placeholder(tf.float32, shape=self.pitch_shape, 
+                name='momenta_pitch_A2B_real')
+        self.momenta_pitch_B2A_real = tf.placeholder(tf.float32, shape=self.pitch_shape, 
+                name='momenta_pitch_B2A_real')
+
         # Placeholders for fake generated samples
         self.pitch_A_fake = tf.placeholder(tf.float32, shape=self.pitch_shape, 
                 name='pitch_A_fake')
@@ -102,6 +112,8 @@ class VariationalCycleGAN(object):
 
         # Place holder for lambda_cycle and lambda_identity
         self.lambda_energy = tf.placeholder(tf.float32, None, name='lambda_energy')
+        self.lambda_momenta_energy = tf.placeholder(tf.float32, None, name='lambda_momenta_energy')
+        self.lambda_momenta_pitch = tf.placeholder(tf.float32, None, name='lambda_momenta_pitch')
 
         '''
         Generator A
@@ -151,11 +163,17 @@ class VariationalCycleGAN(object):
                 self.energy_B2A_fake], axis=1), reuse=False, scope_name='discriminator_energy_B')
 
         # Generator Loss
+        self.generator_loss_momenta_pitch = (utils.l1_loss(self.momenta_pitch_A2B, self.momenta_pitch_A2B_real) \
+                + utils.l1_loss(self.momenta_pitch_B2A, self.momenta_pitch_B2A_real)) / 2.0
         self.generator_loss_pitch = (utils.l1_loss(self.pitch_A2B_fake, self.pitch_B_real) \
                 + utils.l1_loss(self.pitch_B2A_fake, self.pitch_A_real)) / 2.0
+        self.generator_loss_momenta_energy = (utils.l1_loss(self.momenta_energy_A2B, self.momenta_energy_A2B_real) \
+                + utils.l1_loss(self.momenta_energy_B2A, self.momenta_energy_B2A_real)) / 2.0
         self.generator_loss_energy = (utils.l1_loss(self.energy_A2B_fake, self.energy_B_real) \
                 + utils.l1_loss(self.energy_B2A_fake, self.energy_A_real)) / 2.0
-        self.generator_loss = self.generator_loss_pitch + self.lambda_energy*self.generator_loss_energy
+        self.generator_loss = self.generator_loss_pitch + self.lambda_energy*self.generator_loss_energy \
+                + self.lambda_momenta_pitch*self.generator_loss_momenta_pitch \
+                + self.lambda_momenta_energy*self.generator_loss_momenta_energy
 
         # Compute the pitch discriminator probability for pair of inputs
         self.pitch_discrimination_input_A_real_B_fake \
@@ -236,9 +254,10 @@ class VariationalCycleGAN(object):
             clip_value_max=clip_range)) for var in self.discriminator_vars]
 
 
-    def train(self, pitch_A, mfc_A, energy_A, pitch_B, mfc_B, energy_B, 
-            lambda_energy, generator_learning_rate, 
-            discriminator_learning_rate):
+    def train(self, pitch_A, mfc_A, energy_A, momenta_pitch_A2B, momenta_energy_A2B, 
+            pitch_B, mfc_B, energy_B, momenta_pitch_B2A, momenta_energy_B2A, 
+            lambda_energy, lambda_momenta_pitch, lambda_momenta_energy, 
+            generator_learning_rate, discriminator_learning_rate):
 
         momenta_pitch_B, generation_pitch_B, momenta_energy_B, \
         generation_energy_B, momenta_pitch_A, generation_pitch_A, \
@@ -254,6 +273,10 @@ class VariationalCycleGAN(object):
                         self.pitch_B_real:pitch_B, self.mfc_A:mfc_A, 
                         self.mfc_B:mfc_B, self.energy_A_real:energy_A, 
                         self.energy_B_real:energy_B, 
+                        self.momenta_pitch_A2B_real:momenta_pitch_A2B, 
+                        self.momenta_energy_A2B_real:momenta_energy_A2B, 
+                        self.momenta_pitch_B2A_real:momenta_pitch_B2A, 
+                        self.momenta_energy_B2A_real:momenta_energy_B2A,
                         self.generator_learning_rate:generator_learning_rate})
 
         self.train_step += 1

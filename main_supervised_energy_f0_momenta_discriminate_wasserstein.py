@@ -22,7 +22,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, \
             tensorboard_log_dir, pre_train=None, \
-            lambda_energy=0, generator_learning_rate=1e-05, 
+            lambda_energy=0, lambda_momenta_pitch=0, 
+            lambda_momenta_energy=0, generator_learning_rate=1e-05, 
             discriminator_learning_rate=1e-05):
 
     np.random.seed(random_seed)
@@ -112,8 +113,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         start_time_epoch = time.time()
 
-        mfc_A, pitch_A, energy_A, momentum_pitch_A, momentum_energy_A, \
-            mfc_B, pitch_B, energy_B, momentum_pitch_B, momentum_energy_B \
+        mfc_A, pitch_A, energy_A, momenta_pitch_A2B, momenta_energy_A2B, \
+            mfc_B, pitch_B, energy_B, momenta_pitch_B2A, momenta_energy_B2A \
                 = preproc.sample_data_energy_momenta(mfc_A=mfc_A_train, 
                     mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                     energy_A=energy_A_train, energy_B=energy_B_train, 
@@ -138,7 +139,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 = model.train(mfc_A=mfc_A[start:end], energy_A=energy_A[start:end], 
                     pitch_A=pitch_A[start:end], mfc_B=mfc_B[start:end],  
                     energy_B=energy_B[start:end], pitch_B=pitch_B[start:end], 
-                    lambda_energy=lambda_energy, 
+                    lambda_energy=lambda_energy, lambda_momenta_pitch=lambda_momenta_pitch, 
+                    lambda_momenta_energy=lambda_momenta_energy, 
+                    momenta_pitch_A2B=momenta_pitch_A2B, 
+                    momenta_energy_A2B=momenta_energy_A2B, 
+                    momenta_pitch_B2A=momenta_pitch_B2A, 
+                    momenta_energy_B2A=momenta_energy_B2A, 
                     generator_learning_rate=generator_learning_rate, 
                     discriminator_learning_rate=discriminator_learning_rate)
             
@@ -199,6 +205,10 @@ if __name__ == '__main__':
             default=1)
     parser.add_argument('--lambda_energy', type=float, help="hyperparam for loss energy", 
             default=10.0)
+    parser.add_argument('--lambda_momenta_energy', type=float, help="hyperparam for momenta energy", 
+            default=10.0)
+    parser.add_argument('--lambda_momenta_pitch', type=float, help="hyperparam for momenta pitch", 
+            default=10.0)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
             default=1e-06)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
@@ -213,6 +223,8 @@ if __name__ == '__main__':
     tensorboard_log_dir = argv.tensorboard_log_dir
 
     lambda_energy = argv.lambda_energy
+    lambda_momenta_energy = argv.lambda_momenta_energy
+    lambda_momenta_pitch = argv.lambda_momenta_pitch
 
     generator_learning_rate = argv.generator_learning_rate
     discriminator_learning_rate = argv.discriminator_learning_rate
@@ -220,5 +232,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, tensorboard_log_dir=tensorboard_log_dir, 
           pre_train=None, lambda_energy=lambda_energy, 
+          lambda_momenta_pitch=lambda_momenta_pitch, 
+          lambda_momenta_energy=lambda_momenta_energy, 
           generator_learning_rate=generator_learning_rate, 
           discriminator_learning_rate=discriminator_learning_rate)
