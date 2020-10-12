@@ -18,8 +18,8 @@ function generate_vertical_data(file_idx, emo, mode)
         src_f0_feat = double(data.tar_f0_feat);
         tar_f0_feat = double(data.src_f0_feat);
 
-        src_ec_feat = log(double(data.tar_ec_feat) + 1e-06);
-        tar_ec_feat = log(double(data.src_ec_feat) + 1e-06);
+        src_ec_feat = log(double(data.src_ec_feat) + 1e-06);
+        tar_ec_feat = log(double(data.tar_ec_feat) + 1e-06);
 
         src_f0_feat = squeeze(src_f0_feat(file_idx,:,:));
         tar_f0_feat = squeeze(tar_f0_feat(file_idx,:,:));
@@ -67,8 +67,8 @@ function generate_vertical_data(file_idx, emo, mode)
 		end
 		size(momentum_f0)
         size(momentum_ec)
-		save(['./data/',emo,'/momenta_spect/B2A_f0-train-', num2str(file_idx), '.mat'], 'momentum_f0');
-		save(['./data/',emo,'/momenta_spect/B2A_ec-train-', num2str(file_idx), '.mat'], 'momentum_ec');
+		save(['./data/',emo,'/momenta_spect/A2B_f0-train-', num2str(file_idx), '.mat'], 'momentum_f0');
+		save(['./data/',emo,'/momenta_spect/A2B_ec-train-', num2str(file_idx), '.mat'], 'momentum_ec');
 
 	elseif strcmp(mode, 'valid')	
 		data = load(['./data/', emo, '/valid_mod_dtw_harvest.mat']);

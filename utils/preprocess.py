@@ -487,3 +487,54 @@ def sample_data_energy(mfc_A, pitch_A, mfc_B, pitch_B, energy_A, energy_B):
                     axes=(0,2,1))                                                                    
                                                                                                                                           
     return mfc_data_A, pitch_data_A, energy_data_A, mfc_data_B, pitch_data_B, energy_data_B
+
+
+
+def sample_data_energy_momenta(mfc_A, pitch_A, energy_A, momenta_pitch_A, momenta_energy_A, 
+        mfc_B, pitch_B, energy_B, momenta_pitch_B, momenta_energy_B): 
+    mfc_data_A = list()
+    mfc_data_B = list()
+    pitch_data_A = list()
+    pitch_data_B = list()
+    energy_data_A = list()
+    energy_data_B = list()
+    momenta_pitch_data_A = list()
+    momenta_energy_data_A = list()
+    momenta_pitch_data_B = list()
+    momenta_energy_data_B = list()
+                                                                                                                                          
+    for i in range(mfc_A.shape[0]):                                                                                                       
+        q = np.random.randint(0, mfc_A.shape[1])                                                                                          
+        mfc_data_A.append(np.squeeze(mfc_A[i,q,:,:]))                                                                                     
+        mfc_data_B.append(np.squeeze(mfc_B[i,q,:,:]))                                                                                     
+        pitch_data_A.append(np.squeeze(pitch_A[i,q,:,:]))                                                                                 
+        pitch_data_B.append(np.squeeze(pitch_B[i,q,:,:]))                                                                                 
+        energy_data_A.append(np.squeeze(energy_A[i,q,:,:]))                                                                         
+        energy_data_B.append(np.squeeze(energy_B[i,q,:,:]))                                                                         
+        momenta_pitch_data_A.append(np.squeeze(momenta_pitch_A[i,q,:,:])) 
+        momenta_energy_data_A.append(np.squeeze(momenta_energy_A[i,q,:,:])) 
+        momenta_pitch_data_B.append(np.squeeze(momenta_pitch_B[i,q,:,:])) 
+        momenta_energy_data_B.append(np.squeeze(momenta_energy_B[i,q,:,:])) 
+                                                                                                                                          
+                                                                                                                                          
+    mfc_data_A = np.transpose(np.asarray(mfc_data_A), axes=(0,2,1))
+    mfc_data_B = np.transpose(np.asarray(mfc_data_B), axes=(0,2,1))
+    pitch_data_A = np.transpose(np.expand_dims(np.asarray(pitch_data_A), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    pitch_data_B = np.transpose(np.expand_dims(np.asarray(pitch_data_B), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    energy_data_A = np.transpose(np.expand_dims(np.asarray(energy_data_A), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    energy_data_B = np.transpose(np.expand_dims(np.asarray(energy_data_B), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    momenta_pitch_data_A = np.transpose(np.expand_dims(np.asarray(momenta_pitch_data_A), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    momenta_pitch_data_B = np.transpose(np.expand_dims(np.asarray(momenta_pitch_data_B), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    momenta_energy_data_A = np.transpose(np.expand_dims(np.asarray(momenta_energy_data_A), axis=-1), 
+                    axes=(0,2,1))                                                                    
+    momenta_energy_data_B = np.transpose(np.expand_dims(np.asarray(momenta_energy_data_B), axis=-1), 
+                    axes=(0,2,1))                                                                    
+                                                                                                                                          
+    return mfc_data_A, pitch_data_A, energy_data_A, momenta_pitch_data_A, momenta_energy_data_A, \
+            mfc_data_B, pitch_data_B, energy_data_B, momenta_pitch_data_B, momenta_energy_data_B

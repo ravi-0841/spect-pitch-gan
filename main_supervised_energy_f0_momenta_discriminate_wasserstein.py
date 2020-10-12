@@ -72,6 +72,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_train = np.log(data_train['tar_ec_feat'] + 1e-06)
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
+    momenta_A2B_f0 = data_train['momenta_f0_A2B']
+    momenta_B2A_f0 = data_train['momenta_f0_B2A']
+    momenta_A2B_ec = data_train['momenta_ec_A2B']
+    momenta_B2A_ec = data_train['momenta_ec_B2A']
+
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
@@ -79,9 +84,13 @@ def train(train_dir, model_dir, model_name, random_seed, \
     pitch_A_train = pitch_A_train[indices_train]
     energy_A_train = energy_A_train[indices_train]
     mfc_A_train = mfc_A_train[indices_train]
+    momenta_A2B_f0 = momenta_A2B_f0[indices_train]
+    momenta_A2B_ec = momenta_A2B_ec[indices_train]
     pitch_B_train = pitch_B_train[indices_train]
     energy_B_train = energy_B_train[indices_train]
     mfc_B_train = mfc_B_train[indices_train]
+    momenta_B2A_f0 = momenta_B2A_f0[indices_train]
+    momenta_B2A_ec = momenta_B2A_ec[indices_train]
 
     end_time = time.time()
     time_elapsed = end_time - start_time
@@ -103,10 +112,13 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
         start_time_epoch = time.time()
 
-        mfc_A, pitch_A, energy_A, \
-            mfc_B, pitch_B, energy_B = preproc.sample_data_energy(mfc_A=mfc_A_train, 
+        mfc_A, pitch_A, energy_A, momentum_pitch_A, momentum_energy_A, \
+            mfc_B, pitch_B, energy_B, momentum_pitch_B, momentum_energy_B \
+                = preproc.sample_data_energy_momenta(mfc_A=mfc_A_train, 
                     mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
-                    energy_A=energy_A_train, energy_B=energy_B_train)
+                    energy_A=energy_A_train, energy_B=energy_B_train, 
+                    momenta_pitch_A=momenta_A2B_f0, momenta_pitch_B=momenta_B2A_f0, 
+                    momenta_energy_A=momenta_A2B_ec, momenta_energy_B=momenta_B2A_ec)
         
         n_samples = energy_A.shape[0]
         
