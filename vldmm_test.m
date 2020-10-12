@@ -2,12 +2,12 @@
 
 addpath(genpath('./'));
 close all
-data = load('./data/cmu-arctic.mat');
+% data = load('./data/cmu-arctic/spect_energy_cmu_arctic.mat');
 sample = randperm(size(data.src_f0_feat,1));
 sample = sample(1);
-src_feat = double(squeeze(data.src_f0_feat(sample,:,:)));
-tar_feat = double(squeeze(data.tar_f0_feat(sample,:,:)));
-momentum = double(squeeze(data.momenta_f0_A2B(sample,:,:)));
+src_feat = log(double(squeeze(data.src_ec_feat(sample,:,:))) + 1e-06);
+tar_feat = log(double(squeeze(data.tar_ec_feat(sample,:,:))) + 1e-06);
+momentum = double(squeeze(data.momenta_ec(sample,:,:)));
 
 q = randperm(size(src_feat,1));
 q = q(1);
@@ -21,8 +21,8 @@ Y = [x' tar_feat(q,:)'];
 
 disp([sample, q]);
 [n,d] = size(Z);
-defo.kernel_size_mom = [6, 50];
-defo.nb_euler_steps = 15;
+defo.kernel_size_mom = [6, 2];
+defo.nb_euler_steps = 3;
 
 objfun.lambda = 1.5;
 
@@ -37,7 +37,7 @@ P_op = momentum(q,:)';
 % [P_op,summary] = vmatch(Z,Y,P,defo,objfun,options);
 
 [X_evol,P_evol] = forward_tan(Z,P_op,defo,1); 
-[Xgr,Ygr] = ndgrid(0:5:130,0:20:400);
+[Xgr,Ygr] = ndgrid(0:5:130,-20:1:10);
 nxgrid = size(Xgr,1);
 nygrid = size(Xgr,2);
 gr = [Xgr(:) Ygr(:)];
