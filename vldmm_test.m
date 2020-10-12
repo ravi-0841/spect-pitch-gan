@@ -7,7 +7,7 @@ sample = randperm(size(data.src_f0_feat,1));
 sample = sample(1);
 src_feat = log(double(squeeze(data.src_ec_feat(sample,:,:))) + 1e-06);
 tar_feat = log(double(squeeze(data.tar_ec_feat(sample,:,:))) + 1e-06);
-momentum = double(squeeze(data.momenta_ec(sample,:,:)));
+momentum = double(squeeze(data.momenta_ec_A2B(sample,:,:)));
 
 q = randperm(size(src_feat,1));
 q = q(1);
@@ -87,6 +87,6 @@ for t=1:1:defo.nb_euler_steps+1
 %
 % axis off
 % print(fig,['example',num2str(t)],'-dpng')
-    pause(0.01)
+    pause(0.1)
 
 end
