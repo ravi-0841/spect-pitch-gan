@@ -35,7 +35,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "le_"+str(lambda_energy)+'_supervised_mwd_mfce_male_female'
+    lc_lm = "le_"+str(lambda_energy)+'_supervised_mwd_spect_male_female'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -64,12 +64,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'mfc_energy_cmu_arctic_2.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'spect_energy_cmu_arctic.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = data_train['src_ec_feat']
-    energy_B_train = data_train['tar_ec_feat']
+    energy_A_train = np.log(data_train['src_ec_feat'] + 1e-06)
+    energy_B_train = np.log(data_train['tar_ec_feat'] + 1e-06)
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
@@ -79,6 +79,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
     pitch_A_train = pitch_A_train[indices_train]
     energy_A_train = energy_A_train[indices_train]
     mfc_A_train = mfc_A_train[indices_train]
+    pitch_B_train = pitch_B_train[indices_train]
+    energy_B_train = energy_B_train[indices_train]
+    mfc_B_train = mfc_B_train[indices_train]
 
     end_time = time.time()
     time_elapsed = end_time - start_time

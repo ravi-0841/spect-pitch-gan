@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --time=00:40:00
+#SBATCH --time=00:20:00
 #SBATCH --partition=shared
 #SBATCH --mem=32gb
 #SBATCH --cpus-per-task=1

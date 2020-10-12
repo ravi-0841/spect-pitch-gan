@@ -13,13 +13,13 @@ function generate_vertical_data(file_idx, emo, mode)
 
 	if strcmp(mode, 'train')
 
-		data = load(['./data/', emo, '/mfc_energy_cmu_arctic_2.mat']);
+		data = load(['./data/', emo, '/spect_energy_cmu_arctic.mat']);
         
         src_f0_feat = double(data.src_f0_feat);
         tar_f0_feat = double(data.tar_f0_feat);
 
-        src_ec_feat = double(data.src_ec_feat);
-        tar_ec_feat = double(data.tar_ec_feat);
+        src_ec_feat = log(double(data.src_ec_feat));
+        tar_ec_feat = log(double(data.tar_ec_feat));
 
         src_f0_feat = squeeze(src_f0_feat(file_idx,:,:));
         tar_f0_feat = squeeze(tar_f0_feat(file_idx,:,:));
@@ -58,7 +58,7 @@ function generate_vertical_data(file_idx, emo, mode)
 		    	momentum_ec(sample,:) = nan(1,dim_ec);
             else
 		        try
-		            momentum_ec(sample,:) = get_momentum(z_s, z_t, kx, 5.0)';
+		            momentum_ec(sample,:) = get_momentum(z_s, z_t, kx, 2.0)';
                 catch
 		            momentum_ec(sample,:) = nan(1,dim_ec);
 		        end
@@ -67,8 +67,8 @@ function generate_vertical_data(file_idx, emo, mode)
 		end
 		size(momentum_f0)
         size(momentum_ec)
-		save(['./data/',emo,'/momenta/f0-train-', num2str(file_idx), '.mat'], 'momentum_f0');
-		save(['./data/',emo,'/momenta/ec-train-', num2str(file_idx), '.mat'], 'momentum_ec');
+		save(['./data/',emo,'/momenta_spect/f0-train-', num2str(file_idx), '.mat'], 'momentum_f0');
+		save(['./data/',emo,'/momenta_spect/ec-train-', num2str(file_idx), '.mat'], 'momentum_ec');
 
 	elseif strcmp(mode, 'valid')	
 		data = load(['./data/', emo, '/valid_mod_dtw_harvest.mat']);
