@@ -179,8 +179,8 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = './model/neu-ang/elog_ec/lp_1e-06_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_ec_f0_neu-ang_take_2'
-    model_name_default = 'neu-ang_800.ckpt'
+    model_dir_default = '/home/ravi/Desktop/lp_0.01_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_log_ec_f0_neu-ang'
+    model_name_default = 'neu-ang_400.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/F0_log_ec'
