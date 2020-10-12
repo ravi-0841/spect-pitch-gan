@@ -65,13 +65,13 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
             src_mfc = pw.code_spectral_envelope(src_straight, sample_rate, n_mfc)
             tar_mfc = pw.code_spectral_envelope(tar_straight, sample_rate, n_mfc)
             
-        ec_src = np.sqrt(np.sum(np.square(src_mfc), axis=1))
-        ec_tar = np.sqrt(np.sum(np.square(tar_mfc), axis=1))
+        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
+        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
         
         f0_src = preprocess_contour(f0_src)
         f0_tar = preprocess_contour(f0_tar)
-        ec_src = preprocess_contour(ec_src)
-        ec_tar = preprocess_contour(ec_tar)
+        ec_src = scisig.medfilt(ec_src, kernel_size=3)
+        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
         
         f0_src = f0_src.reshape(-1,1)
         f0_tar = f0_tar.reshape(-1,1)
@@ -245,7 +245,7 @@ if __name__=='__main__':
              = get_feats(FILE_LIST, sample_rate, window_len, 
                          window_stride, n_feats=128, n_mfc=23, num_samps=10)
 
-   scio.savemat('/home/ravi/Desktop/mfc_energy_cmu_arctic_2.mat', \
+   scio.savemat('/home/ravi/Desktop/spect_energy_cmu_arctic.mat', \
                 { \
                      'src_mfc_feat':           src_mfc_feat, \
                      'tar_mfc_feat':           tar_mfc_feat, \
