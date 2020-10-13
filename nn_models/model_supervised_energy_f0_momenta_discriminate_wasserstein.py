@@ -281,6 +281,7 @@ class VariationalCycleGAN(object):
                         self.momenta_energy_B2A_real:momenta_energy_B2A,
                         self.generator_learning_rate:generator_learning_rate})
 
+        self.writer.add_summary(generator_summaries, self.train_step)
         self.train_step += 1
 
         return generator_loss, generator_loss_pitch, generator_loss_energy, generation_pitch_A, \
