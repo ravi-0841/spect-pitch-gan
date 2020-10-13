@@ -36,7 +36,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "le_"+str(lambda_energy)+'_supervised_mwd_spect_male_female'
+    lc_lm = "le_"+str(lambda_energy)+'_lme_'+str(lambda_momenta_energy) \
+            +'_lmp_'+str(lambda_momenta_pitch)+'_supervised_mwd_spect_male_female'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
