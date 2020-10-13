@@ -269,6 +269,8 @@ class VariationalCycleGAN(object):
                     self.generator_loss, self.generator_loss_pitch, self.generator_loss_energy, 
                     self.generator_train_op, self.generator_summaries], 
                     feed_dict = {self.lambda_energy:lambda_energy, 
+                        self.lambda_momenta_pitch:lambda_momenta_pitch, 
+                        self.lambda_momenta_energy:lambda_momenta_energy, 
                         self.pitch_A_real:pitch_A, 
                         self.pitch_B_real:pitch_B, self.mfc_A:mfc_A, 
                         self.mfc_B:mfc_B, self.energy_A_real:energy_A, 
@@ -341,7 +343,20 @@ class VariationalCycleGAN(object):
         with tf.name_scope('generator_summaries'):
             generator_loss_summary = tf.summary.scalar('generator_loss', 
                     tf.reduce_mean(self.generator_loss))
-            generator_summaries = tf.summary.merge([generator_loss_summary])
+            generator_loss_pitch_summary = tf.summary.scalar('generator_loss_pitch', 
+                    tf.reduce_mean(self.generator_loss_pitch))
+            generator_loss_energy_summary = tf.summary.scalar('generator_loss_energy', 
+                    tf.reduce_mean(self.generator_loss_energy))
+            generator_loss_momenta_pitch_summary = tf.summary.scalar('generator_loss_momenta_pitch', 
+                    tf.reduce_mean(self.generator_loss_momenta_pitch))
+            generator_loss_momenta_energy_summary = tf.summary.scalar('generator_loss_momenta_energy', 
+                    tf.reduce_mean(self.generator_loss_momenta_energy))
+            
+            generator_summaries = tf.summary.merge([generator_loss_summary, 
+                                    generator_loss_pitch_summary, 
+                                    generator_loss_energy_summary, 
+                                    generator_loss_momenta_pitch_summary, 
+                                    generator_loss_momenta_energy_summary])
 
         with tf.name_scope('discriminator_summaries'):
             discriminator_loss_A_summary = tf.summary.scalar('discriminator_loss_A', 

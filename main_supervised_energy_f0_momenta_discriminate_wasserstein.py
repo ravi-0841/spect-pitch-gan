@@ -49,8 +49,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
                             level=logging.DEBUG)
 
     print("lambda_energy - {}".format(lambda_energy))
+    print("lambda_momenta_pitch - {}".format(lambda_momenta_pitch))
+    print("lambda_momenta_energy - {}".format(lambda_momenta_energy))
 
     logging.info("lambda_energy - {}".format(lambda_energy))
+    logging.info("lambda_momenta_pitch - {}".format(lambda_momenta_pitch))
+    logging.info("lambda_momenta_energy - {}".format(lambda_momenta_energy))
     logging.info("generator_lr - {}".format(generator_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
