@@ -55,15 +55,22 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         f0 = np.reshape(f0, (1,1,-1))
         ec = np.reshape(ec, (1,1,-1))
 
-        f0_converted, _, ec_converted, ec_momenta = model.test(input_pitch=f0, 
+        f0_converted, f0_momenta, ec_converted, ec_momenta = model.test(input_pitch=f0, 
                                                       input_mfc=coded_sp,
                                                       input_energy=np.log(ec),
                                                       direction=conversion_direction)
         
         ec_converted = scisig.medfilt(ec_converted.reshape(-1,), kernel_size=3)
+        
+        pylab.subplot(211)
         pylab.plot(np.log(ec.reshape(-1,)), label='Log energy')
         pylab.plot(ec_converted, label='Log converted energy')
         pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
+        pylab.legend()
+        pylab.subplot(212)
+        pylab.plot(f0.reshape(-1,), label='F0')
+        pylab.plot(f0_converted.reshape(-1,1), label='converted F0')
+        pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
         pylab.legend()
 
 #        coded_sp_converted = np.asarray(np.transpose(np.squeeze(coded_sp_converted)), 
@@ -179,12 +186,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using pre-trained VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/lp_0.01_le_1e-06_li_0.0_lrg_1e-05_lrd_1e-07_log_ec_f0_neu-ang'
-    model_name_default = 'neu-ang_1000.ckpt'
+    model_dir_default = '/home/ravi/Desktop/le_10.0_supervised_mwd_spect_male_female'
+    model_name_default = 'cmu-arctic_850.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral_5'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/F0_log_ec'
-    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
+    audio_file_default = '/home/ravi/Desktop/spect-pitch-gan/data/CMU-ARCTIC-US/cmu_us_m1/wav/arctic_a0037.wav'#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
