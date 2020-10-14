@@ -37,7 +37,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     n_frames = 128
 
     lc_lm = "le_"+str(lambda_energy)+'_lme_'+str(lambda_momenta_energy) \
-            +'_lmp_'+str(lambda_momenta_pitch)+'_supervised_mwd_spect_male_female'
+            +'_lmp_'+str(lambda_momenta_pitch)+'_supervised_mwd_spect_male_female_mean_sub'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -83,6 +83,10 @@ def train(train_dir, model_dir, model_name, random_seed, \
     momenta_A2B_ec = data_train['momenta_ec_A2B']
     momenta_B2A_ec = data_train['momenta_ec_B2A']
 
+    # Subtract mean from the pitch contours
+    if lambda_momenta_pitch==0:
+        pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1)
+        pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1)
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
