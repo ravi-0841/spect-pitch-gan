@@ -42,11 +42,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_log_ec_f0_'+emo_pair
+            + '_pre_trained'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
-    logger_file = './log/elog_ec/'+lc_lm+'.log'
+    logger_file = './log/'+lc_lm+'.log'
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
@@ -65,10 +65,10 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.info("generator_lr - {}".format(generator_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
-    if not os.path.isdir("./pitch_spect/elog_ec/"+lc_lm):
-        os.makedirs(os.path.join("./pitch_spect/elog_ec/", lc_lm))
+    if not os.path.isdir("./pitch_spect/"+lc_lm):
+        os.makedirs(os.path.join("./pitch_spect/", lc_lm))
     else:
-        for f in glob(os.path.join("./pitch_spect/elog_ec/", lc_lm, "*.png")):
+        for f in glob(os.path.join("./pitch_spect/", lc_lm, "*.png")):
             os.remove(f)
     
     print('Preprocessing Data...')
@@ -213,7 +213,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.legend(loc=2)
 
                 pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
-                pylab.savefig('./pitch_spect/elog_ec/'+lc_lm+'/'\
+                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
                         +str(epoch)+'_'+str(i+1)+'.png')
                 pylab.close()
         
@@ -266,7 +266,7 @@ if __name__ == '__main__':
 
     emo_pair = argv.emotion_pair
     train_dir = "./data/"+emo_pair
-    model_dir = "./model/"+emo_pair+"/elog_ec"
+    model_dir = "./model/"+emo_pair
     model_name = emo_pair
     validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
 #    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
@@ -286,7 +286,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train=None, 
+          pre_train='./model/cmu-arctic/le_10.0_supervised_mwd_spect_male_female/cmu-arctic_850.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_energy=lambda_cycle_energy, 
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
