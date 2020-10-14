@@ -85,8 +85,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     # Subtract mean from the pitch contours
     if lambda_momenta_pitch==0:
-        pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1)
-        pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1)
+        pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True)
+        pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True)
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
