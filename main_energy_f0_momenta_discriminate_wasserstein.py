@@ -15,7 +15,6 @@ from nn_models.model_energy_f0_momenta_discriminate_wasserstein import Variation
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
-from encoder_decoder import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
