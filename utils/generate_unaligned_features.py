@@ -63,13 +63,17 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
             src_mfc = pw.code_spectral_envelope(src_straight, sample_rate, n_mfc)
             tar_mfc = pw.code_spectral_envelope(tar_straight, sample_rate, n_mfc)
         
-        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
-        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
+#        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
+#        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
+        ec_src = np.sum(src_mfc, axis=1)
+        ec_tar = np.sum(tar_mfc, axis=1)
         
         f0_src = preprocess_contour(f0_src)
         f0_tar = preprocess_contour(f0_tar)
-        ec_src = scisig.medfilt(ec_src, kernel_size=3)
-        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
+#        ec_src = scisig.medfilt(ec_src, kernel_size=3)
+#        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
+        ec_src = preprocess_contour(ec_src)
+        ec_tar = preprocess_contour(ec_tar)
         
         f0_src = f0_src.reshape(-1,1)
         f0_tar = f0_tar.reshape(-1,1)
@@ -140,6 +144,7 @@ def get_feats(FILE_LIST, sample_rate, window_len,
     for s,t in zip(FILE_LIST_src, FILE_LIST_tar):
         print(t)
         futures.append(executor.submit(partial(process_wavs, s, t, 
+                                               n_feats=n_feats, 
                                                num_samps=num_samps, 
                                                encode_raw_spect=False)))
     
@@ -163,7 +168,7 @@ def get_feats(FILE_LIST, sample_rate, window_len,
             spect_feat_tar.append(result[8])
             
         except TypeError:
-            print(FILE_LIST_src[i] + " has less than 128 frames.")
+            print(FILE_LIST_src[i]+' has less than '+str(n_feats)+' frames.')
 
     file_list = np.asarray(file_list).reshape(-1,1)
     return file_list, (f0_feat_src, ec_feat_src, mfc_feat_src, \
@@ -229,7 +234,7 @@ if __name__=='__main__':
                      = get_feats(FILE_LIST, sample_rate, window_len, 
                         window_stride, n_feats=128, n_mfc=23, num_samps=30)
 
-        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_unaligned_'+i+'_no_ec_process.mat', \
+        scio.savemat('/home/ravi/Desktop/'+emo_dict['neutral-'+target_emo]+'_unaligned_'+i+'_sum_mfc.mat', \
                     { \
                          'src_mfc_feat':   np.asarray(src_mfc_feat, np.float32), \
                          'tar_mfc_feat':   np.asarray(tar_mfc_feat, np.float32), \

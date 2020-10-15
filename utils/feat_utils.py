@@ -90,7 +90,7 @@ def generate_context(features, axis=0, context=1):
 
 def generate_interpolation(f0):
 #    f0 = scisig.medfilt(f0, kernel_size=3)
-    nz_idx = np.where(f0>0.0)[0]
+    nz_idx = np.where(f0!=0.0)[0]
     mnz = []
     fnz = []
     
