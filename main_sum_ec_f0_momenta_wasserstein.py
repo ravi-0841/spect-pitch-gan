@@ -34,7 +34,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     sampling_rate = 16000
     num_mcep = 23
     frame_period = 5
-    n_frames = 100
+    n_frames = 128
 
     lc_lm = 'lp_'+str(lambda_cycle_pitch) \
             + '_le_'+str(lambda_cycle_energy) \
