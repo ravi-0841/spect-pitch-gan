@@ -41,7 +41,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_pre_trained'
+            + '_spect_ec_mean_sub'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -74,13 +74,13 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train_no_ec_process_5.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid_no_ec_process_5.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train_no_ec_process.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid_no_ec_process.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = np.log(data_train['src_ec_feat'])
-    energy_B_train = np.log(data_train['tar_ec_feat'])
+    energy_A_train = np.log(data_train['src_ec_feat'] + 1e-06)
+    energy_B_train = np.log(data_train['tar_ec_feat'] + 1e-06)
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
@@ -90,6 +90,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_valid = np.log(data_valid['tar_ec_feat'])
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
+
+    pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True) 
+    pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True) 
+    pitch_A_valid = pitch_A_valid - np.mean(pitch_A_valid, axis=-1, keepdims=True) 
+    pitch_B_valid = pitch_B_valid - np.mean(pitch_B_valid, axis=-1, keepdims=True) 
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])

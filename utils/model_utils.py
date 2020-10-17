@@ -127,8 +127,8 @@ def modify_mfcc(mfcc, new_energy, old_energy):
     return tf.multiply(mfcc, tf.divide(new_energy, old_energy))
 
 def modify_mfcc_log(mfcc, new_energy, old_energy):
-    new_energy = tf.clip_by_value(new_energy, -20, 5) #(-15,15)
-    old_energy = tf.clip_by_value(old_energy, -20, 5)
+    new_energy = tf.clip_by_value(new_energy, -20, 20) #(-15,15)
+    old_energy = tf.clip_by_value(old_energy, -20, 20)
     return tf.multiply(mfcc, tf.divide(new_energy, old_energy))
 
 

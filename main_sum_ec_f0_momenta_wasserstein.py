@@ -41,7 +41,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_sum_mfc_mean_sub'
+            + '_sum_mfc'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -91,8 +91,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
-    pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True)
-    pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True)
+#    pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True)
+#    pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True)
 
 
     # Randomly shuffle the trainig data
