@@ -86,8 +86,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = np.log(data_valid['src_ec_feat'])
-    energy_B_valid = np.log(data_valid['tar_ec_feat'])
+    energy_A_valid = np.log(data_valid['src_ec_feat'] + 1e-06)
+    energy_B_valid = np.log(data_valid['tar_ec_feat'] + 1e-06)
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
