@@ -139,7 +139,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             coded_sp = np.transpose(coded_sp, (0,2,1))
             
             f0_z_idx = np.where(f0<10.0)[0]
-            ec_z_idx = np.where(ec<1e-06)[0]
+            ec_z_idx = np.where(ec>0)[0]
+            ec[ec_z_idx] = -1e-6
     
             f0 = preprocess_contour(f0)
             ec = preprocess_contour(ec)
@@ -152,16 +153,22 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                           input_energy=ec,
                                                           direction=conversion_direction)
             
+            ec_converted = np.reshape(ec_converted, (-1,))
+            ec_z_idx = np.where(ec_converted>0)[0]
+            ec_converted[ec_z_idx] = -1e-6
+            
             pylab.figure()
-            pylab.subplot(211)
+            pylab.subplot(311)
             pylab.plot(ec.reshape(-1,), label='Energy')
             pylab.plot(ec_converted.reshape(-1,), label='Converted energy')
             pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
             pylab.legend()
-            pylab.subplot(212)
+            pylab.subplot(312)
             pylab.plot(f0.reshape(-1,), label='F0')
             pylab.plot(f0_converted.reshape(-1,), label='Converted F0')
             pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
+            pylab.subplot(313)
+            pylab.plot(np.divide(ec_converted.reshape(-1,), ec.reshape(-1,)), label='Energy Ratio')
             pylab.legend()
             pylab.savefig(os.path.join(output_dir, os.path.basename(filepath)[:-4])+'.png')
             pylab.close()
@@ -175,13 +182,19 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted[f0_z_idx] = 0
             
             coded_sp = np.transpose(np.squeeze(coded_sp))
-            coded_sp_converted = np.multiply(coded_sp.T, np.divide(ec_converted.reshape(1,-1), 
-                                        ec.reshape(1,-1)))
-            coded_sp_converted = np.ascontiguousarray(coded_sp_converted.T)
+#            coded_sp_converted = np.multiply(coded_sp.T, np.divide(ec_converted.reshape(1,-1), 
+#                                        ec.reshape(1,-1)))
+#            coded_sp_converted = np.ascontiguousarray(coded_sp_converted.T)
+#            
+#            decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
+#                                                                        fs=sampling_rate)
             
-            decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
-                                                                        fs=sampling_rate)
-    
+            # Modifying the spectrum instead of mfcc
+            decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
+                                        ec.reshape(1,-1)))
+            print(np.mean(np.divide(ec_converted.reshape(1,-1), ec.reshape(1,-1))))
+            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
+            
             # Normalization of converted features
 #            decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
 #            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
@@ -208,12 +221,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/lp_1e-05_le_0.001_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc'
-    model_name_default = 'neu-ang_100.ckpt'
+    model_dir_default = '/home/ravi/Desktop/lp_1e-05_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc'
+    model_name_default = 'neu-ang_200.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec'
-    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/744.wav'
+    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/no_exponent'
+    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)

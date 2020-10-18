@@ -209,7 +209,7 @@ def get_feats(FILE_LIST, sample_rate, window_len,
 ##---------------------------generate VESUS features-------------------------------------------
 if __name__=='__main__':
     file_name_dict = {}
-    target_emo = 'angry'
+    target_emo = 'sad'
     emo_dict = {'neutral-angry':'neu-ang', 'neutral-happy':'neu-hap', \
                 'neutral-sad':'neu-sad'}
    
