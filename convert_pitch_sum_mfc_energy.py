@@ -142,7 +142,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             ec_z_idx = np.where(ec<1e-06)[0]
     
             f0 = preprocess_contour(f0)
-#            ec = preprocess_contour(ec)
+            ec = preprocess_contour(ec)
     
             f0 = np.reshape(f0, (1,1,-1))
             ec = np.reshape(ec, (1,1,-1))
@@ -173,9 +173,6 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
             f0_converted = np.ascontiguousarray(f0_converted)
             f0_converted[f0_z_idx] = 0
-            
-#            ec_converted = scisig.medfilt(ec_converted.reshape(-1,), kernel_size=3)
-#            ec_converted[ec_z_idx] = 1e-06
             
             coded_sp = np.transpose(np.squeeze(coded_sp))
             coded_sp_converted = np.multiply(coded_sp.T, np.divide(ec_converted.reshape(1,-1), 
