@@ -95,9 +95,9 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #        decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
 #        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
         
-        decoded_sp_converted = decoded_sp_converted[6:-6]
-        f0_converted = f0_converted[6:-6]
-        ap = ap[6:-6]
+#        decoded_sp_converted = decoded_sp_converted[6:-6]
+#        f0_converted = f0_converted[6:-6]
+#        ap = ap[6:-6]
         
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=decoded_sp_converted, 
@@ -142,7 +142,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             ec_z_idx = np.where(ec<1e-06)[0]
     
             f0 = preprocess_contour(f0)
-            ec = preprocess_contour(ec)
+#            ec = preprocess_contour(ec)
     
             f0 = np.reshape(f0, (1,1,-1))
             ec = np.reshape(ec, (1,1,-1))
@@ -151,8 +151,6 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                           input_mfc=coded_sp,
                                                           input_energy=ec,
                                                           direction=conversion_direction)
-            
-#            ec_converted = scisig.medfilt(ec_converted.reshape(-1,), kernel_size=3)
             
             pylab.figure()
             pylab.subplot(211)
@@ -191,9 +189,9 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #            decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
 #            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
             
-            decoded_sp_converted = decoded_sp_converted[10:-10]
-            f0_converted = f0_converted[10:-10]
-            ap = ap[10:-10]
+#            decoded_sp_converted = decoded_sp_converted[10:-10]
+#            f0_converted = f0_converted[10:-10]
+#            ap = ap[10:-10]
             
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
@@ -214,11 +212,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
     model_dir_default = '/home/ravi/Desktop/lp_1e-05_le_0.001_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc'
-    model_name_default = 'neu-ang_400.ckpt'
+    model_name_default = 'neu-ang_100.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral'
     conversion_direction_default = 'A2B'
     output_dir_default = '/home/ravi/Desktop/F0_sum_ec'
-    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral_5/1132.wav'
+    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/744.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
