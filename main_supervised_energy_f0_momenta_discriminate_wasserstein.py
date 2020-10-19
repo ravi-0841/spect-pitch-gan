@@ -15,7 +15,6 @@ from nn_models.model_supervised_energy_f0_momenta_discriminate_wasserstein impor
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
-from encoder_decoder import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -37,7 +36,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     n_frames = 128
 
     lc_lm = "le_"+str(lambda_energy)+'_lme_'+str(lambda_momenta_energy) \
-            +'_lmp_'+str(lambda_momenta_pitch)+'_supervised_mwd_spect_male_female_mean_sub'
+            +'_lmp_'+str(lambda_momenta_pitch)+'_sum_mfc'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -70,12 +69,12 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'spect_energy_cmu_arctic.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'sum_mfc_cmu_arctic.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = np.log(data_train['src_ec_feat'] + 1e-06)
-    energy_B_train = np.log(data_train['tar_ec_feat'] + 1e-06)
+    energy_A_train = data_train['src_ec_feat']
+    energy_B_train = data_train['tar_ec_feat']
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
     momenta_A2B_f0 = data_train['momenta_f0_A2B']
