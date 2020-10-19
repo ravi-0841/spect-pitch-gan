@@ -192,7 +192,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             # Modifying the spectrum instead of mfcc
             decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
                                         ec.reshape(1,-1)))
-            print(np.mean(np.divide(ec_converted.reshape(1,-1), ec.reshape(1,-1))))
+#            print(np.mean(np.divide(ec_converted.reshape(1,-1), ec.reshape(1,-1))))
             decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
             
             # Normalization of converted features
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     model_name_default = 'neu-ang_300.ckpt'
     data_dir_default = 'data/evaluation/neu-ang/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/no_exponent_1e-06_0.1'
+    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/ne_1e-06_0.1/epoch_300'
     audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
