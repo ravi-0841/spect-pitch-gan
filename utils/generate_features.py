@@ -65,13 +65,17 @@ def process_wavs(wav_src, wav_tar, sample_rate=16000, n_feats=128,
             src_mfc = pw.code_spectral_envelope(src_straight, sample_rate, n_mfc)
             tar_mfc = pw.code_spectral_envelope(tar_straight, sample_rate, n_mfc)
             
-        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
-        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
+#        ec_src = np.sqrt(np.sum(np.square(src_straight), axis=1))
+#        ec_tar = np.sqrt(np.sum(np.square(tar_straight), axis=1))
+        ec_src = np.sum(src_mfc, axis=-1)
+        ec_tar = np.sum(tar_mfc, axis=-1)
         
         f0_src = preprocess_contour(f0_src)
         f0_tar = preprocess_contour(f0_tar)
-        ec_src = scisig.medfilt(ec_src, kernel_size=3)
-        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
+        ec_src = preprocess_contour(ec_src)
+        ec_tar = preprocess_contour(ec_tar)
+#        ec_src = scisig.medfilt(ec_src, kernel_size=3)
+#        ec_tar = scisig.medfilt(ec_tar, kernel_size=3)
         
         f0_src = f0_src.reshape(-1,1)
         f0_tar = f0_tar.reshape(-1,1)
@@ -231,8 +235,8 @@ def get_feats(FILE_LIST, sample_rate, window_len,
 ##----------------------------------generate CMU-ARCTIC features---------------------------------
 if __name__=='__main__':
    
-   FILE_LIST_src = sorted(glob(os.path.join('../data/CMU-ARCTIC-US/train_male_female/source/', '*.wav')))
-   FILE_LIST_tar = sorted(glob(os.path.join('../data/CMU-ARCTIC-US/train_male_female/target/', '*.wav')))
+   FILE_LIST_src = sorted(glob(os.path.join('../data/CMU-ARCTIC-US/train/source/', '*.wav')))
+   FILE_LIST_tar = sorted(glob(os.path.join('../data/CMU-ARCTIC-US/train/target/', '*.wav')))
    
    sample_rate = 16000.0
    window_len = 0.005
@@ -243,9 +247,9 @@ if __name__=='__main__':
    file_names, (src_f0_feat, src_ec_feat, src_mfc_feat, \
              tar_f0_feat, tar_ec_feat, tar_mfc_feat) \
              = get_feats(FILE_LIST, sample_rate, window_len, 
-                         window_stride, n_feats=128, n_mfc=23, num_samps=10)
+                         window_stride, n_feats=128, n_mfc=23, num_samps=4)
 
-   scio.savemat('/home/ravi/Desktop/spect_energy_cmu_arctic.mat', \
+   scio.savemat('/home/ravi/Desktop/sum_mfc_cmu_arctic.mat', \
                 { \
                      'src_mfc_feat':           src_mfc_feat, \
                      'tar_mfc_feat':           tar_mfc_feat, \
