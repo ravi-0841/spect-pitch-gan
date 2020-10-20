@@ -43,13 +43,16 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +'_lrd_'+str(discriminator_learning_rate) \
             + '_sum_mfc_'+emo_pair+'_KL'
 
-    folder_extension = 'sum_mfc_KL/'
+    folder_extension = "sum_mfc_KL/"
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
-    logger_file = './log/'+folder_extension+lc_lm+'.log'
+    logger_file = "./log/"+folder_extension+lc_lm+'.log'
     if os.path.exists(logger_file):
         os.remove(logger_file)
+
+    if os.path.isdir("./log/"+folder_extension):
+        os.makedirs("./log/"+folder_extension)
 
     reload(logging)
     logging.basicConfig(filename=logger_file, \
