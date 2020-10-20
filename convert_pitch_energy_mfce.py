@@ -7,7 +7,7 @@ import scipy.signal as scisig
 
 import utils.preprocess as preproc
 from utils.feat_utils import preprocess_contour, normalize_wav
-from nn_models.model_energy_f0_momenta_discriminate_wasserstein import VariationalCycleGAN as VCGAN
+from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN as VCGAN
 
 
 num_mfcc = 23
