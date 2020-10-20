@@ -41,7 +41,6 @@ class VariationalCycleGAN(object):
 
         self.build_model()
         self.optimizer_initializer()
-        self.compute_gradient()
 
         self.saver = tf.train.Saver()
         self.sess = tf.Session()
