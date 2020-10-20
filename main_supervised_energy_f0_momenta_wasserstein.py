@@ -11,7 +11,7 @@ import pylab
 import logging
 
 from glob import glob
-from nn_models.model_supervised_energy_f0_momenta_discriminate_wasserstein import VariationalCycleGAN
+from nn_models.model_supervised_energy_f0_momenta_wasserstein import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload

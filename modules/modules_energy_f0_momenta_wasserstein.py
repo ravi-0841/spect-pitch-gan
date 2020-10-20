@@ -1,5 +1,5 @@
 import tensorflow as tf 
-from modules.base_modules_default_init import *
+from modules.base_modules import *
 
 
 def sampler_pitch(input_pitch, input_mfc, final_filters=1, reuse=False, \
@@ -57,7 +57,7 @@ def sampler_pitch(input_pitch, input_mfc, final_filters=1, reuse=False, \
                 shuffle_size=2, name_prefix='upsample1d_block2_')
         
         # Dropout for stochasticity
-        u2 = tf.nn.dropout(u2, keep_prob=0.5)
+        u2 = tf.nn.dropout(u2, keep_prob=0.7)
 
         # Output
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
@@ -123,7 +123,7 @@ def sampler_energy(input_pitch, input_mfc, final_filters=1, reuse=False, \
                 shuffle_size=2, name_prefix='upsample1d_block2_')
         
         # Dropout for stochasticity
-        u2 = tf.nn.dropout(u2, keep_prob=0.5)
+        u2 = tf.nn.dropout(u2, keep_prob=0.7)
 
         # Output
         o1 = conv1d_layer(inputs=u2, filters=final_filters, \
@@ -134,14 +134,50 @@ def sampler_energy(input_pitch, input_mfc, final_filters=1, reuse=False, \
         return o2
     
 
-def discriminator(input_pitch, input_energy, 
-        reuse=False, scope_name='discriminator'):
+def discriminator_pitch(input_pitch, reuse=False, scope_name='discriminator_pitch'):
 
-    # input_mfc and input_pitch has shape [batch_size, num_features, time]
-    input_energy = tf.transpose(input_energy, perm=[0,2,1], 
-            name='discriminator_energy_transpose')
+    # input_pitch has shape [batch_size, num_features, time]
     input_pitch = tf.transpose(input_pitch, perm=[0,2,1], 
             name='discriminator_pitch_transpose')
+
+    with tf.variable_scope(scope_name) as scope:
+        # Discriminator would be reused in CycleGAN
+        if reuse:
+            scope.reuse_variables()
+        else:
+            assert scope.reuse is False
+
+        h1_pitch = conv1d_layer(inputs=input_pitch, filters=64, 
+                kernel_size=3, strides=1, 
+                activation=None, name='h1_pitch_conv')
+        h1_pitch_gates = conv1d_layer(inputs=input_pitch, filters=64, 
+                kernel_size=3, strides=1, 
+                activation=None, name='h1_pitch_conv_gates')
+        h1_pitch_glu = gated_linear_layer(inputs=h1_pitch, 
+                gates=h1_pitch_gates, name='h1_pitch_glu')
+        
+        d1 = downsample1d_block(inputs=h1_pitch_glu, filters=128, 
+                kernel_size=3, strides=2, 
+                name_prefix='downsample2d_block1_')
+        d2 = downsample1d_block(inputs=d1, filters=256, 
+                kernel_size=3, strides=2, 
+                name_prefix='downsample2d_block2_')
+        d3 = downsample1d_block(inputs=d2, filters=256, 
+                kernel_size=3, strides=2, 
+                name_prefix='downsample2d_block3_')
+
+        # Output
+        o1 = tf.layers.dense(inputs=d3, units=1, \
+                             activation=None)
+
+        return o1
+
+
+def discriminator_energy(input_energy, reuse=False, scope_name='discriminator_energy'):
+
+    # input_energy has shape [batch_size, num_features, time]
+    input_energy = tf.transpose(input_energy, perm=[0,2,1], 
+            name='discriminator_energy_transpose')
 
     with tf.variable_scope(scope_name) as scope:
         # Discriminator would be reused in CycleGAN
@@ -159,20 +195,7 @@ def discriminator(input_pitch, input_energy,
         h1_energy_glu = gated_linear_layer(inputs=h1_energy, 
                 gates=h1_energy_gates, name='h1_energy_glu')
 
-        h1_pitch = conv1d_layer(inputs=input_pitch, filters=64, 
-                kernel_size=3, strides=1, 
-                activation=None, name='h1_pitch_conv')
-        h1_pitch_gates = conv1d_layer(inputs=input_pitch, filters=64, 
-                kernel_size=3, strides=1, 
-                activation=None, name='h1_pitch_conv_gates')
-        h1_pitch_glu = gated_linear_layer(inputs=h1_pitch, 
-                gates=h1_pitch_gates, name='h1_pitch_glu')
-
-
-        h1_glu = tf.concat([h1_energy_glu, h1_pitch_glu], axis=-1, 
-                name='concat_inputs')
-        
-        d1 = downsample1d_block(inputs=h1_glu, filters=128, 
+        d1 = downsample1d_block(inputs=h1_energy_glu, filters=128, 
                 kernel_size=3, strides=2, 
                 name_prefix='downsample2d_block1_')
         d2 = downsample1d_block(inputs=d1, filters=256, 

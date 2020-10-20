@@ -168,7 +168,7 @@ def discriminator_pitch(input_pitch, reuse=False, scope_name='discriminator_pitc
 
         # Output
         o1 = tf.layers.dense(inputs=d3, units=1, \
-                             activation=None)
+                             activation=tf.nn.sigmoid)
 
         return o1
 
@@ -207,6 +207,6 @@ def discriminator_energy(input_energy, reuse=False, scope_name='discriminator_en
 
         # Output
         o1 = tf.layers.dense(inputs=d3, units=1, \
-                             activation=None)
+                             activation=tf.nn.sigmoid)
 
         return o1

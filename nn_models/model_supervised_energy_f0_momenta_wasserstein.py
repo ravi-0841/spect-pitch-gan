@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_supervised_energy_f0_momenta_discriminate_wasserstein import sampler_pitch, \
+from modules.modules_supervised_energy_f0_momenta_wasserstein import sampler_pitch, \
         sampler_energy, discriminator_pitch, discriminator_energy
 import utils.model_utils as utils
 from utils.tf_forward_tan import lddmm 

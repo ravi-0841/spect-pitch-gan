@@ -2,7 +2,7 @@ import os
 import tensorflow as tf
 import numpy as np
 
-from modules.modules_energy_f0_momenta_discriminate_wasserstein import sampler_pitch, \
+from modules.modules_energy_f0_momenta import sampler_pitch, \
         sampler_energy, discriminator_pitch, discriminator_energy
 import utils.model_utils as utils
 from utils.tf_forward_tan import lddmm 
@@ -42,7 +42,6 @@ class VariationalCycleGAN(object):
         self.build_model()
         self.optimizer_initializer()
         self.compute_gradient()
-        self.clip_discriminator_weights(0.1)
 
         self.saver = tf.train.Saver()
         self.sess = tf.Session()
@@ -189,9 +188,15 @@ class VariationalCycleGAN(object):
                 self.energy_B2A_fake], axis=1), reuse=False, scope_name='discriminator_energy_B')
 
         # Sampler-Generator loss
-        # Sampler-Generator wants to fool discriminator
-        self.generator_loss_A2B = -1*(self.pitch_discrimination_B_fake + self.energy_discrimination_B_fake)
-        self.generator_loss_B2A = -1*(self.pitch_discrimination_A_fake + self.energy_discrimination_A_fake)
+        # Sampler-Generator wants to fool discriminato)
+        self.generator_loss_A2B = (utils.l1_loss(y=tf.ones_like(self.pitch_discrimination_A_fake), 
+                y_hat=self.pitch_discrimination_A_fake) \
+                + utils.l1_loss(y=tf.ones_like(self.energy_discrimination_A_fake), 
+                y_hat=self.energy_discrimination_A_fake)) / 2.0
+        self.generator_loss_B2A = (utils.l1_loss(y=tf.ones_like(self.pitch_discrimination_B_fake), 
+                y_hat=self.pitch_discrimination_B_fake) \
+                + utils.l1_loss(y=tf.ones_like(self.energy_discrimination_B_fake), 
+                y_hat=self.energy_discrimination_B_fake)) / 2.0
         self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) / 2.0
 
         # Cycle loss
@@ -244,12 +249,23 @@ class VariationalCycleGAN(object):
                     reuse=True, scope_name='discriminator_pitch_B')
         
         # Compute pitch discriminator loss for backprop
-        self.pitch_discriminator_loss_A \
-            = (self.pitch_discrimination_input_A_real_B_fake \
-                - self.pitch_discrimination_input_A_fake_B_real)
-        self.pitch_discriminator_loss_B \
-            = (self.pitch_discrimination_input_B_real_A_fake \
-                - self.pitch_discrimination_input_B_fake_A_real)
+        self.pitch_discriminator_loss_A_real \
+            = utils.l1_loss(y=tf.zeros_like(self.pitch_discrimination_input_A_real_B_fake), 
+                y_hat=self.pitch_discrimination_input_A_real_B_fake)
+        self.pitch_discriminator_loss_A_fake \
+            = utils.l1_loss(y=tf.ones_like(self.pitch_discrimination_input_A_fake_B_real), 
+                y_hat=self.pitch_discrimination_input_A_fake_B_real)
+        self.pitch_discriminator_loss_A = (self.pitch_discriminator_loss_A_real \
+                + self.pitch_discriminator_loss_A_fake) / 2.0
+
+        self.pitch_discriminator_loss_B_real \
+            = utils.l1_loss(y=tf.zeros_like(self.pitch_discrimination_input_B_real_A_fake), 
+                y_hat=self.pitch_discrimination_input_B_real_A_fake)
+        self.pitch_discriminator_loss_B_fake \
+            = utils.l1_loss(y=tf.ones_like(self.pitch_discrimination_input_B_fake_A_real), 
+                y_hat=self.pitch_discrimination_input_B_fake_A_real)
+        self.pitch_discriminator_loss_B = (self.pitch_discriminator_loss_B_real \
+                + self.pitch_discriminator_loss_B_fake) / 2.0
 
         # Compute the energy discriminator probability for energy 
         self.energy_discrimination_input_A_real_B_fake \
@@ -266,16 +282,27 @@ class VariationalCycleGAN(object):
             = self.discriminator_energy(input_energy=tf.concat([self.energy_B_fake, self.energy_A_real], axis=1), 
                     reuse=True, scope_name='discriminator_energy_B')
         
-        # Compute pitch discriminator loss for backprop
-        self.energy_discriminator_loss_A \
-            = (self.energy_discrimination_input_A_real_B_fake \
-                - self.energy_discrimination_input_A_fake_B_real)
-        self.energy_discriminator_loss_B \
-            = (self.energy_discrimination_input_B_real_A_fake \
-                - self.energy_discrimination_input_B_fake_A_real)
+        # Compute energy discriminator loss for backprop
+        self.energy_discriminator_loss_A_real \
+            = utils.l1_loss(y=tf.zeros_like(self.energy_discrimination_input_A_real_B_fake), 
+                y_hat=self.energy_discrimination_input_A_real_B_fake)
+        self.energy_discriminator_loss_A_fake \
+            = utils.l1_loss(y=tf.ones_like(self.energy_discrimination_input_A_fake_B_real), 
+                y_hat=self.energy_discrimination_input_A_fake_B_real)
+        self.energy_discriminator_loss_A = (self.energy_discriminator_loss_A_real \
+                + self.energy_discriminator_loss_A_fake) / 2.0
 
-        self.discriminator_A_loss = (self.pitch_discriminator_loss_A + self.energy_discriminator_loss_A)
-        self.discriminator_B_loss = (self.pitch_discriminator_loss_B + self.energy_discriminator_loss_B)
+        self.energy_discriminator_loss_B_real \
+            = utils.l1_loss(y=tf.zeros_like(self.energy_discrimination_input_B_real_A_fake), 
+                y_hat=self.energy_discrimination_input_B_real_A_fake)
+        self.energy_discriminator_loss_B_fake \
+            = utils.l1_loss(y=tf.ones_like(self.energy_discrimination_input_B_fake_A_real), 
+                y_hat=self.energy_discrimination_input_B_fake_A_real)
+        self.energy_discriminator_loss_B = (self.energy_discriminator_loss_B_real \
+                + self.energy_discriminator_loss_B_fake) / 2.0
+
+        self.discriminator_A_loss = (self.pitch_discriminator_loss_A + self.energy_discriminator_loss_A) / 2.0
+        self.discriminator_B_loss = (self.pitch_discriminator_loss_B + self.energy_discriminator_loss_B) / 2.0
 
         # Final merging of pitch and mfc discriminators
         self.discriminator_loss = (self.discriminator_A_loss + self.discriminator_B_loss) / 2.0
@@ -284,10 +311,6 @@ class VariationalCycleGAN(object):
         trainable_variables = tf.trainable_variables()
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
         self.generator_vars = [var for var in trainable_variables if 'sampler' in var.name]
-        self.discriminator_pitch_A_vars = [var for var in trainable_variables if 'discriminator_pitch_A' in var.name]
-        self.discriminator_energy_A_vars = [var for var in trainable_variables if 'discriminator_energy_A' in var.name]
-        self.discriminator_pitch_B_vars = [var for var in trainable_variables if 'discriminator_pitch_B' in var.name]
-        self.discriminator_energy_B_vars = [var for var in trainable_variables if 'discriminator_energy_B' in var.name]
 
         # Reserved for test
         self.momenta_pitch_A2B_test = self.sampler_pitch(input_pitch=self.pitch_A_test, 
@@ -325,30 +348,6 @@ class VariationalCycleGAN(object):
         self.generator_train_op \
             = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, \
                 beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
-
-
-    def compute_gradient(self):
-        pitch_gradient_A = tf.gradients(self.pitch_discriminator_loss_A, 
-                                            self.discriminator_pitch_A_vars)
-        energy_gradient_A = tf.gradients(self.energy_discriminator_loss_A, 
-                                            self.discriminator_energy_A_vars)
-        self.gradient_norm_A = [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_A]
-        self.gradient_norm_A = self.gradient_norm_A + [tf.reduce_sum(tf.square(g)) for g in energy_gradient_A]
-        self.gradient_norm_A = tf.reduce_sum(self.gradient_norm_A)
-        
-        pitch_gradient_B = tf.gradients(self.pitch_discriminator_loss_B, 
-                                            self.discriminator_pitch_B_vars)
-        energy_gradient_B = tf.gradients(self.energy_discriminator_loss_B, 
-                                            self.discriminator_energy_B_vars)
-        self.gradient_norm_B = [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_B]
-        self.gradient_norm_B = self.gradient_norm_A + [tf.reduce_sum(tf.square(g)) for g in energy_gradient_B]
-        self.gradient_norm_B = tf.reduce_sum(self.gradient_norm_B)
-
-
-    def clip_discriminator_weights(self, clip_range):
-
-        self.clip_weights = [tf.assign(var, tf.clip_by_value(var, clip_value_min=-1*clip_range, 
-            clip_value_max=clip_range)) for var in self.discriminator_vars]
 
 
     def train(self, pitch_A, mfc_A, energy_A, pitch_B, mfc_B, energy_B, 

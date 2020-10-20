@@ -11,7 +11,7 @@ import pylab
 import logging
 
 from glob import glob
-from nn_models.model_energy_f0_momenta_discriminate_wasserstein import VariationalCycleGAN
+from nn_models.model_energy_f0_momenta import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
@@ -41,7 +41,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_spect_ec'
+            + '_sum_mfc_'+emo_pair+'_KL'
 
     model_dir = os.path.join(model_dir, lc_lm)
 
@@ -74,27 +74,26 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train_no_ec_process.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid_no_ec_process.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, emo_pair+'_unaligned_train_sum_mfc.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, emo_pair+'_unaligned_valid_sum_mfc.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = np.log(data_train['src_ec_feat'] + 1e-06)
-    energy_B_train = np.log(data_train['tar_ec_feat'] + 1e-06)
+    energy_A_train = data_train['src_ec_feat'] + 1e-06
+    energy_B_train = data_train['tar_ec_feat'] + 1e-06
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = np.log(data_valid['src_ec_feat'] + 1e-06)
-    energy_B_valid = np.log(data_valid['tar_ec_feat'] + 1e-06)
+    energy_A_valid = data_valid['src_ec_feat'] + 1e-06
+    energy_B_valid = data_valid['tar_ec_feat'] + 1e-06
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
-#    pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True) 
-#    pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True) 
-#    pitch_A_valid = pitch_A_valid - np.mean(pitch_A_valid, axis=-1, keepdims=True) 
-#    pitch_B_valid = pitch_B_valid - np.mean(pitch_B_valid, axis=-1, keepdims=True) 
+#    pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True)
+#    pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True)
+
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
@@ -272,8 +271,8 @@ if __name__ == '__main__':
     train_dir = "./data/"+emo_pair
     model_dir = "./model/"+emo_pair
     model_name = emo_pair
-    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
-#    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
+#    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
+    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
     output_dir = './validation_output/'+emo_pair
     tensorboard_log_dir = './log/'+emo_pair
 
@@ -290,7 +289,7 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train='./model/cmu-arctic/le_10.0_supervised_mwd_spect_male_female/cmu-arctic_850.ckpt', 
+          pre_train=None, 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_energy=lambda_cycle_energy, 
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
