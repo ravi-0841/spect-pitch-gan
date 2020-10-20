@@ -43,9 +43,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +'_lrd_'+str(discriminator_learning_rate) \
             + '_sum_mfc_'+emo_pair
 
-    model_dir = os.path.join(model_dir, lc_lm)
+    folder_extension = 'sum_mfc_wstn/'
 
-    logger_file = './log/'+lc_lm+'.log'
+    model_dir = os.path.join(model_dir, folder_extension, lc_lm)
+
+    logger_file = './log/'+folder_extension+lc_lm+'.log'
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
@@ -64,10 +66,10 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.info("generator_lr - {}".format(generator_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
-    if not os.path.isdir("./pitch_spect/"+lc_lm):
-        os.makedirs(os.path.join("./pitch_spect/", lc_lm))
+    if not os.path.isdir("./pitch_spect/"+folder_extension+lc_lm):
+        os.makedirs(os.path.join("./pitch_spect/", folder_extension, lc_lm))
     else:
-        for f in glob(os.path.join("./pitch_spect/", lc_lm, "*.png")):
+        for f in glob(os.path.join("./pitch_spect/", folder_extension, lc_lm, "*.png")):
             os.remove(f)
     
     print('Preprocessing Data...')
@@ -216,7 +218,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.legend(loc=2)
 
                 pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
-                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
+                pylab.savefig('./pitch_spect/'+folder_extension+lc_lm+'/'\
                         +str(epoch)+'_'+str(i+1)+'.png')
                 pylab.close()
         
