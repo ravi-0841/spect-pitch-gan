@@ -51,7 +51,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
-    if os.path.isdir("./log/"+folder_extension):
+    if not os.path.isdir("./log/"+folder_extension):
         os.makedirs("./log/"+folder_extension)
 
     reload(logging)
