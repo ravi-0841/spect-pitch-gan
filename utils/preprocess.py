@@ -562,5 +562,14 @@ def gender_shuffle(mfc_A, mfc_B, pitch_A, pitch_B, energy_A, energy_B,
     mfc_B = mfc_B[full_idx]
     pitch_B = pitch_B[full_idx]
     energy_B = energy_B[full_idx]
-                                                                                                                                          
+
+    np.random.shuffle(full_idx)
+
+    mfc_A = mfc_A[full_idx]
+    mfc_B = mfc_B[full_idx]
+    pitch_A = pitch_A[full_idx]
+    pitch_B = pitch_B[full_idx]
+    energy_A = energy_A[full_idx]
+    energy_B = energy_B[full_idx]
+ 
     return mfc_A, mfc_B, pitch_A, pitch_B, energy_A, energy_B
