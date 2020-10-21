@@ -115,7 +115,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 #    mfc_B_train = mfc_B_train[indices_train]
     mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
             energy_A_train, energy_B_train = preproc.gender_shuffle(mfc_A=mfc_A_train, 
-                    mfc_B=mfc_B_train, pitch_A=pitch_A_trian, pitch_B=pitch_B_train, 
+                    mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                     energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
 
     mfc_A_valid, pitch_A_valid, energy_A_valid, \
