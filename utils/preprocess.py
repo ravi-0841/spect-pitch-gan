@@ -538,3 +538,29 @@ def sample_data_energy_momenta(mfc_A, pitch_A, energy_A, momenta_pitch_A, moment
                                                                                                                                           
     return mfc_data_A, pitch_data_A, energy_data_A, momenta_pitch_data_A, momenta_energy_data_A, \
             mfc_data_B, pitch_data_B, energy_data_B, momenta_pitch_data_B, momenta_energy_data_B
+
+
+
+def gender_shuffle(mfc_A, mfc_B, pitch_A, pitch_B, energy_A, energy_B, 
+        files, cutoff): 
+
+    idx_f = np.where(files<=cutoff)[0]
+    idx_m = np.where(files>cutoff)[0]
+
+    np.random.shuffle(idx_f)
+    np.random.shuffle(idx_m)
+    full_idx = np.concatenate((idx_f.reshape(-1,), idx_m.reshape(-1,)) ,axis=0)
+
+    mfc_A = mfc_A[full_idx]
+    pitch_A = pitch_A[full_idx]
+    energy_A = energy_A[full_idx]
+
+    np.random.shuffle(idx_f)
+    np.random.shuffle(idx_m)
+    full_idx = np.concatenate((idx_f.reshape(-1,), idx_m.reshape(-1,)) ,axis=0)
+
+    mfc_B = mfc_B[full_idx]
+    pitch_B = pitch_B[full_idx]
+    energy_B = energy_B[full_idx]
+                                                                                                                                          
+    return mfc_A, mfc_B, pitch_A, pitch_B, energy_A, energy_B

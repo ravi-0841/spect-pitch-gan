@@ -84,15 +84,17 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = data_train['src_ec_feat'] + 1e-06
-    energy_B_train = data_train['tar_ec_feat'] + 1e-06
+    energy_A_train = data_train['src_ec_feat'] + -1e-06
+    energy_B_train = data_train['tar_ec_feat'] + -1e-06
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
+    
+    files = data_train['file_names']
 
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = data_valid['src_ec_feat'] + 1e-06
-    energy_B_valid = data_valid['tar_ec_feat'] + 1e-06
+    energy_A_valid = data_valid['src_ec_feat'] + -1e-06
+    energy_B_valid = data_valid['tar_ec_feat'] + -1e-06
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
@@ -111,6 +113,10 @@ def train(train_dir, model_dir, model_name, random_seed, \
     pitch_B_train = pitch_B_train[indices_train]
     energy_B_train = energy_B_train[indices_train]
     mfc_B_train = mfc_B_train[indices_train]
+#    mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
+#            energy_A_train, energy_B_train = preproc.gender_shuffle(mfc_A=mfc_A_train, 
+#                    mfc_B=mfc_B_train, pitch_A=pitch_A_trian, pitch_B=pitch_B_train, 
+#                    energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
 
     mfc_A_valid, pitch_A_valid, energy_A_valid, \
         mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 

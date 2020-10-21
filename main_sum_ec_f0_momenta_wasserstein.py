@@ -43,13 +43,16 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +'_lrd_'+str(discriminator_learning_rate) \
             + '_sum_mfc_'+emo_pair
 
-    folder_extension = 'sum_mfc_wstn/'
+    folder_extension = 'sum_mfc_wstn_gender_shuffled/'
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
     logger_file = './log/'+folder_extension+lc_lm+'.log'
     if os.path.exists(logger_file):
         os.remove(logger_file)
+
+    if not os.path.isdir("./log/"+folder_extension):
+        os.makedirs("./log/"+folder_extension)
 
     reload(logging)
     logging.basicConfig(filename=logger_file, \
@@ -81,15 +84,17 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = data_train['src_ec_feat'] + 1e-06
-    energy_B_train = data_train['tar_ec_feat'] + 1e-06
+    energy_A_train = data_train['src_ec_feat'] + -1e-06
+    energy_B_train = data_train['tar_ec_feat'] + -1e-06
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
+    files = data_train['file_names']
+
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = data_valid['src_ec_feat'] + 1e-06
-    energy_B_valid = data_valid['tar_ec_feat'] + 1e-06
+    energy_A_valid = data_valid['src_ec_feat'] + -1e-06
+    energy_B_valid = data_valid['tar_ec_feat'] + -1e-06
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
@@ -98,16 +103,20 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
 
     # Randomly shuffle the trainig data
-    indices_train = np.arange(0, pitch_A_train.shape[0])
-    np.random.shuffle(indices_train)
-    pitch_A_train = pitch_A_train[indices_train]
-    energy_A_train = energy_A_train[indices_train]
-    mfc_A_train = mfc_A_train[indices_train]
-
-    np.random.shuffle(indices_train)
-    pitch_B_train = pitch_B_train[indices_train]
-    energy_B_train = energy_B_train[indices_train]
-    mfc_B_train = mfc_B_train[indices_train]
+#    indices_train = np.arange(0, pitch_A_train.shape[0])
+#    np.random.shuffle(indices_train)
+#    pitch_A_train = pitch_A_train[indices_train]
+#    energy_A_train = energy_A_train[indices_train]
+#    mfc_A_train = mfc_A_train[indices_train]
+#
+#    np.random.shuffle(indices_train)
+#    pitch_B_train = pitch_B_train[indices_train]
+#    energy_B_train = energy_B_train[indices_train]
+#    mfc_B_train = mfc_B_train[indices_train]
+    mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
+            energy_A_train, energy_B_train = preproc.gender_shuffle(mfc_A=mfc_A_train, 
+                    mfc_B=mfc_B_train, pitch_A=pitch_A_trian, pitch_B=pitch_B_train, 
+                    energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
 
     mfc_A_valid, pitch_A_valid, energy_A_valid, \
         mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 
