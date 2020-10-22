@@ -14,7 +14,6 @@ do
     do
         echo $counter;
         sbatch -J $counter -o "./txt_files/NA_sum_mfc_${counter}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang
-        sleep 1s
         counter=$((counter+1))
     done
 done
