@@ -28,8 +28,8 @@ def conv1d_layer(
     padding = 'same', 
     activation = None,
     kernel_initializer = tf.random_normal_initializer(mean=0.0, \
-                            stddev=0.01, dtype=tf.float32),
-    name = None):
+                            stddev=0.001, dtype=tf.float32),
+    name = None): #0.01
 
     conv_layer = tf.layers.conv1d(
         inputs = inputs,
@@ -51,8 +51,8 @@ def conv2d_layer(
     padding = 'same', 
     activation = None,
     kernel_initializer = tf.random_normal_initializer(mean=0.0, \
-                            stddev=0.01, dtype=tf.float32),
-    name = None):
+                            stddev=0.001, dtype=tf.float32),
+    name = None): #0.01
 
     conv_layer = tf.layers.conv2d(
         inputs = inputs,
