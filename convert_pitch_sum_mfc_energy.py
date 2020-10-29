@@ -221,11 +221,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/neu-ang_sum_mfc_models/lp_0.0001_le_1e-06_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_gender_shuffled'
-    model_name_default = 'neu-ang_200.ckpt'
-    data_dir_default = 'data/evaluation/neu-ang/neutral'
+    model_dir_default = '/home/ravi/Desktop/lp_1e-06_le_1e-05_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-sad'
+    model_name_default = 'neu-sad_400.ckpt'
+    data_dir_default = 'data/evaluation/neu-sad/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec_gender_shuffled/ne_0.0001_1e-06/epoch_200'
+    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/neu-sad/ne_1e-06_1e-05/epoch_400'
     audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
