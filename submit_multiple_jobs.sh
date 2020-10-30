@@ -13,7 +13,7 @@ do
     for e in "${cycle_array_energy[@]}"
     do
         echo $counter;
-        sbatch -J $counter -o "./txt_files/NA_llr_sum_mfc_${counter}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang
+        sbatch -J $counter -o "./txt_files/NA_hlr_sum_mfc_${counter}.txt" gen_disc_job_sum_ec_f0_momenta.sh $p $e neu-ang
         counter=$((counter+1))
     done
 done

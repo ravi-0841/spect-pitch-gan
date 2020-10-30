@@ -43,7 +43,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             +'_lrd_'+str(discriminator_learning_rate) \
             + '_sum_mfc_'+emo_pair+'_KL'
 
-    folder_extension = "sum_mfc_KL/"
+    folder_extension = "hlr_sum_mfc_KL/"
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
