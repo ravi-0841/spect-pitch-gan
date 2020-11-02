@@ -348,12 +348,20 @@ class VariationalCycleGAN(object):
         
     def compute_input_output_gradient(self):
         pitch_gradient_A_real = tf.gradients(self.pitch_discrimination_input_A_real_B_fake, 
-                                        self.pitch_A_real)
+                                        [self.pitch_A_real, self.pitch_B_fake])
         pitch_gradient_A_fake = tf.gradients(self.pitch_discrimination_input_A_fake_B_real, 
-                                        self.pitch_A_fake)
+                                        [self.pitch_A_fake, self.pitch_B_real])
         self.pitch_grad_A = [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_A_real]
         self.pitch_grad_A += [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_A_fake]
-        self.pitch_grad_A_norm = tf.pow(tf.sum(self.pitch_grad_A), 0.5)
+        self.pitch_grad_A_norm = tf.pow(tf.reduce_sum(self.pitch_grad_A), 0.5)
+        
+        pitch_gradient_B_real = tf.gradients(self.pitch_discrimination_input_B_real_A_fake, 
+                                        [self.pitch_B_real, self.pitch_A_fake])
+        pitch_gradient_B_fake = tf.gradients(self.pitch_discrimination_input_B_fake_A_real, 
+                                        [self.pitch_B_fake, self.pitch_A_real])
+        self.pitch_grad_B = [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_B_real]
+        self.pitch_grad_B += [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_B_fake]
+        self.pitch_grad_B_norm = tf.pow(tf.reduce_sum(self.pitch_grad_B), 0.5)
 
 
     def clip_discriminator_weights(self, clip_range):
