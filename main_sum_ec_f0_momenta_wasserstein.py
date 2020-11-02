@@ -11,7 +11,7 @@ import pylab
 import logging
 
 from glob import glob
-from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN
+from nn_models.model_energy_f0_momenta_wasserstein_grad_penalty import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
@@ -163,7 +163,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             generator_loss, discriminator_loss, \
             gen_pitch_A, gen_energy_A, gen_pitch_B, \
             gen_energy_B, mom_pitch_A, mom_pitch_B, \
-            mom_energy_A, mom_energy_B \
+            mom_energy_A, mom_energy_B, pitch_grad, pitch_grad_norm \
                 = model.train(mfc_A=mfc_A[start:end], energy_A=energy_A[start:end], 
                     pitch_A=pitch_A[start:end], mfc_B=mfc_B[start:end],  
                     energy_B=energy_B[start:end], pitch_B=pitch_B[start:end], 
@@ -265,7 +265,7 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_identity_energy', type=float, help="hyperparam for identity loss energy", 
             default=0.05)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
-            default=1e-06)
+            default=1e-05)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
             default=1e-06)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
