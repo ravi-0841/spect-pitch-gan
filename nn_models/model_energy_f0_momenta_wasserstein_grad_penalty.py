@@ -41,9 +41,6 @@ class VariationalCycleGAN(object):
 
         self.build_model()
         self.optimizer_initializer()
-#        self.compute_gradient()
-        self.compute_input_output_gradient()
-        self.clip_discriminator_weights(0.1)
 
         self.saver = tf.train.Saver()
         self.sess = tf.Session()
@@ -279,16 +276,31 @@ class VariationalCycleGAN(object):
         self.discriminator_B_loss = (self.pitch_discriminator_loss_B + self.energy_discriminator_loss_B)
 
         # Final merging of pitch and mfc discriminators
-        self.discriminator_loss = (self.discriminator_A_loss + self.discriminator_B_loss) / 2.0
+        self.discriminator_discriminative_loss = (self.discriminator_A_loss + self.discriminator_B_loss) / 2.0
+        
+        # Gradient Penalty for discriminators
+        self.compute_input_output_gradient()
+        self.grad_penalty_pitch_A = utils.l1_loss(y=self.pitch_grad_A_norm, 
+                                                  y_hat=tf.ones_like(self.pitch_grad_A_norm))
+        self.grad_penalty_pitch_B = utils.l1_loss(y=self.pitch_grad_B_norm, 
+                                                  y_hat=tf.ones_like(self.pitch_grad_B_norm))
+        self.grad_penalty_pitch = (self.grad_penalty_pitch_A + self.grad_penalty_pitch_B) / 2.0
+        
+        self.grad_penalty_energy_A = utils.l1_loss(y=self.energy_grad_A_norm, 
+                                                  y_hat=tf.ones_like(self.energy_grad_A_norm))
+        self.grad_penalty_energy_B = utils.l1_loss(y=self.energy_grad_B_norm, 
+                                                  y_hat=tf.ones_like(self.energy_grad_B_norm))
+        self.grad_penalty_energy = (self.grad_penalty_energy_A + self.grad_penalty_energy_B) / 2.0
+        
+        self.grad_penalty = (self.grad_penalty_pitch + self.grad_penalty_energy) / 2.0
+        
+        # Final discriminator loss
+        self.discriminator_loss = self.discriminator_discriminative_loss + self.grad_penalty
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
         self.discriminator_vars = [var for var in trainable_variables if 'discriminator' in var.name]
         self.generator_vars = [var for var in trainable_variables if 'sampler' in var.name]
-#        self.discriminator_pitch_A_vars = [var for var in trainable_variables if 'discriminator_pitch_A' in var.name]
-#        self.discriminator_energy_A_vars = [var for var in trainable_variables if 'discriminator_energy_A' in var.name]
-#        self.discriminator_pitch_B_vars = [var for var in trainable_variables if 'discriminator_pitch_B' in var.name]
-#        self.discriminator_energy_B_vars = [var for var in trainable_variables if 'discriminator_energy_B' in var.name]
 
         # Reserved for test
         self.momenta_pitch_A2B_test = self.sampler_pitch(input_pitch=self.pitch_A_test, 
@@ -326,24 +338,6 @@ class VariationalCycleGAN(object):
         self.generator_train_op \
             = tf.train.AdamOptimizer(learning_rate=self.generator_learning_rate, \
                 beta1=0.5).minimize(self.generator_loss, var_list=self.generator_vars)
-
-
-    def compute_gradient(self):
-        pitch_gradient_A = tf.gradients(self.pitch_discriminator_loss_A, 
-                                            self.discriminator_pitch_A_vars)
-        energy_gradient_A = tf.gradients(self.energy_discriminator_loss_A, 
-                                            self.discriminator_energy_A_vars)
-        self.gradient_norm_A = [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_A]
-        self.gradient_norm_A = self.gradient_norm_A + [tf.reduce_sum(tf.square(g)) for g in energy_gradient_A]
-        self.gradient_norm_A = tf.reduce_sum(self.gradient_norm_A)
-        
-        pitch_gradient_B = tf.gradients(self.pitch_discriminator_loss_B, 
-                                            self.discriminator_pitch_B_vars)
-        energy_gradient_B = tf.gradients(self.energy_discriminator_loss_B, 
-                                            self.discriminator_energy_B_vars)
-        self.gradient_norm_B = [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_B]
-        self.gradient_norm_B = self.gradient_norm_B + [tf.reduce_sum(tf.square(g)) for g in energy_gradient_B]
-        self.gradient_norm_B = tf.reduce_sum(self.gradient_norm_B)
         
         
     def compute_input_output_gradient(self):
@@ -363,11 +357,21 @@ class VariationalCycleGAN(object):
         self.pitch_grad_B += [tf.reduce_sum(tf.square(g)) for g in pitch_gradient_B_fake]
         self.pitch_grad_B_norm = tf.pow(tf.reduce_sum(self.pitch_grad_B), 0.5)
 
-
-    def clip_discriminator_weights(self, clip_range):
-
-        self.clip_weights = [tf.assign(var, tf.clip_by_value(var, clip_value_min=-1*clip_range, 
-            clip_value_max=clip_range)) for var in self.discriminator_vars]
+        energy_gradient_A_real = tf.gradients(self.energy_discrimination_input_A_real_B_fake, 
+                                        [self.energy_A_real, self.energy_B_fake])
+        energy_gradient_A_fake = tf.gradients(self.energy_discrimination_input_A_fake_B_real, 
+                                        [self.energy_A_fake, self.energy_B_real])
+        self.energy_grad_A = [tf.reduce_sum(tf.square(g)) for g in energy_gradient_A_real]
+        self.energy_grad_A += [tf.reduce_sum(tf.square(g)) for g in energy_gradient_A_fake]
+        self.energy_grad_A_norm = tf.pow(tf.reduce_sum(self.energy_grad_A), 0.5)
+        
+        energy_gradient_B_real = tf.gradients(self.energy_discrimination_input_B_real_A_fake, 
+                                        [self.energy_B_real, self.energy_A_fake])
+        energy_gradient_B_fake = tf.gradients(self.energy_discrimination_input_B_fake_A_real, 
+                                        [self.energy_B_fake, self.energy_A_real])
+        self.energy_grad_B = [tf.reduce_sum(tf.square(g)) for g in energy_gradient_B_real]
+        self.energy_grad_B += [tf.reduce_sum(tf.square(g)) for g in energy_gradient_B_fake]
+        self.energy_grad_B_norm = tf.pow(tf.reduce_sum(self.energy_grad_B), 0.5)
 
 
     def train(self, pitch_A, mfc_A, energy_A, pitch_B, mfc_B, energy_B, 
@@ -394,9 +398,9 @@ class VariationalCycleGAN(object):
 
         self.writer.add_summary(generator_summaries, self.train_step)
 
-        discriminator_loss, _, discriminator_summaries, pitch_grad, pitch_grad_norm \
+        discriminator_loss, _, discriminator_summaries \
             = self.sess.run([self.discriminator_loss, self.discriminator_train_op, 
-                self.discriminator_summaries, self.pitch_grad_A, self.pitch_grad_A_norm], 
+                self.discriminator_summaries], 
                     feed_dict = {self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
                         self.energy_A_real:energy_A, self.energy_B_real:energy_B, 
                         self.discriminator_learning_rate:discriminator_learning_rate, 
@@ -410,7 +414,7 @@ class VariationalCycleGAN(object):
 
         return generator_loss, discriminator_loss, generation_pitch_A, \
                 generation_energy_A, generation_pitch_B, generation_energy_B, \
-                momenta_pitch_A, momenta_pitch_B, momenta_energy_A, momenta_energy_B, pitch_grad, pitch_grad_norm
+                momenta_pitch_A, momenta_pitch_B, momenta_energy_A, momenta_energy_B
 
 
     def test_gen(self, mfc_A, pitch_A, energy_A, mfc_B, pitch_B, energy_B):
@@ -487,10 +491,14 @@ class VariationalCycleGAN(object):
                         tf.reduce_mean(self.discriminator_A_loss))
             discriminator_loss_B_summary = tf.summary.scalar('discriminator_loss_B', 
                     tf.reduce_mean(self.discriminator_B_loss))
-            discriminator_loss_summary = tf.summary.scalar('discriminator_loss', 
-                    tf.reduce_mean(self.discriminator_loss))
+            discriminator_discriminative_loss_summary \
+                    = tf.summary.scalar('discriminator_discriminative_loss', 
+                    tf.reduce_mean(self.discriminator_discriminative_loss))
+            discriminator_grad_penalty_loss = tf.summary.scalar('discriminator_grad_penalty', 
+                    tf.reduce_mean(self.grad_penalty))
             discriminator_summaries = tf.summary.merge([discriminator_loss_A_summary, 
-                discriminator_loss_B_summary, discriminator_loss_summary])
+                discriminator_loss_B_summary, discriminator_discriminative_loss_summary, 
+                discriminator_grad_penalty_loss])
 
         return generator_summaries, discriminator_summaries
 

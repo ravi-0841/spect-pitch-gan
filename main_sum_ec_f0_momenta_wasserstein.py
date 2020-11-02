@@ -163,7 +163,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             generator_loss, discriminator_loss, \
             gen_pitch_A, gen_energy_A, gen_pitch_B, \
             gen_energy_B, mom_pitch_A, mom_pitch_B, \
-            mom_energy_A, mom_energy_B, pitch_grad, pitch_grad_norm \
+            mom_energy_A, mom_energy_B \
                 = model.train(mfc_A=mfc_A[start:end], energy_A=energy_A[start:end], 
                     pitch_A=pitch_A[start:end], mfc_B=mfc_B[start:end],  
                     energy_B=energy_B[start:end], pitch_B=pitch_B[start:end], 
