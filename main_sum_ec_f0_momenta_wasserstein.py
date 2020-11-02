@@ -265,9 +265,9 @@ if __name__ == '__main__':
     parser.add_argument('--lambda_identity_energy', type=float, help="hyperparam for identity loss energy", 
             default=0.05)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
-            default=1e-05)
-    parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
             default=1e-06)
+    parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
+            default=1e-05)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
     parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 

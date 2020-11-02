@@ -295,7 +295,7 @@ class VariationalCycleGAN(object):
         self.grad_penalty = (self.grad_penalty_pitch + self.grad_penalty_energy) / 2.0
         
         # Final discriminator loss
-        self.discriminator_loss = self.discriminator_discriminative_loss + self.grad_penalty
+        self.discriminator_loss = self.discriminator_discriminative_loss + 0.1*self.grad_penalty
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
@@ -399,7 +399,7 @@ class VariationalCycleGAN(object):
         self.writer.add_summary(generator_summaries, self.train_step)
 
         discriminator_loss, _, discriminator_summaries \
-            = self.sess.run([self.discriminator_loss, self.discriminator_train_op, 
+            = self.sess.run([self.discriminator_discriminative_loss, self.discriminator_train_op, 
                 self.discriminator_summaries], 
                     feed_dict = {self.pitch_A_real:pitch_A, self.pitch_B_real:pitch_B, 
                         self.energy_A_real:energy_A, self.energy_B_real:energy_B, 
