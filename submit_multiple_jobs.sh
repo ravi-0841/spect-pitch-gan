@@ -7,13 +7,13 @@ cycle_array_energy=( 1e-06 0.00001 0.001 0.1 )
 #cycle_array_energy=( 1e-07 )
 
 
-counter=17
+counter=33
 for p in "${cycle_array_pitch[@]}"
 do
     for e in "${cycle_array_energy[@]}"
     do
         echo $counter;
-        sbatch -J $counter -o "./txt_files/NH_gp_sum_mfc_${counter}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-hap
+        sbatch -J $counter -o "./txt_files/NS_gp_sum_mfc_${counter}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-sad
         counter=$((counter+1))
     done
 done
