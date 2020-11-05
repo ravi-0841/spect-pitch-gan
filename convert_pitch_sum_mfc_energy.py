@@ -7,7 +7,7 @@ import scipy.signal as scisig
 
 import utils.preprocess as preproc
 from utils.feat_utils import preprocess_contour, normalize_wav
-from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN as VCGAN
+from nn_models.model_energy_f0_momenta_wasserstein_grad_penalty import VariationalCycleGAN as VCGAN
 
 
 num_mfcc = 23
@@ -47,7 +47,8 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         coded_sp = np.transpose(coded_sp, (0,2,1))
         
         f0_z_idx = np.where(f0<10.0)[0]
-        ec_z_idx = np.where(ec<1e-06)[0]
+        ec_z_idx = np.where(ec>0)[0]
+        ec[ec_z_idx] = -1e-6
 
         f0 = preprocess_contour(f0)
         ec = preprocess_contour(ec)
@@ -60,44 +61,52 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                       input_energy=ec,
                                                       direction=conversion_direction)
         
-#        ec_converted = scisig.medfilt(ec_converted.reshape(-1,), kernel_size=3)
+        ec_converted = np.reshape(ec_converted, (-1,))
+        ec_z_idx = np.where(ec_converted>0)[0]
+        ec_converted[ec_z_idx] = -1e-6
         
-        pylab.subplot(211)
+        pylab.figure(figsize=(13,10))
+        pylab.subplot(311)
         pylab.plot(ec.reshape(-1,), label='Energy')
         pylab.plot(ec_converted.reshape(-1,), label='Converted energy')
         pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
         pylab.legend()
-        pylab.subplot(212)
+        pylab.subplot(312)
         pylab.plot(f0.reshape(-1,), label='F0')
         pylab.plot(f0_converted.reshape(-1,), label='Converted F0')
         pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
         pylab.legend()
+        pylab.subplot(313)
+        pylab.plot(np.divide(ec_converted.reshape(-1,), ec.reshape(-1,)), label='Energy Ratio')
+        pylab.legend()
 
-#        coded_sp_converted = np.asarray(np.transpose(np.squeeze(coded_sp_converted)), 
-#                                        np.float64)
-#        coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
+#            coded_sp_converted = np.asarray(np.transpose(np.squeeze(coded_sp_converted)), 
+#                                            np.float64)
+#            coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
+        
         f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
         f0_converted = np.ascontiguousarray(f0_converted)
         f0_converted[f0_z_idx] = 0
         
-#        ec_converted = scisig.medfilt(ec_converted.reshape(-1,), kernel_size=3)
-#        ec_converted[ec_z_idx] = 1e-06
+#        coded_sp = np.transpose(np.squeeze(coded_sp))
+#        coded_sp_converted = np.multiply(coded_sp.T, np.divide(ec_converted.reshape(1,-1), 
+#                                        ec.reshape(1,-1)))
+#        coded_sp_converted = np.ascontiguousarray(coded_sp_converted.T)
+#            
+#        decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
+#                                                                    fs=sampling_rate)
         
-        coded_sp = np.transpose(np.squeeze(coded_sp))
-        coded_sp_converted = np.multiply(coded_sp.T, np.divide(ec_converted.reshape(1,-1), 
+        # Modifying the spectrum instead of mfcc
+        decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
                                     ec.reshape(1,-1)))
-        coded_sp_converted = np.ascontiguousarray(coded_sp_converted.T)
+        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
         
-        decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
-                                                                    fs=sampling_rate)
-
         # Normalization of converted features
 #        decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
 #        decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
-        
-#        decoded_sp_converted = decoded_sp_converted[6:-6]
-#        f0_converted = f0_converted[6:-6]
-#        ap = ap[6:-6]
+#        decoded_sp_converted = decoded_sp_converted[10:-10]
+#        f0_converted = f0_converted[10:-10]
+#        ap = ap[10:-10]
         
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=decoded_sp_converted, 
@@ -173,35 +182,15 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             pylab.legend()
             pylab.savefig(os.path.join(output_dir, os.path.basename(filepath)[:-4])+'.png')
             pylab.close()
-    
-#            coded_sp_converted = np.asarray(np.transpose(np.squeeze(coded_sp_converted)), 
-#                                            np.float64)
-#            coded_sp_converted = np.ascontiguousarray(coded_sp_converted)
             
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
             f0_converted = np.ascontiguousarray(f0_converted)
             f0_converted[f0_z_idx] = 0
             
-            coded_sp = np.transpose(np.squeeze(coded_sp))
-#            coded_sp_converted = np.multiply(coded_sp.T, np.divide(ec_converted.reshape(1,-1), 
-#                                        ec.reshape(1,-1)))
-#            coded_sp_converted = np.ascontiguousarray(coded_sp_converted.T)
-#            
-#            decoded_sp_converted = preproc.world_decode_spectral_envelope(coded_sp=coded_sp_converted, 
-#                                                                        fs=sampling_rate)
-            
             # Modifying the spectrum instead of mfcc
             decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
                                         ec.reshape(1,-1)))
             decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
-            
-            # Normalization of converted features
-#            decoded_sp_converted = decoded_sp_converted.T / np.max(decoded_sp_converted)
-#            decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted)
-            
-#            decoded_sp_converted = decoded_sp_converted[10:-10]
-#            f0_converted = f0_converted[10:-10]
-#            ap = ap[10:-10]
             
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
@@ -221,11 +210,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/lp_1e-06_le_1e-05_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-sad'
-    model_name_default = 'neu-sad_400.ckpt'
-    data_dir_default = 'data/evaluation/neu-sad/neutral'
+    model_dir_default = '/home/ravi/Desktop/neu-ang_sum_mfc_models/gp_models/lp_1e-06_le_1e-05_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-ang'
+    model_name_default = 'neu-ang_300.ckpt'
+    data_dir_default = 'data/evaluation/neu-ang/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/neu-sad/ne_1e-06_1e-05/epoch_400'
+    output_dir_default = '/home/ravi/Desktop/gp_F0_sum_ec/neu-ang/ne_1e-06_1e-05/epoch_300'
     audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
