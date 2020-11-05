@@ -280,22 +280,22 @@ class VariationalCycleGAN(object):
         
         # Gradient Penalty for discriminators
         self.compute_input_output_gradient()
-        self.grad_penalty_pitch_A = utils.l1_loss(y=self.pitch_grad_A_norm, 
+        self.grad_penalty_pitch_A = utils.l2_loss(y=self.pitch_grad_A_norm, 
                                                   y_hat=tf.ones_like(self.pitch_grad_A_norm))
-        self.grad_penalty_pitch_B = utils.l1_loss(y=self.pitch_grad_B_norm, 
+        self.grad_penalty_pitch_B = utils.l2_loss(y=self.pitch_grad_B_norm, 
                                                   y_hat=tf.ones_like(self.pitch_grad_B_norm))
         self.grad_penalty_pitch = (self.grad_penalty_pitch_A + self.grad_penalty_pitch_B) / 2.0
         
-        self.grad_penalty_energy_A = utils.l1_loss(y=self.energy_grad_A_norm, 
+        self.grad_penalty_energy_A = utils.l2_loss(y=self.energy_grad_A_norm, 
                                                   y_hat=tf.ones_like(self.energy_grad_A_norm))
-        self.grad_penalty_energy_B = utils.l1_loss(y=self.energy_grad_B_norm, 
+        self.grad_penalty_energy_B = utils.l2_loss(y=self.energy_grad_B_norm, 
                                                   y_hat=tf.ones_like(self.energy_grad_B_norm))
         self.grad_penalty_energy = (self.grad_penalty_energy_A + self.grad_penalty_energy_B) / 2.0
         
         self.grad_penalty = (self.grad_penalty_pitch + self.grad_penalty_energy) / 2.0
         
         # Final discriminator loss
-        self.discriminator_loss = self.discriminator_discriminative_loss + 0.1*self.grad_penalty
+        self.discriminator_loss = self.discriminator_discriminative_loss + 0.01*self.grad_penalty
 
         # Categorize variables to optimize the two sets separately
         trainable_variables = tf.trainable_variables()
