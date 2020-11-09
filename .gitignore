@@ -19,5 +19,4 @@
 /utils/__pycache__/*.pyc
 /tensorboard_log
 /Presentation
-/crowd_sourcing/*.png
-/crowd_sourcing/*.wav
+/crowd_sourcing
