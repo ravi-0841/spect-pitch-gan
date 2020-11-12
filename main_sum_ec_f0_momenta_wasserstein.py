@@ -11,7 +11,7 @@ import pylab
 import logging
 
 from glob import glob
-from nn_models.model_energy_f0_momenta_wasserstein_grad_penalty import VariationalCycleGAN
+from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
@@ -41,9 +41,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_sum_mfc_'+emo_pair+'_3'
+            + '_sum_mfc_'+emo_pair+'_2'
 
-    folder_extension = 'gp_sum_mfc_wstn_'+emo_pair+'/'
+    folder_extension = 'sum_mfc_wstn_'+emo_pair+'/'
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
