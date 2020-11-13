@@ -41,7 +41,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_sum_mfc_'+emo_pair+'_2'
+            + '_sum_mfc_'+emo_pair+'_drop_0.7'
 
     folder_extension = 'sum_mfc_wstn_'+emo_pair+'/'
 
