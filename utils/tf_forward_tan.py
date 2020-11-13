@@ -1,5 +1,6 @@
 import tensorflow as tf
 
+
 def dHr_tan(x, p, Css, kernel, name_prefix='compute_dHr'):
     """
     Computes the small displacement of x and p
@@ -30,6 +31,7 @@ def dHr_tan(x, p, Css, kernel, name_prefix='compute_dHr'):
                                keepdims=True), name=name_prefix+'_compute_dpHr')
     return dxHr, dpHr
 
+
 def fdh(x, p, Css, h, kernel, name_prefix='forward_dh'):
     """
     compute displacement for step size h
@@ -38,6 +40,7 @@ def fdh(x, p, Css, h, kernel, name_prefix='forward_dh'):
     kx = tf.add(x, tf.multiply(h, dx), name=name_prefix+'_add_dx')
     kp = tf.subtract(p, tf.multiply(h, dp), name=name_prefix+'_subtract_dp')
     return kx, kp
+
 
 def lddmm(x, p, kernel, num_iter=3, reuse=False, scope_name='warping_generator'):
     """
@@ -91,6 +94,7 @@ def lddmm(x, p, kernel, num_iter=3, reuse=False, scope_name='warping_generator')
 
         output = tf.add(tf.subtract(x3, x2), x_evol, name='final_x_evol_addition')
         return tf.transpose(output, perm=[0,2,1])
+
 
 #if __name__ == "__main__":
 #    tf.reset_default_graph()

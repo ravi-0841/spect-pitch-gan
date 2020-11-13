@@ -259,11 +259,11 @@ if __name__ == '__main__':
     parser.add_argument('--current_iter', type=int, help="Current iteration of the model (Fine tuning)", 
             default=1)
     parser.add_argument('--lambda_cycle_pitch', type=float, help="hyperparam for cycle loss pitch", 
-            default=0.00001)
+            default=1e-05)
     parser.add_argument('--lambda_cycle_energy', type=float, help="hyperparam for cycle loss energy", 
             default=0.1)
     parser.add_argument('--lambda_identity_energy', type=float, help="hyperparam for identity loss energy", 
-            default=0.05)
+            default=0.0)
     parser.add_argument('--lambda_momenta', type=float, help="hyperparam for momenta magnitude", 
             default=1e-06)
     parser.add_argument('--generator_learning_rate', type=float, help="generator learning rate", 
