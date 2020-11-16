@@ -30,7 +30,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     np.random.seed(random_seed)
 
     num_epochs = 500
-    mini_batch_size = 3 # mini_batch_size = 1 is better
+    mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
     num_mcep = 23
