@@ -13,8 +13,8 @@ class VariationalCycleGAN(object):
             n_frames=128, discriminator_pitch=discriminator_pitch, 
             discriminator_energy=discriminator_energy, 
             sampler_pitch=sampler_pitch, sampler_energy=sampler_energy, 
-            lddmm=lddmm, mode='train', log_file_name='no_name_passed', 
-            pre_train=None):
+            lddmm=lddmm, mode='train', tf_random_seed=None, 
+            log_file_name='no_name_passed', pre_train=None):
         
         self.n_frames = n_frames
         self.pitch_shape = [None, dim_pitch, None] #[batch_size, num_features, num_frames]
@@ -44,6 +44,10 @@ class VariationalCycleGAN(object):
 
         self.saver = tf.train.Saver()
         self.sess = tf.Session()
+
+        if tf_random_seed is not None:
+            tf.random.set_random_seed(tf_random_seed)
+
         if pre_train is not None:
             self.saver.restore(self.sess, pre_train)
         else:

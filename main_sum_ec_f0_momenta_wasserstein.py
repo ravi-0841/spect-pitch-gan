@@ -24,7 +24,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
             tensorboard_log_dir, pre_train=None, \
             lambda_cycle_pitch=0, lambda_cycle_energy=0, lambda_momenta=0, 
             lambda_identity_energy=0, generator_learning_rate=1e-05, 
-            discriminator_learning_rate=1e-03, emo_pair='neu-ang'):
+            discriminator_learning_rate=1e-03, tf_random_seed=None, 
+            emo_pair='neu-ang'):
 
     np.random.seed(random_seed)
 
@@ -41,9 +42,9 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_sum_mfc_'+emo_pair+'_drop_0.7'
+            + '_sum_mfc_'+emo_pair+'_random_seed_'+str(tf_random_seed)
 
-    folder_extension = 'sum_mfc_wstn_'+emo_pair+'/'
+    folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
@@ -136,7 +137,8 @@ def train(train_dir, model_dir, model_name, random_seed, \
     
     #use pre_train arg to provide trained model
     model = VariationalCycleGAN(dim_pitch=1, dim_energy=1, dim_mfc=23, n_frames=n_frames, 
-                                pre_train=pre_train, log_file_name=lc_lm)
+                                pre_train=pre_train, tf_random_seed=tf_random_seed, 
+                                log_file_name=lc_lm)
     
     for epoch in range(1,num_epochs+1):
 
@@ -270,6 +272,8 @@ if __name__ == '__main__':
             default=1e-05)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
+    parser.add_argument('--tf_random_seed', type=int, help="Random seed for tensorflow ops", 
+            default=None)
     parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 
             default=emo_pair_default)
     
@@ -290,6 +294,7 @@ if __name__ == '__main__':
     lambda_cycle_energy = argv.lambda_cycle_energy
     lambda_identity_energy = argv.lambda_identity_energy*0.5
     lambda_momenta = argv.lambda_momenta
+    tf_random_seed = argv.tf_random_seed
 
     generator_learning_rate = argv.generator_learning_rate
     discriminator_learning_rate = argv.discriminator_learning_rate
@@ -302,4 +307,5 @@ if __name__ == '__main__':
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
           discriminator_learning_rate=discriminator_learning_rate, 
+          tf_random_seed=tf_random_seed,
           emo_pair=argv.emotion_pair)
