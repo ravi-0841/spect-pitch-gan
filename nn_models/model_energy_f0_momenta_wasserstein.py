@@ -24,6 +24,8 @@ class VariationalCycleGAN(object):
         self.first_order_diff_mat = np.eye(self.n_frames, dtype=np.float32)
         for i in range(1, self.n_frames):
             self.first_order_diff_mat[i-1,i] = -1
+        self.first_order_diff_mat = tf.convert_to_tensor(self.first_order_diff_mat, 
+                                                         dtype=tf.float32, name='gradient_mat')
 
         # Create the kernel for lddmm
         self.kernel_pitch = tf.expand_dims(tf.constant([6,50], 
@@ -211,16 +213,30 @@ class VariationalCycleGAN(object):
                     y_hat=self.energy_A_real)) / 2.0
 
         # Momenta loss for pitch
-        self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momenta_pitch_A2B, [-1,1])))) \
-                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-                        tf.reshape(self.momenta_pitch_cycle_A2A, [-1,1]))))
-
-        self.momenta_loss_B2A = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-            tf.reshape(self.momenta_pitch_B2A, [-1,1])))) \
-                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
-                        tf.reshape(self.momenta_pitch_cycle_B2B, [-1,1]))))
-
+        self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
+                                    self.first_order_diff_mat, 
+                                    tf.transpose(self.momenta_pitch_A2B, perm=[0,2,1])))) \
+                                + tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
+                                    self.first_order_diff_mat, 
+                                    tf.transpose(self.momenta_pitch_cycle_A2A, perm=[0,2,1]))))
+        
+        self.momenta_loss_B2A = tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
+                                    self.first_order_diff_mat, 
+                                    tf.transpose(self.momenta_pitch_B2A, perm=[0,2,1])))) \
+                                + tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
+                                    self.first_order_diff_mat, 
+                                    tf.transpose(self.momenta_pitch_cycle_B2B, perm=[0,2,1]))))
+        
+#        self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#            tf.reshape(self.momenta_pitch_A2B, [-1,1])))) \
+#                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#                        tf.reshape(self.momenta_pitch_cycle_A2A, [-1,1]))))
+#
+#        self.momenta_loss_B2A = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#            tf.reshape(self.momenta_pitch_B2A, [-1,1])))) \
+#                    + tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
+#                        tf.reshape(self.momenta_pitch_cycle_B2B, [-1,1]))))
+#
         self.momenta_loss = (self.momenta_loss_A2B + self.momenta_loss_B2A) / 2.0
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
