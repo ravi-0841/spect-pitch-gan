@@ -5,7 +5,6 @@
 
 cycle_array_pitch=( 1e-05 )
 cycle_array_energy=( 0.1 )
-cycle_array_random_seed=( 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
 
 #counter=1
 #for p in "${cycle_array_pitch[@]}"
@@ -20,16 +19,14 @@ cycle_array_random_seed=( 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 )
 
 
 # Testing multiple random seeds
-counter=1
 for p in "${cycle_array_pitch[@]}"
 do
     for e in "${cycle_array_energy[@]}"
     do
-        for r in "${cycle_array_random_seed[@]}"
+        for r in {16..25..1} 
         do
             echo $counter;
-            sbatch -J $counter -o "./txt_files/NA_seed_${counter}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang $r
-            counter=$((counter+1))
+            sbatch -J $r -o "./txt_files/NA_seed_${r}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang $r
         done
     done
 done
