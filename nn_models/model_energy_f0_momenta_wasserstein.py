@@ -213,18 +213,14 @@ class VariationalCycleGAN(object):
                     y_hat=self.energy_A_real)) / 2.0
 
         # Momenta loss for pitch
-        self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
-                                    self.first_order_diff_mat, 
+        self.momenta_loss_A2B = tf.reduce_sum(tf.square(utils.compute_momenta_grad(self.first_order_mat, 
                                     tf.transpose(self.momenta_pitch_A2B, perm=[0,2,1])))) \
-                                + tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
-                                    self.first_order_diff_mat, 
+                                + tf.reduce_sum(tf.square(utils.compute_momenta_grad(self.first_order_diff_mat, 
                                     tf.transpose(self.momenta_pitch_cycle_A2A, perm=[0,2,1]))))
-        
-        self.momenta_loss_B2A = tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
-                                    self.first_order_diff_mat, 
+
+        self.momenta_loss_B2A = tf.reduce_sum(tf.square(utils.compute_momenta_grad(self.first_order_mat, 
                                     tf.transpose(self.momenta_pitch_B2A, perm=[0,2,1])))) \
-                                + tf.reduce_sum(tf.square(tf.einsum('jk,ikl->ijl', 
-                                    self.first_order_diff_mat, 
+                                + tf.reduce_sum(tf.square(utils.compute_momenta_grad(self.first_order_diff_mat, 
                                     tf.transpose(self.momenta_pitch_cycle_B2B, perm=[0,2,1]))))
         
 #        self.momenta_loss_A2B = tf.reduce_sum(tf.square(tf.matmul(self.first_order_diff_mat, 
@@ -241,10 +237,10 @@ class VariationalCycleGAN(object):
 
         # Merge the two sampler-generator, the cycle loss and momenta prior
         self.generator_loss \
-            = self.gen_disc_loss + self.lambda_cycle_pitch * self.cycle_loss_pitch \
-                + self.lambda_cycle_energy * self.cycle_loss_energy \
-                + self.lambda_identity_energy * self.identity_loss_energy \
-                + self.lambda_momenta * self.momenta_loss
+            = self.gen_disc_loss + self.lambda_cycle_pitch*self.cycle_loss_pitch \
+                + self.lambda_cycle_energy*self.cycle_loss_energy \
+                + self.lambda_identity_energy*self.identity_loss_energy \
+                + self.lambda_momenta*self.momenta_loss
 
         # Compute the pitch discriminator probability for pair of inputs
         self.pitch_discrimination_input_A_real_B_fake \

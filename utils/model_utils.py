@@ -131,7 +131,9 @@ def modify_mfcc_log(mfcc, new_energy, old_energy):
     old_energy = tf.clip_by_value(old_energy, -20, 20)
     return tf.multiply(mfcc, tf.divide(new_energy, old_energy))
 
-
+def compute_momenta_grad(gradient_mat, momenta):
+    gradient = tf.einsum('jk,ikl->ijl', gradient_mat, momenta)
+    return gradient
 
 
 
