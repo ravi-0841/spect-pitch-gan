@@ -33,7 +33,6 @@ class VariationalCycleGAN(object):
         self.kernel_energy = tf.expand_dims(tf.constant([6,2], 
             dtype=tf.float32), axis=0) #[6,5] in general
 
-        tf.reset_default_graph()
         self.sampler_pitch = sampler_pitch
         self.sampler_energy = sampler_energy
         self.discriminator_pitch = discriminator_pitch

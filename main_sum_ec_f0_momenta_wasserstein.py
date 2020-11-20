@@ -9,6 +9,7 @@ import scipy.io as scio
 import scipy.signal as scisig
 import pylab
 import logging
+import tensorflow as tf
 
 from glob import glob
 from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN
@@ -17,6 +18,7 @@ import utils.preprocess as preproc
 from importlib import reload
 
 
+tf.reset_default_graph()
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 def train(train_dir, model_dir, model_name, random_seed, \
