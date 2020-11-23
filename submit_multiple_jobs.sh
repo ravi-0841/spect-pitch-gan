@@ -3,8 +3,8 @@
 #cycle_array_pitch=( 1e-06 0.00001 0.0001 0.01 )
 #cycle_array_energy=( 1e-06 0.00001 0.001 0.1 )
 
-cycle_array_pitch=( 1e-05 )
-cycle_array_energy=( 0.1 )
+cycle_array_pitch=( 0.0001 )
+cycle_array_energy=( 0.001 )
 
 #counter=1
 #for p in "${cycle_array_pitch[@]}"
@@ -23,10 +23,10 @@ for p in "${cycle_array_pitch[@]}"
 do
     for e in "${cycle_array_energy[@]}"
     do
-        for r in {16..25..1} 
+        for r in {1..25..1} 
         do
             echo $counter;
-            sbatch -J $r -o "./txt_files/NA_seed_${r}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang $r
+            sbatch -J $r -o "./txt_files/NH_seed_${r}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-hap $r
         done
     done
 done
