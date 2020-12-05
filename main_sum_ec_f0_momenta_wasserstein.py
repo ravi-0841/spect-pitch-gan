@@ -31,7 +31,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     np.random.seed(random_seed)
 
-    num_epochs = 500
+    num_epochs = 400
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
@@ -44,7 +44,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             + '_li_'+str(lambda_identity_energy) \
             +'_lrg_'+str(generator_learning_rate) \
             +'_lrd_'+str(discriminator_learning_rate) \
-            + '_sum_mfc_'+emo_pair+'_random_seed_'+str(tf_random_seed)
+            + '_sum_mfc_gender_'+emo_pair+'_random_seed_'+str(tf_random_seed)
 
     folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
 
@@ -113,15 +113,15 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_train = energy_B_train[indices_train]
     mfc_B_train = mfc_B_train[indices_train]
 
-#    mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
-#            energy_A_train, energy_B_train, _ = preproc.gender_shuffle(mfc_A=mfc_A_train, 
-#                    mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
-#                    energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
+    mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
+            energy_A_train, energy_B_train, _ = preproc.gender_shuffle(mfc_A=mfc_A_train, 
+                    mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
+                    energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
 
-    mfc_A_valid, pitch_A_valid, energy_A_valid, \
-        mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 
-                mfc_B=mfc_B_valid, pitch_A=pitch_A_valid, pitch_B=pitch_B_valid, 
-                energy_A=energy_A_valid, energy_B=energy_B_valid)
+#    mfc_A_valid, pitch_A_valid, energy_A_valid, \
+#        mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 
+#                mfc_B=mfc_B_valid, pitch_A=pitch_A_valid, pitch_B=pitch_B_valid, 
+#                energy_A=energy_A_valid, energy_B=energy_B_valid)
 
     if validation_dir is not None:
         validation_output_dir = os.path.join(output_dir, lc_lm)
