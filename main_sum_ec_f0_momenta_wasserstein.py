@@ -27,7 +27,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             lambda_cycle_pitch=0, lambda_cycle_energy=0, lambda_momenta=0, 
             lambda_identity_energy=0, generator_learning_rate=1e-05, 
             discriminator_learning_rate=1e-03, tf_random_seed=None, 
-            emo_pair='neu-ang'):
+            emo_pair='neu-ang', gender_shuffle=False):
 
     np.random.seed(random_seed)
 
@@ -39,12 +39,20 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = 'lp_'+str(lambda_cycle_pitch) \
-            + '_le_'+str(lambda_cycle_energy) \
-            + '_li_'+str(lambda_identity_energy) \
-            +'_lrg_'+str(generator_learning_rate) \
-            +'_lrd_'+str(discriminator_learning_rate) \
-            + '_sum_mfc_gender_'+emo_pair+'_random_seed_'+str(tf_random_seed)
+    if gender_shuffle:
+        lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+                + '_le_'+str(lambda_cycle_energy) \
+                + '_li_'+str(lambda_identity_energy) \
+                +'_lrg_'+str(generator_learning_rate) \
+                +'_lrd_'+str(discriminator_learning_rate) \
+                + '_sum_mfc_gender_'+emo_pair+'_random_seed_'+str(tf_random_seed)
+    else:
+        lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+                + '_le_'+str(lambda_cycle_energy) \
+                + '_li_'+str(lambda_identity_energy) \
+                +'_lrg_'+str(generator_learning_rate) \
+                +'_lrd_'+str(discriminator_learning_rate) \
+                + '_sum_mfc_'+emo_pair+'_random_seed_2_'+str(tf_random_seed)
 
     folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
 
@@ -113,10 +121,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
     energy_B_train = energy_B_train[indices_train]
     mfc_B_train = mfc_B_train[indices_train]
 
-    mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
-            energy_A_train, energy_B_train, _ = preproc.gender_shuffle(mfc_A=mfc_A_train, 
-                    mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
-                    energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
+    if gender_shuffle:
+        mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
+                energy_A_train, energy_B_train, _ = preproc.gender_shuffle(mfc_A=mfc_A_train, 
+                        mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
+                        energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
 
     mfc_A_valid, pitch_A_valid, energy_A_valid, \
         mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 
@@ -278,6 +287,8 @@ if __name__ == '__main__':
             default=None)
     parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 
             default=emo_pair_default)
+    parser.add_argument('--gender_shuffle', type=bool, help="Gender shuffling for training data", 
+            default=False)
     
     argv = parser.parse_args()
 
@@ -301,6 +312,8 @@ if __name__ == '__main__':
     generator_learning_rate = argv.generator_learning_rate
     discriminator_learning_rate = argv.discriminator_learning_rate
 
+    gender_shuffle = argv.gender_shuffle
+
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
@@ -309,5 +322,5 @@ if __name__ == '__main__':
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
           discriminator_learning_rate=discriminator_learning_rate, 
-          tf_random_seed=tf_random_seed,
-          emo_pair=argv.emotion_pair)
+          tf_random_seed=tf_random_seed, emo_pair=argv.emotion_pair, 
+          gender_shuffle=gender_shuffle)
