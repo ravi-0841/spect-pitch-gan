@@ -31,7 +31,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     np.random.seed(random_seed)
 
-    num_epochs = 400
+    num_epochs = 300
     mini_batch_size = 1 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
@@ -52,7 +52,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 + '_li_'+str(lambda_identity_energy) \
                 +'_lrg_'+str(generator_learning_rate) \
                 +'_lrd_'+str(discriminator_learning_rate) \
-                + '_sum_mfc_'+emo_pair+'_random_seed_2_'+str(tf_random_seed)
+                + '_sum_mfc_'+emo_pair+'_random_seed_3_'+str(tf_random_seed)
 
     folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
 
