@@ -15,7 +15,6 @@ from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN
 from utils.helper import smooth, generate_interpolation
 import utils.preprocess as preproc
 from importlib import reload
-from encoder_decoder import AE
 
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
@@ -25,7 +24,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
             tensorboard_log_dir, pre_train=None, \
             lambda_cycle_pitch=0, lambda_cycle_energy=0, lambda_momenta=0, 
             lambda_identity_energy=0, generator_learning_rate=1e-05, 
-            discriminator_learning_rate=1e-03):
+            discriminator_learning_rate=1e-03, emo_pair='neu-ang'):
 
     np.random.seed(random_seed)
 
@@ -37,16 +36,18 @@ def train(train_dir, model_dir, model_name, random_seed, \
     frame_period = 5
     n_frames = 128
 
-    lc_lm = "lp_"+str(lambda_cycle_pitch) \
-            + '_lm_'+str(lambda_cycle_energy) \
-            +"_lmo_"+str(lambda_momenta) \
-            +"_lrg_"+str(generator_learning_rate) \
-            +"_lrd_"+str(discriminator_learning_rate) + "_li_"\
-            + str(lambda_identity_energy) + '_energy_f0_momenta_wasserstein_all_spk'
+    lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+            + '_le_'+str(lambda_cycle_energy) \
+            + '_li_'+str(lambda_identity_energy) \
+            +'_lrg_'+str(generator_learning_rate) \
+            +'_lrd_'+str(discriminator_learning_rate) \
+            + '_spect_ec'
 
-    model_dir = os.path.join(model_dir, lc_lm)
+    folder_extension = 'spect_ec/'
 
-    logger_file = './log/'+lc_lm+'.log'
+    model_dir = os.path.join(model_dir, folder_extension, lc_lm)
+
+    logger_file = './log/'+folder_extension+lc_lm+'.log'
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
@@ -65,33 +66,37 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.info("generator_lr - {}".format(generator_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
 
-    if not os.path.isdir("./pitch_spect/"+lc_lm):
-        os.makedirs(os.path.join("./pitch_spect/", lc_lm))
+    if not os.path.isdir("./pitch_spect/"+folder_extension+lc_lm):
+        os.makedirs(os.path.join("./pitch_spect/", folder_extension, lc_lm))
     else:
-        for f in glob(os.path.join("./pitch_spect/", \
-                lc_lm, "*.png")):
+        for f in glob(os.path.join("./pitch_spect/", folder_extension, lc_lm, "*.png")):
             os.remove(f)
     
     print('Preprocessing Data...')
 
     start_time = time.time()
 
-    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train.mat'))
-    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid.mat'))
+    data_train = scio.loadmat(os.path.join(train_dir, 'unaligned_train_no_ec_process.mat'))
+    data_valid = scio.loadmat(os.path.join(train_dir, 'unaligned_valid_no_ec_process.mat'))
 
     pitch_A_train = data_train['src_f0_feat']
     pitch_B_train = data_train['tar_f0_feat']
-    energy_A_train = data_train['src_ec_feat']
-    energy_B_train = data_train['tar_ec_feat']
+    energy_A_train = np.log(data_train['src_ec_feat'] + 1e-06)
+    energy_B_train = np.log(data_train['tar_ec_feat'] + 1e-06)
     mfc_A_train = data_train['src_mfc_feat']
     mfc_B_train = data_train['tar_mfc_feat']
 
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
-    energy_A_valid = data_valid['src_ec_feat']
-    energy_B_valid = data_valid['tar_ec_feat']
+    energy_A_valid = np.log(data_valid['src_ec_feat'] + 1e-06)
+    energy_B_valid = np.log(data_valid['tar_ec_feat'] + 1e-06)
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
+
+#    pitch_A_train = pitch_A_train - np.mean(pitch_A_train, axis=-1, keepdims=True) 
+#    pitch_B_train = pitch_B_train - np.mean(pitch_B_train, axis=-1, keepdims=True) 
+#    pitch_A_valid = pitch_A_valid - np.mean(pitch_A_valid, axis=-1, keepdims=True) 
+#    pitch_B_valid = pitch_B_valid - np.mean(pitch_B_valid, axis=-1, keepdims=True) 
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
@@ -214,7 +219,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 pylab.legend(loc=2)
 
                 pylab.suptitle('Epoch '+str(epoch)+' example '+str(i+1))
-                pylab.savefig('./pitch_spect/'+lc_lm+'/'\
+                pylab.savefig('./pitch_spect/'+folder_extension+lc_lm+'/'\
                         +str(epoch)+'_'+str(i+1)+'.png')
                 pylab.close()
         
@@ -241,34 +246,14 @@ if __name__ == '__main__':
                         "neu-sad":['neutral', 'sad'], \
                         "neu-hap":['neutral', 'happy']}
 
-    emo_pair = "neu-ang"
-    train_dir_default = "./data/"+emo_pair
-    model_dir_default = "./model/"+emo_pair
-    model_name_default = emo_pair
-#    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
-    validation_dir_default = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
-    output_dir_default = './validation_output/'+emo_pair
-    tensorboard_log_dir_default = './log/'+emo_pair
+    emo_pair_default = "neu-ang"
     random_seed_default = 0
 
-    parser.add_argument('--train_dir', type=str, help='Directory for A.', 
-            default=train_dir_default)
-    parser.add_argument('--model_dir', type=str, help='Directory for saving models.', 
-            default=model_dir_default)
-    parser.add_argument('--model_name', type=str, help='File name for saving model.', 
-            default=model_name_default)
     parser.add_argument('--random_seed', type=int, help='Random seed for model training.', 
             default=random_seed_default)
-    parser.add_argument('--validation_dir', type=str, 
-            help='Convert validation after each training epoch. Set None for no conversion', 
-            default=validation_dir_default)
-    parser.add_argument('--output_dir', type=str, help='Output directory for converted validation voices.', 
-            default=output_dir_default)
-    parser.add_argument('--tensorboard_log_dir', type=str, help='TensorBoard log directory.', 
-            default=tensorboard_log_dir_default)
     parser.add_argument('--current_iter', type=int, help="Current iteration of the model (Fine tuning)", 
             default=1)
-    parser.add_argument("--lambda_cycle_pitch", type=float, help="hyperparam for cycle loss pitch", 
+    parser.add_argument('--lambda_cycle_pitch', type=float, help="hyperparam for cycle loss pitch", 
             default=0.00001)
     parser.add_argument('--lambda_cycle_energy', type=float, help="hyperparam for cycle loss energy", 
             default=0.1)
@@ -280,21 +265,25 @@ if __name__ == '__main__':
             default=1e-06)
     parser.add_argument('--discriminator_learning_rate', type=float, help="discriminator learning rate", 
             default=1e-07)
+    parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 
+            default=emo_pair_default)
     
     argv = parser.parse_args()
 
-    train_dir = argv.train_dir
-    model_dir = argv.model_dir
-    model_name = argv.model_name
+    emo_pair = argv.emotion_pair
+    train_dir = "./data/"+emo_pair
+    model_dir = "./model/"+emo_pair
+    model_name = emo_pair
+    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]+'_5'
+#    validation_dir = './data/evaluation/'+emo_pair+"/"+emo_dict[emo_pair][0]
+    output_dir = './validation_output/'+emo_pair
+    tensorboard_log_dir = './log/'+emo_pair
+
     random_seed = argv.random_seed
-    validation_dir = None if argv.validation_dir == 'None' or argv.validation_dir == 'none' \
-                        else argv.validation_dir
-    output_dir = argv.output_dir
-    tensorboard_log_dir = argv.tensorboard_log_dir
 
     lambda_cycle_pitch = argv.lambda_cycle_pitch
     lambda_cycle_energy = argv.lambda_cycle_energy
-    lambda_identity_energy = argv.lambda_identity_energy
+    lambda_identity_energy = argv.lambda_identity_energy*0.5
     lambda_momenta = argv.lambda_momenta
 
     generator_learning_rate = argv.generator_learning_rate
@@ -303,8 +292,9 @@ if __name__ == '__main__':
     train(train_dir=train_dir, model_dir=model_dir, model_name=model_name, 
           random_seed=random_seed, validation_dir=validation_dir, 
           output_dir=output_dir, tensorboard_log_dir=tensorboard_log_dir, 
-          pre_train=None, 
+          pre_train='./model/cmu-arctic/le_10.0_supervised_mwd_spect_male_female/cmu-arctic_850.ckpt', 
           lambda_cycle_pitch=lambda_cycle_pitch, lambda_cycle_energy=lambda_cycle_energy, 
           lambda_momenta=lambda_momenta, lambda_identity_energy=lambda_identity_energy,  
           generator_learning_rate=generator_learning_rate, 
-          discriminator_learning_rate=discriminator_learning_rate)
+          discriminator_learning_rate=discriminator_learning_rate, 
+          emo_pair=argv.emotion_pair)
