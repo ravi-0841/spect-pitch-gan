@@ -70,7 +70,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     if tf_random_seed:
         folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
     else:
-        folder_extension = 'sum_mfc_wstn_'+emo_pair
+        folder_extension = 'sum_mfc_wstn_'+emo_pair+'/'
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
