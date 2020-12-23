@@ -29,7 +29,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     np.random.seed(random_seed)
 
     num_epochs = 400
-    mini_batch_size = 1 # mini_batch_size = 1 is better
+    mini_batch_size = 2 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
     num_mcep = 23
@@ -37,21 +37,40 @@ def train(train_dir, model_dir, model_name, random_seed, \
     n_frames = 128
 
     if gender_shuffle:
-        lc_lm = 'lp_'+str(lambda_cycle_pitch) \
-                + '_le_'+str(lambda_cycle_energy) \
-                + '_li_'+str(lambda_identity_energy) \
-                +'_lrg_'+str(generator_learning_rate) \
-                +'_lrd_'+str(discriminator_learning_rate) \
-                + '_sum_mfc_gender_'+emo_pair+'_random_seed_'+str(tf_random_seed)
+        if tf_random_seed:
+            lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+                    + '_le_'+str(lambda_cycle_energy) \
+                    + '_li_'+str(lambda_identity_energy) \
+                    +'_lrg_'+str(generator_learning_rate) \
+                    +'_lrd_'+str(discriminator_learning_rate) \
+                    + '_sum_mfc_gender_'+emo_pair+'_random_seed_'+str(tf_random_seed)
+        else:
+            lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+                    + '_le_'+str(lambda_cycle_energy) \
+                    + '_li_'+str(lambda_identity_energy) \
+                    +'_lrg_'+str(generator_learning_rate) \
+                    +'_lrd_'+str(discriminator_learning_rate) \
+                    + '_sum_mfc_gender_'+emo_pair
     else:
-        lc_lm = 'lp_'+str(lambda_cycle_pitch) \
-                + '_le_'+str(lambda_cycle_energy) \
-                + '_li_'+str(lambda_identity_energy) \
-                +'_lrg_'+str(generator_learning_rate) \
-                +'_lrd_'+str(discriminator_learning_rate) \
-                + '_sum_mfc_'+emo_pair+'_random_seed_4_'+str(tf_random_seed)
+        if tf_random_seed:
+            lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+                    + '_le_'+str(lambda_cycle_energy) \
+                    + '_li_'+str(lambda_identity_energy) \
+                    +'_lrg_'+str(generator_learning_rate) \
+                    +'_lrd_'+str(discriminator_learning_rate) \
+                    + '_sum_mfc_'+emo_pair+'_random_seed_4_'+str(tf_random_seed)
+        else:
+            lc_lm = 'lp_'+str(lambda_cycle_pitch) \
+                    + '_le_'+str(lambda_cycle_energy) \
+                    + '_li_'+str(lambda_identity_energy) \
+                    +'_lrg_'+str(generator_learning_rate) \
+                    +'_lrd_'+str(discriminator_learning_rate) \
+                    + '_sum_mfc_'+emo_pair
 
-    folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
+    if tf_random_seed:
+        folder_extension = 'sum_mfc_wstn_'+emo_pair+'_random_seed/'
+    else:
+        folder_extension = 'sum_mfc_wstn_'+emo_pair
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
