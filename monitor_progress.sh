@@ -1,6 +1,6 @@
 #! /bin/bash
 
-for f in ./log/sum_mfc_wstn_neu-hap_random_seed/*.log; 
+for f in ./log/sum_mfc_wstn_neu-sad/*.log; 
 do
     echo $f;
     tail -n5 $f;
