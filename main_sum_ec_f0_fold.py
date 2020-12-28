@@ -108,7 +108,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     mfc_A_train = data_train['train_mfc_feat_tar']
     mfc_B_train = data_train['train_mfc_feat_tar']
 
-    files = data_train['file_names']
+    files = data_train['train_files']
 
     pitch_A_valid = data_valid['valid_f0_feat_src']
     pitch_B_valid = data_valid['valid_f0_feat_src']
