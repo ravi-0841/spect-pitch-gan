@@ -58,7 +58,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
                     + '_li_'+str(lambda_identity_energy) \
                     +'_lrg_'+str(generator_learning_rate) \
                     +'_lrd_'+str(discriminator_learning_rate) \
-                    + '_sum_mfc_'+emo_pair+'_random_seed_4_'+str(tf_random_seed)
+                    + '_sum_mfc_'+emo_pair+'_random_seed_'+str(tf_random_seed)
         else:
             lc_lm = 'lp_'+str(lambda_cycle_pitch) \
                     + '_le_'+str(lambda_cycle_energy) \
