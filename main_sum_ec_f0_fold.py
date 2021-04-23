@@ -103,19 +103,19 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     pitch_A_train = data_train['train_f0_feat_src']
     pitch_B_train = data_train['train_f0_feat_tar']
-    energy_A_train = data_train['train_ec_feat_tar'] + -1e-06
+    energy_A_train = data_train['train_ec_feat_src'] + -1e-06
     energy_B_train = data_train['train_ec_feat_tar'] + -1e-06
-    mfc_A_train = data_train['train_mfc_feat_tar']
+    mfc_A_train = data_train['train_mfc_feat_src']
     mfc_B_train = data_train['train_mfc_feat_tar']
 
     files = data_train['train_files']
 
     pitch_A_valid = data_valid['valid_f0_feat_src']
-    pitch_B_valid = data_valid['valid_f0_feat_src']
+    pitch_B_valid = data_valid['valid_f0_feat_tar']
     energy_A_valid = data_valid['valid_ec_feat_src'] + -1e-06
-    energy_B_valid = data_valid['valid_ec_feat_src'] + -1e-06
+    energy_B_valid = data_valid['valid_ec_feat_tar'] + -1e-06
     mfc_A_valid = data_valid['valid_mfc_feat_src']
-    mfc_B_valid = data_valid['valid_mfc_feat_src']
+    mfc_B_valid = data_valid['valid_mfc_feat_tar']
 
     # Randomly shuffle the trainig data
     indices_train = np.arange(0, pitch_A_train.shape[0])
