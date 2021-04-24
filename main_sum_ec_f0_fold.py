@@ -67,11 +67,15 @@ def train(train_dir, model_dir, model_name, random_seed, \
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 
     logger_file = './log/'+folder_extension+lc_lm+'.log'
+
     if os.path.exists(logger_file):
         os.remove(logger_file)
 
-    if not os.path.isdir("./log/"+folder_extension):
-        os.makedirs("./log/"+folder_extension)
+    try:
+        if not os.path.isdir("./log/"+folder_extension):
+            os.makedirs("./log/"+folder_extension)
+    except Exception as ex:
+        pass
 
     reload(logging)
     logging.basicConfig(filename=logger_file, \
@@ -87,12 +91,15 @@ def train(train_dir, model_dir, model_name, random_seed, \
     logging.info("lambda_momenta - {}".format(lambda_momenta))
     logging.info("generator_lr - {}".format(generator_learning_rate))
     logging.info("discriminator_lr - {}".format(discriminator_learning_rate))
-
-    if not os.path.isdir("./pitch_spect/"+folder_extension+lc_lm):
-        os.makedirs(os.path.join("./pitch_spect/", folder_extension, lc_lm))
-    else:
-        for f in glob(os.path.join("./pitch_spect/", folder_extension, lc_lm, "*.png")):
-            os.remove(f)
+    
+    try:
+        if not os.path.isdir("./pitch_spect/"+folder_extension+lc_lm):
+            os.makedirs(os.path.join("./pitch_spect/", folder_extension, lc_lm))
+        else:
+            for f in glob(os.path.join("./pitch_spect/", folder_extension, lc_lm, "*.png")):
+                os.remove(f)
+    except Exception as ex:
+        pass
     
     print('Preprocessing Data...')
 
@@ -142,8 +149,11 @@ def train(train_dir, model_dir, model_name, random_seed, \
 
     if validation_dir is not None:
         validation_output_dir = os.path.join(output_dir, lc_lm)
-        if not os.path.exists(validation_output_dir):
-            os.makedirs(validation_output_dir)
+        try:
+            if not os.path.exists(validation_output_dir):
+                os.makedirs(validation_output_dir)
+        except Exception as ex:
+            pass
 
     end_time = time.time()
     time_elapsed = end_time - start_time

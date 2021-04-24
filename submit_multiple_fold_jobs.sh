@@ -8,7 +8,6 @@ do
     do
         echo $counter;
         sbatch -J $counter -o "./txt_files/NA_fold_${f}_count_${c}.txt" gen_disc_job_sum_ec_f0_fold.sh 1e-05 0.1 21 neu-ang $f $c
-        sleep 5s
         counter=$((counter+1))
     done
 done
