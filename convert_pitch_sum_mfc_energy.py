@@ -108,6 +108,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
 #        f0_converted = f0_converted[10:-10]
 #        ap = ap[10:-10]
         
+        decoded_sp_converted = decoded_sp_converted[6:-6]
+        f0_converted = f0_converted[6:-6]
+        ap = ap[6:-6]
+        
         wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                          decoded_sp=decoded_sp_converted, 
                                                          ap=ap, fs=sampling_rate, 
@@ -191,6 +195,10 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
                                         ec.reshape(1,-1)))
             decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
+            
+            decoded_sp_converted = decoded_sp_converted[10:-10]
+            f0_converted = f0_converted[10:-10]
+            ap = ap[10:-10]
             
             wav_transformed = preproc.world_speech_synthesis(f0=f0_converted, 
                                                              decoded_sp=decoded_sp_converted, 
