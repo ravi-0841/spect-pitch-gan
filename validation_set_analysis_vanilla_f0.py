@@ -14,6 +14,8 @@ from sklearn import preprocessing
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = "3"
 
+tf.reset_default_graph()
+
 def f0_conversion(model_f0_dir, model_f0_name, features, direction):
     tf.reset_default_graph()
     model_f0 = CycleGAN_f0(num_features = 10, mode = 'test')
@@ -63,6 +65,9 @@ def conversion(model_f0_dir, model_f0_name, model_mceps_dir, model_mceps_name, \
     pitch_A_valid = np.vstack(pitch_A_valid)
     pitch_B_valid = np.vstack(pitch_B_valid)
 
+    model_f0 = CycleGAN_f0(num_features=10, mode='test')
+    model_f0.load(filepath=os.path.join(model_f0_dir, model_f0_name))
+
     for pitch in pitch_A_valid:
         
         try:
@@ -76,12 +81,9 @@ def conversion(model_f0_dir, model_f0_name, model_mceps_dir, model_mceps_name, \
                 Wavelet_lf0, scales = get_lf0_cwt(cont_lf0_lpf_norm)
                 Wavelet_lf0_norm, mean, std = norm_scale(Wavelet_lf0)
                 lf0_cwt_norm = Wavelet_lf0_norm.T
-
-                # test f0:
-                lf0 = f0_conversion(model_f0_dir=model_f0_dir, \
-                                    model_f0_name=model_f0_name, \
-                                    features=np.array([lf0_cwt_norm]), \
-                                    direction=conversion_direction)
+                
+                lf0 = model_f0.test(inputs=np.array([lf0_cwt_norm]), 
+                                    direction=conversion_direction)[0]
     
                 lf0_cwt_denormalize = denormalize(lf0.T, mean, std)
                 lf0_rec = inverse_cwt(lf0_cwt_denormalize,scales)
