@@ -56,7 +56,7 @@ def conversion(model_f0_dir, model_f0_name, model_mceps_dir, model_mceps_name, \
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
         
-    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-hap/neu-hap_unaligned_valid_sum_mfc.mat')
+    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-sad/neu-sad_unaligned_valid_sum_mfc.mat')
     
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
@@ -103,7 +103,7 @@ def conversion(model_f0_dir, model_f0_name, model_mceps_dir, model_mceps_name, \
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Convert voices using pre-trained CycleGAN model.')
     
-    emo_pair_default = 'neutral_to_happy'
+    emo_pair_default = 'neutral_to_sad'
     emo_pair_dict = {'neutral_to_angry':'neu-ang', 'neutral_to_happy':'neu-hap', \
                      'neutral_to_sad':'neu-sad'}
     
