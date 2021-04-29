@@ -54,9 +54,9 @@ if __name__ == '__main__':
     data_vcg_embedded = get_tsne_projection(data_vcg)
     
     van_pdist = np.sum((data_cg_embedded[num_samples:2*num_samples] \
-                        - data_cg_embedded[num_samples:2*num_samples])**2) ** 0.5
+                        - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1)
     var_pdist = np.sum((data_vcg_embedded[num_samples:2*num_samples] \
-                        - data_vcg_embedded[num_samples:2*num_samples])**2) ** 0.5
+                        - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1)
     
     plot_scatter(data_cg_embedded, num_samples=num_samples, title='Vanilla')
     plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Variational')
