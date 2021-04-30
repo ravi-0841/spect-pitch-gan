@@ -35,7 +35,7 @@ def plot_scatter(embed_matrix, num_samples, title):
 
 if __name__ == '__main__':
     
-    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NA_f0s.mat')
+    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NS_f0s.mat')
     
     f0_A = data['f0_A']
     f0_B = data['f0_B']
@@ -54,9 +54,12 @@ if __name__ == '__main__':
     data_vcg_embedded = get_tsne_projection(data_vcg)
     
     van_pdist = np.sum((data_cg_embedded[num_samples:2*num_samples] \
-                        - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1)
+                        - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
     var_pdist = np.sum((data_vcg_embedded[num_samples:2*num_samples] \
-                        - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1)
+                        - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
+                        
+    print("MSE Loss (Vanilla): {}".format(str(np.mean(van_pdist))))
+    print("MSE Loss (Variational): {}".format(str(np.mean(var_pdist))))
     
     plot_scatter(data_cg_embedded, num_samples=num_samples, title='Vanilla')
     plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Variational')
