@@ -11,6 +11,7 @@ import numpy as np
 import pylab
 from sklearn.manifold import TSNE
 from matplotlib import rc
+import scipy.stats as stats
 
 
 def get_tsne_projection(data_matrix, dim=2):
@@ -42,7 +43,7 @@ def plot_scatter(embed_matrix, num_samples, title):
 
 if __name__ == '__main__':
     
-    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NS_f0s.mat')
+    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NH_f0s.mat')
     
     f0_A = data['f0_A']
     f0_B = data['f0_B']
@@ -64,9 +65,12 @@ if __name__ == '__main__':
                         - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
     var_pdist = np.sum((data_vcg_embedded[num_samples:2*num_samples] \
                         - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
+    
+    #perform one sample t-test
+    print("p-value: {}".format(stats.ttest_1samp(a=(var_pdist-van_pdist), popmean=15)))
 
     print("MSE Loss (Vanilla): {}, {}".format(str(np.mean(van_pdist)), str(np.std(van_pdist))))
     print("MSE Loss (Variational): {}, {}".format(str(np.mean(var_pdist)), str(np.std(var_pdist))))
 
-    plot_scatter(data_cg_embedded, num_samples=num_samples, title='Neutral-Sad (Vanilla CycleGAN)')
-    plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Neutral-Sad (Variational CycleGAN)')
+#    plot_scatter(data_cg_embedded, num_samples=num_samples, title='Neutral-Sad (Vanilla CycleGAN)')
+#    plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Neutral-Sad (Variational CycleGAN)')
