@@ -41,9 +41,51 @@ def plot_scatter(embed_matrix, num_samples, title):
     pylab.title(title, fontsize=14, fontweight='bold')
 
 
+def plot_bars():
+    pylab.rcParams['font.size'] = 28
+    
+    barWidth=0.2
+    r1 = np.arange(1)
+    r2 = [x + barWidth for x in r1]
+    
+    r3 = [x + 2*(barWidth)+0.15 for x in r1]
+    r4 = [x + barWidth for x in r3]
+    
+    r5 = [x + 4*(barWidth)+2*0.15 for x in r1]
+    r6 = [x + barWidth for x in r5]
+
+    pylab.figure(figsize=(13, 9))
+    pylab.bar(r1, 74.13, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "////", 
+              yerr=34.9, capsize=7, label='Vanilla CycleGAN')
+    pylab.bar(r2, 67.16, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "+++", 
+              yerr=36.3, capsize=7, label='Variational CycleGAN')
+    pylab.legend(loc=1, prop={'size':13, 'weight':'bold'})
+    
+    pylab.bar(r3, 63.67, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "////", 
+              yerr=28.6, capsize=7, label='Vanilla CycleGAN')
+    pylab.bar(r4, 52.2, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "+++", 
+              yerr=27.4, capsize=7, label='Variational CycleGAN')
+
+    pylab.bar(r5, 82.25, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "////", 
+              yerr=35.4, capsize=7, label='Vanilla CycleGAN')
+    pylab.bar(r6, 57.3, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "+++", 
+              yerr=33.1, capsize=7, label='Variational CycleGAN')
+    
+    pylab.xticks([r for r in [r2[0],r4[0],r6[0]]], \
+                  ['Neutral-Angry', 'Neutral-Happy', 'Neutral-Sad'])
+    pylab.ylabel('F0 Prediction Error (Hz)')
+
+#plot_bars()
+
 if __name__ == '__main__':
     
-    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NH_f0s.mat')
+    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NS_f0s.mat')
     
     f0_A = data['f0_A']
     f0_B = data['f0_B']
