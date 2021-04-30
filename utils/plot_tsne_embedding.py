@@ -85,7 +85,7 @@ def plot_bars():
 
 if __name__ == '__main__':
     
-    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NS_f0s.mat')
+    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NA_f0s.mat')
     
     f0_A = data['f0_A']
     f0_B = data['f0_B']
@@ -97,22 +97,41 @@ if __name__ == '__main__':
                              np.ones((num_samples,1)), 
                              2*np.ones((num_samples,1))), axis=0)
     
-    data_cg = np.concatenate((f0_A, f0_A2B_cg, f0_B), axis=0)
-    data_vcg = np.concatenate((f0_A, f0_A2B_vcg, f0_B), axis=0)
-    
-    data_cg_embedded = get_tsne_projection(data_cg)
-    data_vcg_embedded = get_tsne_projection(data_vcg)
-    
-    van_pdist = np.sum((data_cg_embedded[num_samples:2*num_samples] \
-                        - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
-    var_pdist = np.sum((data_vcg_embedded[num_samples:2*num_samples] \
-                        - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
+    #get tsne-embeddings
+#    data_cg = np.concatenate((f0_A, f0_A2B_cg, f0_B), axis=0)
+#    data_vcg = np.concatenate((f0_A, f0_A2B_vcg, f0_B), axis=0)
+#    
+#    data_cg_embedded = get_tsne_projection(data_cg)
+#    data_vcg_embedded = get_tsne_projection(data_vcg)
+#    
+#    van_pdist = np.sum((data_cg_embedded[num_samples:2*num_samples] \
+#                        - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
+#    var_pdist = np.sum((data_vcg_embedded[num_samples:2*num_samples] \
+#                        - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
     
     #perform one sample t-test
-    print("p-value: {}".format(stats.ttest_1samp(a=(var_pdist-van_pdist), popmean=15)))
-
-    print("MSE Loss (Vanilla): {}, {}".format(str(np.mean(van_pdist)), str(np.std(van_pdist))))
-    print("MSE Loss (Variational): {}, {}".format(str(np.mean(var_pdist)), str(np.std(var_pdist))))
+#    print("p-value: {}".format(stats.ttest_1samp(a=(var_pdist-van_pdist), popmean=15)))
+#
+#    print("MSE Loss (Vanilla): {}, {}".format(str(np.mean(van_pdist)), str(np.std(van_pdist))))
+#    print("MSE Loss (Variational): {}, {}".format(str(np.mean(var_pdist)), str(np.std(var_pdist))))
 
 #    plot_scatter(data_cg_embedded, num_samples=num_samples, title='Neutral-Sad (Vanilla CycleGAN)')
 #    plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Neutral-Sad (Variational CycleGAN)')
+    
+    #plot the generated F0 contours
+    rc('font', weight='bold')
+    rc('axes', linewidth=2)
+    r = np.random.permutation(np.arange(0, f0_A.shape[0], 1))
+#    for i in range(100):
+    q = 382 #r[i]
+    pylab.figure(figsize=(11,9))
+    pylab.plot(f0_A[q], linewidth=2, label='Source F0')
+    pylab.plot(f0_A2B_cg[q], linewidth=2, label='Vanilla F0')
+    pylab.plot(f0_A2B_vcg[q], linewidth=2, label='Variational F0')
+    pylab.plot(f0_B[q], linewidth=2, label='Target F0')
+    pylab.xticks(size=20), pylab.yticks(size=20)
+    pylab.legend(loc=2, prop={'size':17, 'weight':'bold'})
+    pylab.title(str(q))
+#    pylab.savefig('/home/ravi/Desktop/F0_comparisons/{}.png'.format(str(q)))
+#    pylab.close()
+    
