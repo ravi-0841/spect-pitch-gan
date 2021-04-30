@@ -10,6 +10,7 @@ import scipy.io as scio
 import numpy as np
 import pylab
 from sklearn.manifold import TSNE
+from matplotlib import rc
 
 
 def get_tsne_projection(data_matrix, dim=2):
@@ -19,7 +20,11 @@ def get_tsne_projection(data_matrix, dim=2):
 
 
 def plot_scatter(embed_matrix, num_samples, title):
-    pylab.figure()
+
+    rc('font', weight='bold')
+    rc('axes', linewidth=2)
+
+    pylab.figure(figsize=(8,7))
     pylab.plot(embed_matrix[:num_samples,0], 
                embed_matrix[:num_samples,1], 
                'r.', label='Source F0')
@@ -29,8 +34,10 @@ def plot_scatter(embed_matrix, num_samples, title):
     pylab.plot(embed_matrix[2*num_samples:3*num_samples,0], 
                embed_matrix[2*num_samples:3*num_samples,1], 
                'b.', label='Target F0')
-    pylab.legend(loc=1)
-    pylab.title(title)
+    
+    pylab.xticks(size=14), pylab.yticks(size=14)
+    pylab.grid(), pylab.legend(loc=1, prop={'size':13, 'weight':'bold'})
+    pylab.title(title, fontsize=14, fontweight='bold')
 
 
 if __name__ == '__main__':
@@ -57,9 +64,9 @@ if __name__ == '__main__':
                         - data_cg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
     var_pdist = np.sum((data_vcg_embedded[num_samples:2*num_samples] \
                         - data_vcg_embedded[2*num_samples:3*num_samples])**2, axis=1) ** 0.5
-                        
-    print("MSE Loss (Vanilla): {}".format(str(np.mean(van_pdist))))
-    print("MSE Loss (Variational): {}".format(str(np.mean(var_pdist))))
-    
-    plot_scatter(data_cg_embedded, num_samples=num_samples, title='Vanilla')
-    plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Variational')
+
+    print("MSE Loss (Vanilla): {}, {}".format(str(np.mean(van_pdist)), str(np.std(van_pdist))))
+    print("MSE Loss (Variational): {}, {}".format(str(np.mean(var_pdist)), str(np.std(var_pdist))))
+
+    plot_scatter(data_cg_embedded, num_samples=num_samples, title='Neutral-Sad (Vanilla CycleGAN)')
+    plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Neutral-Sad (Variational CycleGAN)')
