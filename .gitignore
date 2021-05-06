@@ -20,4 +20,5 @@
 /tensorboard_log
 /Presentation
 /crowd_sourcing
+/baseline_CycleGAN
 .DS_Store
