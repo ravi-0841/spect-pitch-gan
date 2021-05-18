@@ -19,6 +19,7 @@ from collections import defaultdict
 from utils.feat_utils import preprocess_contour, normalize_wav
 from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN as VCGAN
 
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 model_dictionary = defaultdict(dict)
 model_dictionary['neu-ang'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_1_run_4_random_seed_21_epoch_200/neu-ang_200.ckpt'
