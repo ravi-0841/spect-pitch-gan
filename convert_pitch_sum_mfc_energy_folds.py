@@ -50,12 +50,12 @@ frame_period = 5.0
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 
-def conversion(model_dir=None, model_name=None, audio_file=None, 
-               data_dir=None, conversion_direction=None, 
-               output_dir=None, embedding=True, only_energy=False):
+def conversion(emo_pair='neu-ang', fold=1, data_dir=None, 
+               conversion_direction=None, output_dir=None, 
+               only_energy=False):
 
     model = VCGAN(dim_mfc=23, dim_pitch=1, dim_energy=1, mode='test')
-    model.load(filepath=os.path.join(model_dir, model_name))
+    model.load(filepath=model_dictionary[emo_pair][fold])
 
     os.makedirs(output_dir, exist_ok=True)
 
@@ -100,22 +100,22 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         ec_z_idx = np.where(ec_converted>0)[0]
         ec_converted[ec_z_idx] = -1e-6
         
-        pylab.figure(figsize=(13,10))
-        pylab.subplot(311)
-        pylab.plot(ec.reshape(-1,), label='Energy')
-        pylab.plot(ec_converted.reshape(-1,), label='Converted energy')
-        pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
-        pylab.legend()
-        pylab.subplot(312)
-        pylab.plot(f0.reshape(-1,), label='F0')
-        pylab.plot(f0_converted.reshape(-1,), label='Converted F0')
-        pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
-        pylab.legend()
-        pylab.subplot(313)
-        pylab.plot(np.divide(ec_converted.reshape(-1,), ec.reshape(-1,)), label='Energy Ratio')
-        pylab.legend()
-        pylab.savefig(os.path.join(output_dir, os.path.basename(filepath)[:-4])+'.png')
-        pylab.close()
+#        pylab.figure(figsize=(13,10))
+#        pylab.subplot(311)
+#        pylab.plot(ec.reshape(-1,), label='Energy')
+#        pylab.plot(ec_converted.reshape(-1,), label='Converted energy')
+#        pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
+#        pylab.legend()
+#        pylab.subplot(312)
+#        pylab.plot(f0.reshape(-1,), label='F0')
+#        pylab.plot(f0_converted.reshape(-1,), label='Converted F0')
+#        pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
+#        pylab.legend()
+#        pylab.subplot(313)
+#        pylab.plot(np.divide(ec_converted.reshape(-1,), ec.reshape(-1,)), label='Energy Ratio')
+#        pylab.legend()
+#        pylab.savefig(os.path.join(output_dir, os.path.basename(filepath)[:-4])+'.png')
+#        pylab.close()
         
         f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
         f0_converted = np.ascontiguousarray(f0_converted)
@@ -148,31 +148,33 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-sad/lp_0.0001_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_gender_neu-sad_random_seed_11/'
-    model_name_default = 'neu-sad_200.ckpt'
-    data_dir_default = 'data/evaluation/neu-sad/neutral'
-    conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/neu-sad/ne_0.0001_0.1_random_seed_11/epoch_200'
-    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
+    emo_pair_dict = {
+            'neu-ang': 'neutral-angry', 
+            'neu-hap': 'neutral-happy', 
+            'neu-sad': 'neutral-sad'
+            }
 
-    parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
-    parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
-    parser.add_argument('--data_dir', type=str, help='Directory for the voices for conversion.', default=data_dir_default)
-    parser.add_argument('--conversion_direction', type=str, help='Conversion direction for VCGAN, A2B or B2A', default=conversion_direction_default)
-    parser.add_argument('--output_dir', type=str, help='Directory for the converted voices.', default=output_dir_default)
-    parser.add_argument('--audio_file', type=str, help='convert a single audio file', default=audio_file_default)
+    emo_pair_default = 'neu-ang'
+    fold_default = 1
+    data_dir_default = '/home/ravi/Downloads/Emo-Conv/neutral-angry/speaker_folds/paired_folds/fold1/test/neutral'
+    conversion_direction_default = 'A2B'
+    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/neu-ang/fold1'
+
+    parser.add_argument('--emo_pair', type=str, help='Emotion pair', default=emo_pair_default)
+    parser.add_argument('--fold', type=int, help='Fold', default=fold_default)
+    parser.add_argument('--conversion_direction', type=str, help='Conversion direction for VCGAN, A2B or B2A', 
+                        default=conversion_direction_default)
 
     argv = parser.parse_args()
 
-    model_dir = argv.model_dir
-    model_name = argv.model_name
-    data_dir = argv.data_dir
+    emo_pair = argv.emo_pair
+    fold = argv.fold
     conversion_direction = argv.conversion_direction
-    output_dir = argv.output_dir
-    audio_file = argv.audio_file
+    data_dir = '/home/ravi/Downloads/Emo-Conv/{}/speaker_folds/paired_folds/fold{}/test/neutral'.format(emo_pair_dict[emo_pair], fold)
+    output_dir = '/home/ravi/Desktop/F0_sum_ec/{}/fold{}'.format(emo_pair, fold)
     
-    conversion(model_dir=model_dir, model_name=model_name, audio_file=audio_file, 
-               data_dir=data_dir, conversion_direction=conversion_direction, 
-               output_dir=output_dir, embedding=True, only_energy=True)
+    conversion(emo_pair=emo_pair, fold=fold, data_dir=data_dir, 
+               conversion_direction=conversion_direction, 
+               output_dir=output_dir, only_energy=True)
 
 
