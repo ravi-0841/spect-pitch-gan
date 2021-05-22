@@ -72,8 +72,8 @@ def evaluate(data_dir, fold=1, emo_pair='neu-ang', run=1):
                             energy_B=energy_B_valid[i:i+1], pitch_A=pitch_A_valid[i:i+1], 
                             pitch_B=pitch_B_valid[i:i+1])
             
-            loss_pitch.append(np.sum((gen_pitch_B.reshape(-1,) - pitch_B_valid[i:i+1].reshape(-1,))**2))
-            loss_energy.append(np.sum((gen_energy_B.reshape(-1,) - energy_B_valid[i:i+1].reshape(-1,))**2))
+            loss_pitch.append(np.sum((gen_pitch_B.reshape(-1,) - pitch_B_valid[i:i+1].reshape(-1,))**2)/128)
+            loss_energy.append(np.sum((gen_energy_B.reshape(-1,) - energy_B_valid[i:i+1].reshape(-1,))**2)/128)
             
         print(np.mean(loss_pitch), np.std(loss_pitch))
         print(np.mean(loss_energy), np.std(loss_energy))
