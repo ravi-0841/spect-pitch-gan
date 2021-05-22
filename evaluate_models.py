@@ -27,18 +27,17 @@ def evaluate(data_dir, random_seed=21, fold=1,
 
     data_valid = scio.loadmat(os.path.join(data_dir, emo_pair+'_fold_{}.mat'.format(fold)))
 
-    pitch_A_valid = np.vstack(data_valid['src_f0_feat'])
-    pitch_B_valid = np.vstack(data_valid['tar_f0_feat'])
-    energy_A_valid = np.vstack(data_valid['src_ec_feat'] + -1e-06)
-    energy_B_valid = np.vstack(data_valid['tar_ec_feat'] + -1e-06)
-    mfc_A_valid = np.vstack(data_valid['src_mfc_feat'])
-    mfc_B_valid = np.vstack(data_valid['tar_mfc_feat'])
+    pitch_A_valid = np.transpose(np.vstack(data_valid['valid_f0_feat_src']), axes=(0,2,1))
+    pitch_B_valid = np.transpose(np.vstack(data_valid['valid_f0_feat_tar']), axes=(0,2,1))
+    energy_A_valid = np.transpose(np.vstack(data_valid['valid_ec_feat_src'] + -1e-06), axes=(0,2,1))
+    energy_B_valid = np.transpose(np.vstack(data_valid['valid_ec_feat_tar'] + -1e-06), axes=(0,2,1))
+    mfc_A_valid = np.transpose(np.vstack(data_valid['valid_mfc_feat_src']), axes=(0,2,1))
+    mfc_B_valid = np.transpose(np.vstack(data_valid['valid_mfc_feat_tar']), axes=(0,2,1))
 
     main_model_dir = './model/{}/sum_mfc_wstn_{}_fold_{}'.format(emo_pair, emo_pair, fold)
     sub_model_dir = 'lp_{}_le_{}_li_0.0_neu-ang_fold_{}_run_{}_random_seed_{}'.format(lp_dict[emo_pair], 
                                                                                     le_dict[emo_pair], fold, 
                                                                                     run, random_seed)
-
 
     for epoch in [100, 200, 300, 400]:
         print("emo_pair - {}".format(emo_pair))
