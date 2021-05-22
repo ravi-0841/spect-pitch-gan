@@ -101,9 +101,9 @@ if __name__ == '__main__':
     argv = parser.parse_args()
 
     emo_pair = argv.emo_pair
-    train_dir = "./data/"+emo_pair
+    data_dir = "./data/"+emo_pair
 
     run = argv.run
     fold = argv.fold
 
-    evaluate(train_dir=train_dir, fold=fold, emo_pair=emo_pair, run=run)
+    evaluate(data_dir=data_dir, fold=fold, emo_pair=emo_pair, run=run)
