@@ -41,8 +41,9 @@ def evaluate(data_dir, fold=1, emo_pair='neu-ang', run=1):
     mfc_B_valid = np.transpose(np.vstack(data_valid['valid_mfc_feat_tar']), axes=(0,2,1))
 
     main_model_dir = './model/{}/sum_mfc_wstn_{}_fold_{}'.format(emo_pair, emo_pair, fold)
-    sub_model_dir = 'lp_{}_le_{}_li_0.0_neu-ang_fold_{}_run_{}_random_seed_{}'.format(lp_dict[emo_pair], 
-                                                                                    le_dict[emo_pair], fold, 
+    sub_model_dir = 'lp_{}_le_{}_li_0.0_{}_fold_{}_run_{}_random_seed_{}'.format(lp_dict[emo_pair], 
+                                                                                    le_dict[emo_pair], 
+                                                                                    emo_pair, fold, 
                                                                                     run, random_seed)
 
     for epoch in [100, 200, 300, 400]:
@@ -76,6 +77,7 @@ def evaluate(data_dir, fold=1, emo_pair='neu-ang', run=1):
             
         print(np.mean(loss_pitch), np.std(loss_pitch))
         print(np.mean(loss_energy), np.std(loss_energy))
+        print('\n')
         sys.stdout.flush()
 
 
