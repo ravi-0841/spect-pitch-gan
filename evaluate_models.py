@@ -21,9 +21,15 @@ le_dict = {
         'neu-sad': '0.1'
         }
 
+random_seed_dir = {
+        'neu-ang': 21, 
+        'neu-hap': 4, 
+        'neu-sad': 11
+        }
 
-def evaluate(data_dir, random_seed=21, fold=1, 
-             emo_pair='neu-ang', run=1):
+def evaluate(data_dir, fold=1, emo_pair='neu-ang', run=1):
+    
+    random_seed = random_seed_dir[emo_pair]
 
     data_valid = scio.loadmat(os.path.join(data_dir, emo_pair+'_fold_{}.mat'.format(fold)))
 
@@ -84,10 +90,7 @@ if __name__ == '__main__':
             }
 
     emo_pair_default = "neu-ang"
-    random_seed_default = 0
 
-    parser.add_argument('--random_seed', type=int, help='Random seed for model training.', 
-            default=random_seed_default)
     parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 
             default=emo_pair_default)
     parser.add_argument('--run', type=int, help='run', default=1)
@@ -98,9 +101,7 @@ if __name__ == '__main__':
     emo_pair = argv.emotion_pair
     train_dir = "./data/"+emo_pair
 
-    random_seed = argv.random_seed
     run = argv.run
     fold = argv.fold
 
-    evaluate(train_dir=train_dir, random_seed=random_seed, 
-             fold=fold, emo_pair=argv.emotion_pair, run=run)
+    evaluate(train_dir=train_dir, fold=fold, emo_pair=argv.emotion_pair, run=run)
