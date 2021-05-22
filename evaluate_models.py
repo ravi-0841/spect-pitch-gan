@@ -106,4 +106,4 @@ if __name__ == '__main__':
     run = argv.run
     fold = argv.fold
 
-    evaluate(train_dir=train_dir, fold=fold, emo_pair=argv.emotion_pair, run=run)
+    evaluate(train_dir=train_dir, fold=fold, emo_pair=emo_pair, run=run)
