@@ -93,14 +93,14 @@ if __name__ == '__main__':
 
     emo_pair_default = "neu-ang"
 
-    parser.add_argument('--emotion_pair', type=str, help="Emotion Pair", 
+    parser.add_argument('--emo_pair', type=str, help="Emotion Pair", 
             default=emo_pair_default)
     parser.add_argument('--run', type=int, help='run', default=1)
     parser.add_argument('--fold', type=int, help='fold', default=1)
     
     argv = parser.parse_args()
 
-    emo_pair = argv.emotion_pair
+    emo_pair = argv.emo_pair
     train_dir = "./data/"+emo_pair
 
     run = argv.run
