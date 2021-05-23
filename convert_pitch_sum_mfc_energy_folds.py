@@ -22,23 +22,41 @@ from nn_models.model_energy_f0_momenta_wasserstein import VariationalCycleGAN as
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 model_dictionary = defaultdict(dict)
-model_dictionary['neu-ang'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_1_run_4_random_seed_21_epoch_200/neu-ang_200.ckpt'
-model_dictionary['neu-ang'][2] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_2_run_3_random_seed_21_epoch_200/neu-ang_200.ckpt'
-model_dictionary['neu-ang'][3] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_3_run_2_random_seed_21_epoch_200/neu-ang_200.ckpt'
-model_dictionary['neu-ang'][4] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_4_run_1_random_seed_21_epoch_300/neu-ang_300.ckpt'
-model_dictionary['neu-ang'][5] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_5_run_2_random_seed_21_epoch_300/neu-ang_300.ckpt'
+#model_dictionary['neu-ang'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_1_run_4_random_seed_21_epoch_200/neu-ang_200.ckpt'
+#model_dictionary['neu-ang'][2] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_2_run_3_random_seed_21_epoch_200/neu-ang_200.ckpt'
+#model_dictionary['neu-ang'][3] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_3_run_2_random_seed_21_epoch_200/neu-ang_200.ckpt'
+#model_dictionary['neu-ang'][4] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_4_run_1_random_seed_21_epoch_300/neu-ang_300.ckpt'
+#model_dictionary['neu-ang'][5] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-ang/folds/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_5_run_2_random_seed_21_epoch_300/neu-ang_300.ckpt'
 
-model_dictionary['neu-hap'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_1_run_3_random_seed_4_epoch_200/neu-hap_200.ckpt'
-model_dictionary['neu-hap'][2] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_2_run_4_random_seed_4_epoch_300/neu-hap_300.ckpt'
-model_dictionary['neu-hap'][3] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_3_run_2_random_seed_4_epoch_300/neu-hap_300.ckpt'
-model_dictionary['neu-hap'][4] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_4_run_2_random_seed_4_epoch_300/neu-hap_300.ckpt'
-model_dictionary['neu-hap'][5] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_5_run_2_random_seed_4_epoch_400/neu-hap_400.ckpt'
+model_dictionary['neu-ang'][1] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-ang/sum_mfc_wstn_neu-ang_fold_1/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_1_run_2_random_seed_21/neu-ang_100.ckpt'
+model_dictionary['neu-ang'][2] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-ang/sum_mfc_wstn_neu-ang_fold_2/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_2_run_3_random_seed_21/neu-ang_100.ckpt'
+model_dictionary['neu-ang'][3] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-ang/sum_mfc_wstn_neu-ang_fold_3/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_3_run_2_random_seed_21/neu-ang_200.ckpt'
+model_dictionary['neu-ang'][4] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-ang/sum_mfc_wstn_neu-ang_fold_4/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_4_run_3_random_seed_21/neu-ang_100.ckpt'
+model_dictionary['neu-ang'][5] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-ang/sum_mfc_wstn_neu-ang_fold_5/lp_1e-05_le_0.1_li_0.0_neu-ang_fold_5_run_4_random_seed_21/neu-ang_100.ckpt'
 
-model_dictionary['neu-sad'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_1_run_4_random_seed_11_epoch_100/neu-sad_100.ckpt'
-model_dictionary['neu-sad'][2] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_2_run_4_random_seed_11_epoch_100/neu-sad_100.ckpt'
-model_dictionary['neu-sad'][3] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_3_run_4_random_seed_11_epoch_100/neu-sad_100.ckpt'
-model_dictionary['neu-sad'][4] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_4_run_2_random_seed_11_epoch_100/neu-sad_100.ckpt'
-model_dictionary['neu-sad'][5] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_5_run_1_random_seed_11_epoch_200/neu-sad_200.ckpt'
+#model_dictionary['neu-hap'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_1_run_3_random_seed_4_epoch_200/neu-hap_200.ckpt'
+#model_dictionary['neu-hap'][2] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_2_run_4_random_seed_4_epoch_300/neu-hap_300.ckpt'
+#model_dictionary['neu-hap'][3] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_3_run_2_random_seed_4_epoch_300/neu-hap_300.ckpt'
+#model_dictionary['neu-hap'][4] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_4_run_2_random_seed_4_epoch_300/neu-hap_300.ckpt'
+#model_dictionary['neu-hap'][5] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-hap/folds/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_5_run_2_random_seed_4_epoch_400/neu-hap_400.ckpt'
+
+model_dictionary['neu-hap'][1] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-hap/sum_mfc_wstn_neu-hap_fold_1/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_1_run_3_random_seed_4/neu-hap_100.ckpt'
+model_dictionary['neu-hap'][2] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-hap/sum_mfc_wstn_neu-hap_fold_2/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_2_run_4_random_seed_4/neu-hap_100.ckpt'
+model_dictionary['neu-hap'][3] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-hap/sum_mfc_wstn_neu-hap_fold_3/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_3_run_1_random_seed_4/neu-hap_100.ckpt'
+model_dictionary['neu-hap'][4] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-hap/sum_mfc_wstn_neu-hap_fold_4/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_4_run_3_random_seed_4/neu-hap_100.ckpt'
+model_dictionary['neu-hap'][5] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-hap/sum_mfc_wstn_neu-hap_fold_5/lp_0.0001_le_0.001_li_0.0_neu-hap_fold_5_run_2_random_seed_4/neu-hap_300.ckpt'
+
+#model_dictionary['neu-sad'][1] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_1_run_4_random_seed_11_epoch_100/neu-sad_100.ckpt'
+#model_dictionary['neu-sad'][2] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_2_run_4_random_seed_11_epoch_100/neu-sad_100.ckpt'
+#model_dictionary['neu-sad'][3] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_3_run_4_random_seed_11_epoch_100/neu-sad_100.ckpt'
+#model_dictionary['neu-sad'][4] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_4_run_2_random_seed_11_epoch_100/neu-sad_100.ckpt'
+#model_dictionary['neu-sad'][5] = '/home/ravi/Desktop/spect-pitch-gan/model/neu-sad/folds/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_5_run_1_random_seed_11_epoch_200/neu-sad_200.ckpt'
+
+model_dictionary['neu-sad'][1] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-sad/sum_mfc_wstn_neu-sad_fold_1/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_1_run_1_random_seed_11/neu-sad_100.ckpt'
+model_dictionary['neu-sad'][2] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-sad/sum_mfc_wstn_neu-sad_fold_2/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_2_run_2_random_seed_11/neu-sad_400.ckpt'
+model_dictionary['neu-sad'][3] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-sad/sum_mfc_wstn_neu-sad_fold_3/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_3_run_4_random_seed_11/neu-sad_200.ckpt'
+model_dictionary['neu-sad'][4] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-sad/sum_mfc_wstn_neu-sad_fold_4/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_4_run_3_random_seed_11/neu-sad_200.ckpt'
+model_dictionary['neu-sad'][5] = '/home/ravi/Desktop/model_spect_pitch_gan/neu-sad/sum_mfc_wstn_neu-sad_fold_5/lp_0.0001_le_0.1_li_0.0_neu-sad_fold_5_run_2_random_seed_11/neu-sad_300.ckpt'
 
 
 num_mfcc = 23
@@ -172,7 +190,7 @@ if __name__ == '__main__':
     fold = argv.fold
     conversion_direction = argv.conversion_direction
     data_dir = '/home/ravi/Downloads/Emo-Conv/{}/speaker_folds/paired_folds/fold{}/test/neutral'.format(emo_pair_dict[emo_pair], fold)
-    output_dir = '/home/ravi/Desktop/F0_sum_ec/{}/fold{}'.format(emo_pair, fold)
+    output_dir = '/home/ravi/Desktop/F0_sum_ec_new/{}/fold{}'.format(emo_pair, fold)
     
     conversion(emo_pair=emo_pair, fold=fold, data_dir=data_dir, 
                conversion_direction=conversion_direction, 
