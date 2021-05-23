@@ -125,8 +125,7 @@ def train(train_dir, model_dir, model_name, random_seed, \
     mfc_A_valid = data_valid['src_mfc_feat']
     mfc_B_valid = data_valid['tar_mfc_feat']
 
-    # Randomly shuffle the trainig data
-<<<<<<< Updated upstream
+    # Randomly shuffle the training data
     indices_train = np.arange(0, pitch_A_train.shape[0])
     np.random.shuffle(indices_train)
     pitch_A_train = pitch_A_train[indices_train]
@@ -143,22 +142,6 @@ def train(train_dir, model_dir, model_name, random_seed, \
                 energy_A_train, energy_B_train, _ = preproc.gender_shuffle(mfc_A=mfc_A_train, 
                         mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
                         energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
-=======
-#    indices_train = np.arange(0, pitch_A_train.shape[0])
-#    np.random.shuffle(indices_train)
-#    pitch_A_train = pitch_A_train[indices_train]
-#    energy_A_train = energy_A_train[indices_train]
-#    mfc_A_train = mfc_A_train[indices_train]
-#
-#    np.random.shuffle(indices_train)
-#    pitch_B_train = pitch_B_train[indices_train]
-#    energy_B_train = energy_B_train[indices_train]
-#    mfc_B_train = mfc_B_train[indices_train]
-    mfc_A_train, mfc_B_train, pitch_A_train, pitch_B_train, \
-            energy_A_train, energy_B_train, _ = preproc.gender_shuffle(mfc_A=mfc_A_train, 
-                    mfc_B=mfc_B_train, pitch_A=pitch_A_train, pitch_B=pitch_B_train, 
-                    energy_A=energy_A_train, energy_B=energy_B_train, files=files, cutoff=1260)
->>>>>>> Stashed changes
 
     mfc_A_valid, pitch_A_valid, energy_A_valid, \
         mfc_B_valid, pitch_B_valid, energy_B_valid = preproc.sample_data_energy(mfc_A=mfc_A_valid, 
