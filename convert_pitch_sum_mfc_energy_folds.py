@@ -174,7 +174,7 @@ if __name__ == '__main__':
             }
 
     emo_pair_default = 'neu-ang'
-    fold_default = 3
+    fold_default = 1
     conversion_direction_default = 'A2B'
 
     parser.add_argument('--emo_pair', type=str, help='Emotion pair', default=emo_pair_default)
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     fold = argv.fold
     conversion_direction = argv.conversion_direction
     data_dir = '/home/ravi/Downloads/Emo-Conv/{}/speaker_folds/paired_folds/fold{}/test/neutral'.format(emo_pair_dict[emo_pair], fold)
-    output_dir = '/home/ravi/Desktop/F0_sum_ec_new/second_run/{}/fold{}'.format(emo_pair, fold)
+    output_dir = '/home/ravi/Desktop/F0_sum_ec/{}/fold{}'.format(emo_pair, fold)
     
     conversion(emo_pair=emo_pair, fold=fold, data_dir=data_dir, 
                conversion_direction=conversion_direction, 
