@@ -170,22 +170,22 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
             ec_z_idx = np.where(ec_converted>0)[0]
             ec_converted[ec_z_idx] = -1e-6
             
-            pylab.figure(figsize=(13,10))
-            pylab.subplot(311)
-            pylab.plot(ec.reshape(-1,), label='Energy')
-            pylab.plot(ec_converted.reshape(-1,), label='Converted energy')
-            pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
-            pylab.legend()
-            pylab.subplot(312)
-            pylab.plot(f0.reshape(-1,), label='F0')
-            pylab.plot(f0_converted.reshape(-1,), label='Converted F0')
-            pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
-            pylab.legend()
-            pylab.subplot(313)
-            pylab.plot(np.divide(ec_converted.reshape(-1,), ec.reshape(-1,)), label='Energy Ratio')
-            pylab.legend()
-            pylab.savefig(os.path.join(output_dir, os.path.basename(filepath)[:-4])+'.png')
-            pylab.close()
+#            pylab.figure(figsize=(13,10))
+#            pylab.subplot(311)
+#            pylab.plot(ec.reshape(-1,), label='Energy')
+#            pylab.plot(ec_converted.reshape(-1,), label='Converted energy')
+#            pylab.plot(ec_momenta.reshape(-1,), label='Energy momenta')
+#            pylab.legend()
+#            pylab.subplot(312)
+#            pylab.plot(f0.reshape(-1,), label='F0')
+#            pylab.plot(f0_converted.reshape(-1,), label='Converted F0')
+#            pylab.plot(f0_momenta.reshape(-1,), label='F0 momenta')
+#            pylab.legend()
+#            pylab.subplot(313)
+#            pylab.plot(np.divide(ec_converted.reshape(-1,), ec.reshape(-1,)), label='Energy Ratio')
+#            pylab.legend()
+#            pylab.savefig(os.path.join(output_dir, os.path.basename(filepath)[:-4])+'.png')
+#            pylab.close()
             
             f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
             f0_converted = np.ascontiguousarray(f0_converted)
@@ -218,12 +218,12 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
-    model_dir_default = '/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-sad/lp_0.0001_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_gender_neu-sad_random_seed_11/'
+    model_dir_default = '/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-sad/lp_0.0001_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-sad_epoch_200_best/'
     model_name_default = 'neu-sad_200.ckpt'
-    data_dir_default = 'data/evaluation/neu-sad/neutral'
+    data_dir_default = '/home/ravi/Downloads/Emo-Conv/neutral-sad/test/neutral'
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/neu-sad/ne_0.0001_0.1_random_seed_11/epoch_200'
-    audio_file_default = None#'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
+    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/neu-sad/test'
+    audio_file_default = None #'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
 
     parser.add_argument('--model_dir', type = str, help='Directory for the pre-trained model.', default=model_dir_default)
     parser.add_argument('--model_name', type = str, help='Filename for the pre-trained model.', default=model_name_default)
