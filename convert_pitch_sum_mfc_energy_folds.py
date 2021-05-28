@@ -139,12 +139,16 @@ def conversion(emo_pair='neu-ang', fold=1, data_dir=None,
         f0_converted = np.asarray(np.reshape(f0_converted[0], (-1,)), np.float64)
         f0_converted = np.ascontiguousarray(f0_converted)
         f0_converted[f0_z_idx] = 0
-        
-        # Modifying the spectrum instead of mfcc
+
+        # Modifying the spectral features
         decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
                                     ec.reshape(1,-1)))
+
+        # Not modifying spectral features
+#        decoded_sp_converted = np.multiply(sp.T, 1.)
+
         decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
-        
+
         decoded_sp_converted = decoded_sp_converted[10:-10]
         f0_converted = f0_converted[10:-10]
         ap = ap[10:-10]
@@ -188,7 +192,7 @@ if __name__ == '__main__':
     fold = argv.fold
     conversion_direction = argv.conversion_direction
     data_dir = '/home/ravi/Downloads/Emo-Conv/{}/speaker_folds/paired_folds/fold{}/test/neutral'.format(emo_pair_dict[emo_pair], fold)
-    output_dir = '/home/ravi/Desktop/F0_sum_ec/{}/fold{}'.format(emo_pair, fold)
+    output_dir = '/home/ravi/Desktop/F0_sum_ec/only_F0/{}/fold{}'.format(emo_pair, fold)
     
     conversion(emo_pair=emo_pair, fold=fold, data_dir=data_dir, 
                conversion_direction=conversion_direction, 
