@@ -16,7 +16,7 @@ class VariationalCycleGAN(object):
             lddmm=lddmm, mode='train', tf_random_seed=None, 
             log_file_name='no_name_passed', pre_train=None):
         
-        tf.reset_default_graph()
+#        tf.reset_default_graph()
         if tf_random_seed is not None:
             tf.set_random_seed(tf_random_seed)
 
