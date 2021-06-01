@@ -47,7 +47,7 @@ def normalize(x, nmz_type='min_max'):
 
 
 if __name__ == '__main__':
-    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-sad/neu-sad_unaligned_valid_sum_mfc.mat')
+    data_valid = scio.loadmat('/home/ravi/Desktop/spect-pitch-gan/data/neu-ang/neu-ang_unaligned_valid_sum_mfc.mat')
     
     pitch_A_valid = data_valid['src_f0_feat']
     pitch_B_valid = data_valid['tar_f0_feat']
@@ -74,7 +74,7 @@ if __name__ == '__main__':
     energy_B_valid = np.vstack(energy_B_valid)
 
     model = VCGAN(dim_mfc=23, dim_pitch=1, dim_energy=1, mode='test')
-    model.load(filepath='/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-sad/lp_0.0001_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-sad_epoch_200_best/neu-sad_200.ckpt')
+    model.load(filepath='/home/ravi/Desktop/crowd-sourcing/all_samples/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-ang/lp_1e-05_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_epoch_200_best/neu-ang_200.ckpt')
 
     f0_conv = np.empty((0,128))
     f0_valid = np.empty((0,128))
