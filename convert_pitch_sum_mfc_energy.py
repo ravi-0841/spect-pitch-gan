@@ -21,9 +21,9 @@ frame_period = 5.0
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
 model_dir_dict = {
-        'neu-ang': '/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-ang/lp_1e-05_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_epoch_200_best',
-        'neu-hap': '/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-hap/lp_0.0001_le_0.001_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_gender_neu-hap_random_seed_2_4_epoch_200_best',
-        'neu-sad': '/home/ravi/Desktop/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-sad/lp_0.0001_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-sad_epoch_200_best'
+        'neu-ang': '/home/ravi/Desktop/crowd-sourcing/all_samples/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-ang/lp_1e-05_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_epoch_200_best',
+        'neu-hap': '/home/ravi/Desktop/crowd-sourcing/all_samples/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-hap/lp_0.0001_le_0.001_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_gender_neu-hap_random_seed_2_4_epoch_200_best',
+        'neu-sad': '/home/ravi/Desktop/crowd-sourcing/all_samples/F0_sum_ec/mixed_and_raw_models/sum_mfc_models/neu-sad/lp_0.0001_le_0.1_li_0.0_lrg_1e-05_lrd_1e-07_sum_mfc_neu-sad_epoch_200_best'
         }
 
 model_file_dict = {
@@ -59,7 +59,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         
         coded_sp = np.expand_dims(coded_sp, axis=0)
         coded_sp = np.transpose(coded_sp, (0,2,1))
-        
+
         f0_z_idx = np.where(f0<10.0)[0]
         ec_z_idx = np.where(ec>0)[0]
         ec[ec_z_idx] = -1e-6
@@ -74,11 +74,11 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                                                       input_mfc=coded_sp,
                                                       input_energy=ec,
                                                       direction=conversion_direction)
-        
+
         ec_converted = np.reshape(ec_converted, (-1,))
         ec_z_idx = np.where(ec_converted>0)[0]
         ec_converted[ec_z_idx] = -1e-6
-        
+
         pylab.figure(figsize=(13,10))
         pylab.subplot(311)
         pylab.plot(ec.reshape(-1,), label='Energy')
@@ -113,6 +113,7 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
         # Modifying the spectrum instead of mfcc
         decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
                                     ec.reshape(1,-1)))
+        
         decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
         
         # Normalization of converted features
@@ -208,8 +209,9 @@ def conversion(model_dir=None, model_name=None, audio_file=None,
                 f0_converted[f0_z_idx] = 0
                 
                 # Modifying the spectrum instead of mfcc
-                decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
-                                            ec.reshape(1,-1)))
+#                decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
+#                                            ec.reshape(1,-1)))
+                decoded_sp_converted = np.multiply(sp.T, 1.)
                 decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
                 
                 decoded_sp_converted = decoded_sp_converted[10:-10]
@@ -237,9 +239,9 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description = 'Convert Emotion using VariationalCycleGAN model.')
 
     emo_pair_default = 'neu-sad'
-    data_dir_default = '/home/ravi/Desktop/Interspeech-2019/pitch-energy-highwayNet/Wavenet-tts-samples/speech_US'
+    data_dir_default = '/home/ravi/Desktop/spect-pitch-gan/data/evaluation/{}/test/neutral'.format(emo_pair_default)
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/{}/wavenet'.format(emo_pair_default)
+    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/onlyF0/{}/vesus'.format(emo_pair_default)
     audio_file_default = None #'/home/ravi/Desktop/spect-pitch-gan/data/evaluation/neu-ang/neutral/418.wav'
 
     parser.add_argument('--emo_pair', type=str, help='Emotion pair.', default=emo_pair_default)
@@ -256,10 +258,8 @@ if __name__ == '__main__':
 
     model_dir = model_dir_dict[emo_pair]
     model_name = model_file_dict[emo_pair]
-    output_dir = '/home/ravi/Desktop/F0_sum_ec/{}/wavenet'.format(emo_pair)
+    output_dir = '/home/ravi/Desktop/F0_sum_ec/onlyF0/{}/vesus'.format(emo_pair)
     
     conversion(model_dir=model_dir, model_name=model_name, audio_file=audio_file, 
                data_dir=data_dir, conversion_direction=conversion_direction, 
                output_dir=output_dir, embedding=True, only_energy=True)
-
-

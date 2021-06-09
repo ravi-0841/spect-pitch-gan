@@ -41,7 +41,7 @@ def plot_scatter(embed_matrix, num_samples, title):
     pylab.title(title, fontsize=14, fontweight='bold')
 
 
-def plot_bars():
+def plot_bars_f0():
     pylab.rcParams['font.size'] = 28
     
     barWidth=0.2
@@ -77,25 +77,69 @@ def plot_bars():
               color = 'white', edgecolor = 'black', hatch = "+++", 
               yerr=33.1, capsize=7, label='Variational CycleGAN')
     
-    pylab.xticks([r for r in [r2[0],r4[0],r6[0]]], \
+    pylab.xticks([r for r in [r2[0]-barWidth/2, r4[0]-barWidth/2, r6[0]-barWidth/2]], \
                   ['Neutral-Angry', 'Neutral-Happy', 'Neutral-Sad'])
     pylab.ylabel('F0 Prediction Error (Hz)')
 
-#plot_bars()
 
-if __name__ == '__main__':
+def plot_bars_ec():
+    pylab.rcParams['font.size'] = 28
+    rc('font', weight='bold')
+    rc('axes', linewidth=2)
     
-    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NA_f0s.mat')
+    barWidth=0.2
+    r1 = np.arange(1)
+    r2 = [x + barWidth for x in r1]
     
-    f0_A = data['f0_A']
-    f0_B = data['f0_B']
-    f0_A2B_vcg = data['f0_A2B_vcg']
-    f0_A2B_cg = data['f0_A2B_cg']
+    r3 = [x + 2*(barWidth)+0.15 for x in r1]
+    r4 = [x + barWidth for x in r3]
     
-    num_samples = f0_A.shape[0]
-    labels = np.concatenate((np.zeros((num_samples,1)), 
-                             np.ones((num_samples,1)), 
-                             2*np.ones((num_samples,1))), axis=0)
+    r5 = [x + 4*(barWidth)+2*0.15 for x in r1]
+    r6 = [x + barWidth for x in r5]
+
+    pylab.figure(figsize=(13, 9))
+    pylab.bar(r1, 49.05, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "////", 
+              yerr=17.0, capsize=7, label='Vanilla CycleGAN')
+    pylab.bar(r2, 47.9, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "++++", 
+              yerr=17.0, capsize=7, label='Variational CycleGAN')
+    pylab.legend(loc=2, prop={'size':18, 'weight':'bold'})
+    
+    pylab.bar(r3, 48.7, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "////", 
+              yerr=16.0, capsize=7, label='Vanilla CycleGAN')
+    pylab.bar(r4, 47.5, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "++++", 
+              yerr=11.6, capsize=7, label='Variational CycleGAN')
+
+    pylab.bar(r5, 48.3, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "////", 
+              yerr=16.0, capsize=7, label='Vanilla CycleGAN')
+    pylab.bar(r6, 46.3, width = barWidth, 
+              color = 'white', edgecolor = 'black', hatch = "++++", 
+              yerr=13.6, capsize=7, label='Variational CycleGAN')
+    
+    pylab.xticks([r for r in [r2[0]-barWidth/2, r4[0]-barWidth/2, r6[0]-barWidth/2]], \
+                  ['Neutral-Angry', 'Neutral-Happy', 'Neutral-Sad'])
+    pylab.ylabel('Energy Prediction Error')
+
+
+plot_bars_ec()
+
+#if __name__ == '__main__':
+#    
+#    data = scio.loadmat('/home/ravi/Desktop/vanilla_variational_NA_f0s.mat')
+#    
+#    f0_A = data['f0_A']
+#    f0_B = data['f0_B']
+#    f0_A2B_vcg = data['f0_A2B_vcg']
+#    f0_A2B_cg = data['f0_A2B_cg']
+#    
+#    num_samples = f0_A.shape[0]
+#    labels = np.concatenate((np.zeros((num_samples,1)), 
+#                             np.ones((num_samples,1)), 
+#                             2*np.ones((num_samples,1))), axis=0)
     
     #get tsne-embeddings
 #    data_cg = np.concatenate((f0_A, f0_A2B_cg, f0_B), axis=0)
@@ -119,19 +163,19 @@ if __name__ == '__main__':
 #    plot_scatter(data_vcg_embedded, num_samples=num_samples, title='Neutral-Sad (Variational CycleGAN)')
     
     #plot the generated F0 contours
-    rc('font', weight='bold')
-    rc('axes', linewidth=2)
-    r = np.random.permutation(np.arange(0, f0_A.shape[0], 1))
+#    rc('font', weight='bold')
+#    rc('axes', linewidth=2)
+#    r = np.random.permutation(np.arange(0, f0_A.shape[0], 1))
 #    for i in range(100):
-    q = 382 #r[i]
-    pylab.figure(figsize=(11,9))
-    pylab.plot(f0_A[q], linewidth=2, label='Source F0')
-    pylab.plot(f0_A2B_cg[q], linewidth=2, label='Vanilla F0')
-    pylab.plot(f0_A2B_vcg[q], linewidth=2, label='Variational F0')
-    pylab.plot(f0_B[q], linewidth=2, label='Target F0')
-    pylab.xticks(size=20), pylab.yticks(size=20)
-    pylab.legend(loc=2, prop={'size':17, 'weight':'bold'})
-    pylab.title(str(q))
+#    q = 382 #r[i]
+#    pylab.figure(figsize=(11,9))
+#    pylab.plot(f0_A[q], linewidth=2, label='Source F0')
+#    pylab.plot(f0_A2B_cg[q], linewidth=2, label='Vanilla F0')
+#    pylab.plot(f0_A2B_vcg[q], linewidth=2, label='Variational F0')
+#    pylab.plot(f0_B[q], linewidth=2, label='Target F0')
+#    pylab.xticks(size=20), pylab.yticks(size=20)
+#    pylab.legend(loc=2, prop={'size':17, 'weight':'bold'})
+#    pylab.title(str(q))
 #    pylab.savefig('/home/ravi/Desktop/F0_comparisons/{}.png'.format(str(q)))
 #    pylab.close()
     
