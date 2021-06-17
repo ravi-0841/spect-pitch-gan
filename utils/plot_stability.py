@@ -10,7 +10,7 @@ import pylab
 import re
 from matplotlib import rc
 
-file = open('/home/ravi/Desktop/CycleGAN_stability_NS.txt', 'r')
+file = open('/home/ravi/Desktop/spect-pitch-gan/Presentation/CycleGAN_stability_NS.txt', 'r')
 gen_loss = []
 disc_loss = []
 for line in file:
@@ -25,7 +25,7 @@ gd_diff_vanilla = np.abs(np.asarray(gen_loss) - np.asarray(disc_loss))
 
 gen_loss = []
 disc_loss = []
-file_name = '/home/ravi/Desktop/VCGAN_stability_NS.log'
+file_name = '/home/ravi/Desktop/spect-pitch-gan/Presentation/VCGAN_stability_NS.log'
 
 file = open(file_name, 'r')
 for line in file:
@@ -51,7 +51,7 @@ smoothed_vanilla = np.convolve(gd_diff_vanilla, kernel, mode='same')
 rc('font', weight='bold')
 rc('axes', linewidth=2)
 pylab.figure(figsize=(14,11))
-pylab.plot(smoothed_variation, label="Variational Cycle-GAN", linewidth=3.5)
-pylab.plot(smoothed_vanilla, label="Vanilla Cycle-GAN", linewidth=3.5)
+pylab.plot(smoothed_variation, label="VCGAN", linewidth=3.5)
+pylab.plot(smoothed_vanilla, label="Cycle-GAN", linewidth=3.5)
 pylab.ylim((-0.2, 1.2)), pylab.xticks(size=21), pylab.yticks(size=21)
 pylab.grid(), pylab.legend(loc=1, prop={'size':21, 'weight':'bold'})
