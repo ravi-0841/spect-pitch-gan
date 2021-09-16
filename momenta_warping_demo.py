@@ -132,24 +132,24 @@ if __name__ == "__main__":
     pylab.figure(figsize=figsize)
     pylab.plot(np.arange(0,81,1), x.reshape((-1,1)), linewidth=line_width, color='b', label='Source F0')
     pylab.plot(np.arange(0,81,1), y.reshape((-1,1)), linewidth=line_width, color='g', label='Target F0')
-    pylab.quiver(np.arange(0,81,1), x.reshape((-1,)), np.zeros((81,)), p_op.reshape((-1,)), 
-                 width=0.005, color='k', scale=100, label='Initial Momenta')
+#    pylab.quiver(np.arange(0,81,1), x.reshape((-1,)), np.zeros((81,)), p_op.reshape((-1,)), 
+#                 width=0.005, color='k', scale=100, label='Initial Momenta')
     pylab.ylim([70, 300]), pylab.legend(loc=1, prop={'size': legend_size, 'weight': 'bold'})
     
     pylab.figure(figsize=figsize)
     pylab.plot(np.arange(0,81,1), x.reshape((-1,1)), linewidth=line_width, color='b', label='Source F0')
     pylab.plot(np.arange(0,81,1), y.reshape((-1,1)), linewidth=line_width, color='g', label='Target F0')
     pylab.plot(np.arange(0,81,1), iw.reshape((-1,1)), linewidth=line_width, color='m', label='Intermediate F0')
-    pylab.quiver(np.arange(0,81,1), iw.reshape((-1,)), np.zeros((81,)), ip.reshape((-1,)), 
-                 width=0.005, color='k', scale=180, label='Intermediate Momenta')
+#    pylab.quiver(np.arange(0,81,1), iw.reshape((-1,)), np.zeros((81,)), ip.reshape((-1,)), 
+#                 width=0.005, color='k', scale=180, label='Intermediate Momenta')
     pylab.ylim([70, 300]), pylab.legend(loc=1, prop={'size': legend_size, 'weight': 'bold'})
     
     pylab.figure(figsize=figsize)
     pylab.plot(np.arange(0,81,1), x.reshape((-1,1)), linewidth=line_width, color='b', label='Source F0')
     pylab.plot(np.arange(0,81,1), y.reshape((-1,1)), linewidth=line_width, color='g', label='Target F0')
     pylab.plot(np.arange(0,81,1), w.reshape((-1,1)), linewidth=line_width, color='m', label='Final F0')
-    pylab.quiver(np.arange(0,81,1), w.reshape((-1,)), np.zeros((81,)), p.reshape((-1,)), 
-                 width=0.005, color='k', scale=300, label='Final Momenta')
+#    pylab.quiver(np.arange(0,81,1), w.reshape((-1,)), np.zeros((81,)), p.reshape((-1,)), 
+#                 width=0.005, color='k', scale=300, label='Final Momenta')
     pylab.ylim([70, 300]), pylab.legend(loc=1, prop={'size': legend_size, 'weight': 'bold'})    
     
     
