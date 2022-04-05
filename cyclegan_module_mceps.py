@@ -176,7 +176,7 @@ def generator_gatedcnn(inputs, reuse = False, scope_name = 'generator_gatedcnn')
         u2 = upsample1d_block(inputs = u1, filters = 256, kernel_size = 5, strides = 1, shuffle_size = 2, name_prefix = 'upsample1d_block2_')
 
         # Output
-        o1 = conv1d_layer(inputs = u2, filters = 23, kernel_size = 15, strides = 1, activation = None, name = 'o1_conv')
+        o1 = conv1d_layer(inputs = u2, filters = 24, kernel_size = 15, strides = 1, activation = None, name = 'o1_conv')
         o2 = tf.transpose(o1, perm = [0, 2, 1], name = 'output_transpose')
 
     return o2
