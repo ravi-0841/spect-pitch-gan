@@ -18,9 +18,9 @@ from importlib import reload
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-def train(train_dir, model_dir, model_name, random_seed, \
-            validation_dir, output_dir, \
-            tensorboard_log_dir, pre_train=None, \
+def train(train_dir, model_dir, model_name, random_seed, 
+            validation_dir, output_dir, 
+            tensorboard_log_dir, pre_train=None, 
             lambda_cycle_pitch=0, lambda_cycle_energy=0, lambda_momenta=0, 
             lambda_identity_energy=0, generator_learning_rate=1e-05, 
             discriminator_learning_rate=1e-03, tf_random_seed=None, 

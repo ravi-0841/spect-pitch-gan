@@ -138,7 +138,7 @@ def discriminator(input_energy, input_pitch,
         reuse=False, scope_name='discriminator'):
 
     # input_energy and input_pitch has shape [batch_size, num_features, time]
-    input_energy = tf.transpose(input_mfc, perm=[0,2,1], 
+    input_energy = tf.transpose(input_energy, perm=[0,2,1], 
                             name='discriminator_energy_transpose')
     input_pitch = tf.transpose(input_pitch, perm=[0,2,1], 
                                 name='discriminator_pitch_transpose')
