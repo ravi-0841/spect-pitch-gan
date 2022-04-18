@@ -100,9 +100,9 @@ def conversion(model_dir=None, model_name=None, data_dir=None,
             f0_converted[f0_z_idx] = 0
             
             # Modifying the spectrum instead of mfcc
-            # decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
-            #                             ec.reshape(1,-1)))
-            decoded_sp_converted = np.multiply(sp.T, 1.)
+            decoded_sp_converted = np.multiply(sp.T, np.divide(ec_converted.reshape(1,-1), 
+                                        ec.reshape(1,-1)))
+            # decoded_sp_converted = np.multiply(sp.T, 1.)
             decoded_sp_converted = np.ascontiguousarray(decoded_sp_converted.T)
             
             decoded_sp_converted = decoded_sp_converted[10:-10]
@@ -131,10 +131,10 @@ if __name__ == '__main__':
 
     target_dict = {'neu-ang':'angry', 'neu-hap':'happy', 'neu-sad':'sad'}
 
-    emo_pair_default = 'neu-sad'
+    emo_pair_default = 'neu-ang'
     data_dir_default = '/home/ravi/Downloads/Emo-Conv/neutral-{}/test_5_7/neutral'.format(target_dict[emo_pair_default])
     conversion_direction_default = 'A2B'
-    output_dir_default = '/home/ravi/Desktop/F0_sum_ec/onlyF0/{}/vesus'.format(emo_pair_default)
+    # output_dir_default = '/home/ravi/Desktop/F0_sum_ec/F0/{}'.format(emo_pair_default)
 
     parser.add_argument('--emo_pair', type=str, help='Emotion pair.', default=emo_pair_default)
     parser.add_argument('--data_dir', type=str, help='Directory for the voices for conversion.', default=data_dir_default)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
 
     model_dir = model_dir_dict[emo_pair]
     model_name = model_file_dict[emo_pair]
-    output_dir = '/home/ravi/Desktop/F0_sum_ec/spk5/only_F0/{}'.format(emo_pair)
+    output_dir = '/home/ravi/Desktop/VCGAN/spk5/F0+Ec/{}'.format(emo_pair)
     
     conversion(model_dir=model_dir, model_name=model_name, data_dir=data_dir, 
                conversion_direction=conversion_direction, output_dir=output_dir, 
