@@ -1,10 +1,10 @@
 #! /bin/bash
 
-#cycle_array_pitch=( 1e-06 0.00001 0.0001 0.01 )
-#cycle_array_energy=( 1e-06 0.00001 0.001 0.1 )
+cycle_array_pitch=( 1e-06 0.00001 0.0001 0.01 )
+cycle_array_energy=( 0.00001 0.001 0.01 0.1 )
 
-cycle_array_pitch=( 0.0001 )
-cycle_array_energy=( 0.1 )
+# cycle_array_pitch=( 0.0001 )
+# cycle_array_energy=( 0.1 )
 
 # Testing different hyper-params setting
 #counter=1
@@ -20,15 +20,16 @@ cycle_array_energy=( 0.1 )
 
 
 # Testing multiple random seeds
+counter=1
 for p in "${cycle_array_pitch[@]}"
 do
     for e in "${cycle_array_energy[@]}"
     do
-        for r in {1..20..1} 
-        do
-            echo $counter;
-            sbatch -J $r -o "./txt_files/NS_seed_${r}.txt" gen_disc_job_sum_ec_f0_momenta_wasserstein.sh $p $e neu-sad $r False
-        done
+        echo $counter;
+        sbatch -J NA_${counter} -o "./txt_files/NA_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang
+        sbatch -J NH_${counter} -o "./txt_files/NH_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta_wasserstein.sh $p $e neu-hap
+        sbatch -J NS_${counter} -o "./txt_files/NS_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta_wasserstein.sh $p $e neu-sad
+        counter=$((counter+1))
     done
 done
 
