@@ -183,7 +183,7 @@ def discriminator(input_energy, input_pitch,
                                 name_prefix='downsample2d_block3_')
 
         # Output
-        o1 = tf.layers.dense(inputs=d3, units=1, activation=None)
+        o1 = tf.layers.dense(inputs=d3, units=1, activation=tf.nn.sigmoid)
 
         return o1
 
