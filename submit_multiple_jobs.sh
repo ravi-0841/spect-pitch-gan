@@ -26,9 +26,9 @@ do
     for e in "${cycle_array_energy[@]}"
     do
         echo $counter;
-        sbatch -J NA_${counter} -o "./txt_files/NA_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta.sh $p $e neu-ang
-        sbatch -J NH_${counter} -o "./txt_files/NH_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta.sh $p $e neu-hap
-        sbatch -J NS_${counter} -o "./txt_files/NS_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta.sh $p $e neu-sad
+        sbatch -J NA_${counter} -o "./txt_files/NA_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta_wasserstein.sh $p $e neu-ang
+        sbatch -J NH_${counter} -o "./txt_files/NH_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta_wasserstein.sh $p $e neu-hap
+        sbatch -J NS_${counter} -o "./txt_files/NS_joint_${counter}.txt" gen_disc_job_joint_sum_ec_f0_momenta_wasserstein.sh $p $e neu-sad
         counter=$((counter+1))
     done
 done
