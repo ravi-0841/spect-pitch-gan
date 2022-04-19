@@ -4,6 +4,7 @@
 /model
 /log
 /pitch_spect
+/post_review_files+models
 /__pycache__
 *.simg
 /.cache
