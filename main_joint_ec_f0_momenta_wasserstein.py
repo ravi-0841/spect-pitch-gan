@@ -29,7 +29,7 @@ def train(train_dir, model_dir, model_name, random_seed,
     np.random.seed(random_seed)
 
     num_epochs = 400
-    mini_batch_size = 2 # mini_batch_size = 1 is better
+    mini_batch_size = 16 # mini_batch_size = 1 is better
 
     sampling_rate = 16000
     num_mcep = 23
@@ -43,7 +43,7 @@ def train(train_dir, model_dir, model_name, random_seed,
             +'_lrd_'+str(discriminator_learning_rate) \
             + '_sum_mfc_'+emo_pair
 
-    folder_extension = 'joint_sum_mfc_wstn_'+emo_pair+'/'
+    folder_extension = 'joint_sum_mfc_wstn_'+emo_pair+'_2/'
 
     model_dir = os.path.join(model_dir, folder_extension, lc_lm)
 

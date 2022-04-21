@@ -187,7 +187,7 @@ class VariationalCycleGAN(object):
         # Sampler-Generator wants to fool discriminator
         self.generator_loss_A2B = -1*self.discrimination_B_fake
         self.generator_loss_B2A = -1*self.discrimination_A_fake
-        self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A)
+        self.gen_disc_loss = (self.generator_loss_A2B + self.generator_loss_B2A) + 0.1
 
         # Cycle loss
         self.cycle_loss_pitch = (utils.l1_loss(y=self.pitch_A_real, 
