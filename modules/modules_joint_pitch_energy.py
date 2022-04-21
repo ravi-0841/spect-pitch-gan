@@ -185,7 +185,7 @@ def discriminator(input_energy, input_pitch,
         # Output
         o1 = tf.layers.dense(inputs=d3, units=1, activation=tf.nn.sigmoid)
 
-        return o1
+        return tf.clip_by_value(o1, 0.1, 0.9)
 
 
 
